@@ -1,0 +1,149 @@
+.horiz-container, .vertical-container{
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        background: var(--background);
+}
+
+.activitybar {
+        position:absolute;
+        top: 0;
+        left: 0;
+        height: calc(100% - var(--statusBar-height));
+        background: var(--activityBar-background);
+        color: #fff;
+        width: 48px;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding: 0;
+        margin: 0;
+}
+
+.actions-container {
+        justify-content: flex-start;
+        padding: 0;
+        margin: 0;
+        margin-bottom: auto;
+}
+
+.settings-container {
+        justify-content: flex-end;
+        padding: 0;
+        margin: 0;
+}
+
+.action-item, .settings-item {
+        outline: 0;
+        border: 0;
+        padding: 0;
+        background: none;
+        width: 48px;
+        height: 48px;
+        display: block;
+        position: relative;
+}
+
+.inside-button {
+        position: absolute;
+}
+
+.hidden {
+        display: none;
+}
+
+.active-indicator {
+        visibility: hidden;
+        opacity: 0;
+        background-color: var(--activityBar-selected-indicator);
+        padding: 0;
+        left: 0;
+        top: 0;
+        height: 48px;
+        width: 2px;
+        z-index: 2;
+}
+
+
+.hidden-element {
+        visibility: hidden;
+        opacity: 0;
+        font-family: arial;
+        font-size: small;
+        pointer-events: none;
+        background: var(--activityBar-tip-background);
+        color: var(--activityBar-font);
+        justify-content: center;
+        text-align: center;
+        width: fit-content;
+        height: 20px;
+        border-radius: 4px;
+        padding-top: 3px;
+        padding-left: 6px;
+        padding-right: 6px;
+        border: var(--activityBar-tip-border) solid 1px;
+        z-index: 10;
+        left: 55px;
+        top: 14px;
+        white-space: nowrap;
+}
+
+.hidden-element:after {
+        visibility: visible;
+        opacity: 1;
+        content: '';
+        position: absolute;
+        display: block;
+        width: 0;
+        z-index: 3;
+        border-style: solid;
+        border-color: transparent var(--activityBar-tip-background);
+        border-width: 3px 5px 3px 0;
+        top: 50%;
+        left: -5px;
+        margin-top: -3px;
+}
+
+.hidden-element:before {
+        visibility: visible;
+        opacity: 1;
+        content: '';
+        position: absolute;
+        width: 0;
+        z-index: 3;
+        border-style: solid;
+        border-color: transparent var(--activityBar-tip-border);
+        border-width: 4px 6px 4px 0;
+        top: 50%;
+        left: -6.5px;
+        margin-top: -4px;
+        display: block;
+}
+
+
+.action-item:hover .hidden-element, 
+.settings-item:hover .hidden-element {
+        visibility: visible;
+        opacity: 1;
+}
+
+.icon {
+        width: 32px;
+        height: 32px;
+        color: var(--activityBar-unselected);
+        pointer-events: none;
+        z-index: 1;
+        left: 8px;
+        top: 8px;
+}
+
+.action-item:hover .icon,
+.settings-item:hover .icon{
+        color: var(--activityBar-selected);
+}
+
+.active {
+        visibility: visible;
+        opacity: 1;
+        color: var(--activityBar-selected) !important;
+}

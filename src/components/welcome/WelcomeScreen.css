@@ -1,0 +1,17 @@
+.welcome-screen {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        background: var(--background);
+        position: absolute;
+        top: 0;
+        left: 0;
+}
+
+.Text{
+        color: white;
+        background: none;
+        position: absolute;
+        top: 50;
+        left: 500;
+}

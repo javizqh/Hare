@@ -1,0 +1,9 @@
+.status-bar {
+        background-color: var(--statusBar-background);
+        color: #ff9100;
+        z-index: 10;
+        position:absolute;
+        bottom: 0;
+        width: 100%;
+        height: var(--statusBar-height);
+}

@@ -1,0 +1,15 @@
+:root {
+        --activityBar-background: #333333;
+        --activityBar-font: #c0c0c0;
+        --activityBar-notifications-background: #007ACC;
+        --activityBar-notifications-color: #ffffff;
+        --activityBar-selected-indicator: #ff9100;
+        --activityBar-selected: #ffffff;
+        --activityBar-unselected: #858585;
+        --activityBar-tip-background: #1E1E1E;
+        --activityBar-tip-border: #333333;
+        --background: #1E1E1E;
+        --dragbar-color: #ff9100;
+        --sideBar-background: #252525;
+        --statusBar-background: #ff9100;
+}

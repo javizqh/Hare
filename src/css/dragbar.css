@@ -1,0 +1,39 @@
+#sideBar-dragbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: calc(100% - var(--statusBar-height));
+  z-index: 999;
+}
+
+#editor-dragbar {
+  position: absolute;
+  width: 100%;
+  z-index: 999;
+  right: 0;
+  bottom: calc(var(--terminalView-height) - 4px);
+}
+
+.dragbar {
+  right: 0;
+  opacity: 0;
+  background: var(--dragbar-color);
+  transition: opacity 0.3s ease-in-out 0s;
+  z-index: 99;
+}
+
+.dragbar-horiz {
+  width: 4px;
+  cursor: col-resize;
+}
+
+.dragbar-vert {
+  height: 4px;
+  cursor: row-resize;
+}
+
+.dragbar:hover, .dragbar.resizing{
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out 0.1s;
+}
+
