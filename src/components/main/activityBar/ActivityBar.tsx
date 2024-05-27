@@ -1,11 +1,28 @@
-import ActionsContainer from "./actions/ActionsContainer";
 import SettingsContainer from "./settings/SettingsContainer";
+import { Parser } from 'html-to-react';
 
-const ActivityBar = (props: any) => {
+const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:any, currentMenu:string ,buttons:any}) => {
+
+    const clicked = (name:string) => {
+        setCurrentMenu((name === currentMenu) ? "" : name);
+        
+    }
+
     return (
         <>
         <div id = "activitybar" className="activitybar">
-            <ActionsContainer buttons={props.buttons}/>
+            <ul id="actions-container" className="actions-container">
+                {buttons.map((data: any) => {
+                    return (
+                        <li id={data.id} className="action-item" onClick={() => {clicked(data.id)}}>
+                            <svg id='icon' className={(currentMenu === data.id) ? "inside-button icon active" : "inside-button icon"} aria-hidden="true" fill={data.icon.fill} viewBox={data.icon.viewBox}>
+                                {Parser().parse(data.icon.svg)}
+                            </svg>
+                            <div className={(currentMenu === data.id) ? "inside-button active-indicator active" : "inside-button active-indicator"}></div>
+                            <div className='inside-button hidden-element'>{data.tipData}</div>
+                        </li>
+                    )})}
+            </ul>
             <SettingsContainer/>
         </div>
 

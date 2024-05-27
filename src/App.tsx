@@ -20,9 +20,9 @@ import "./css/miscellaneous.css";
 
 
 const App = () => {
-    return (
-        <><WelcomeScreen></WelcomeScreen></>
-    );
+    // return (
+    //     <><WelcomeScreen></WelcomeScreen></>
+    // );
 
     return (
         <><MainScreen></MainScreen></>

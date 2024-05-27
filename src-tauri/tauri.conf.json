@@ -22,9 +22,8 @@
     },
     "windows": [
       {
-        "title": "hare",
-        "width": 800,
-        "height": 600
+        "title": "Hare",
+        "maximized": true
       }
     ],
     "security": {
