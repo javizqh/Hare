@@ -3,6 +3,7 @@ import Editor from '@monaco-editor/react';
 import Draggable from 'react-draggable';
 import ActivityBar from "./activityBar/ActivityBar";
 import SideBar from "./sideBar/SideBar";
+import {readFile} from "../../API";
 
 import config from "../../config/config.json";
 
@@ -13,6 +14,8 @@ const MainScreen = ({} : {}) => {
     const [isSideBarOpen, setSideBarOpenEditorOpen] = useState(false);
     const [currentMenu, setCurrentMenu] = useState("");
     const [file, setFile] = useState<any>("");
+    const [code, setCode] = useState<any>("");
+    const [language, setLanguage] = useState<any>("javascript");
 
     useEffect(() => {
       setEditorOpen(true);
@@ -21,6 +24,25 @@ const MainScreen = ({} : {}) => {
     useEffect(() => {
       setSideBarOpenEditorOpen(currentMenu !== "");
     }, [currentMenu]);
+
+    useEffect(() => {
+      if (file !== "") {
+        console.log(file);
+        readFile(file).then((message:any) => {
+			    console.log(message);
+          setCode(message);
+        })
+        .catch((error:any) => {
+            console.error(error);
+        });
+        let newLanguage = 'javascript';
+        const extension = file.split('.').pop();
+        if (['css', 'html', 'python', 'dart'].includes(extension)) {
+          newLanguage = extension;
+        }
+        setLanguage(newLanguage);
+      }
+  }, [file]);
 
     const handleDrag = (e: any, data: any) => {
         // const { x, y } = this.state.deltaXyPos;
@@ -57,7 +79,7 @@ const MainScreen = ({} : {}) => {
             (<div id="editor-container" className = "editor-container">
               <div id="files-in-editor" className="files-in-editor"></div>
                 <div id="editor" className="editor">
-                <Editor height="100%" theme="vs-dark" defaultLanguage="javascript" defaultValue="// some comment" value={file} />
+                <Editor height="100%" theme="vs-dark" language={language} defaultValue="// some comment" value={code} />
                 </div>
             </div>
             ) :

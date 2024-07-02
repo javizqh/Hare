@@ -9,14 +9,7 @@ const FileTree = ({node, depth, setFile} : {node:any, depth:number, setFile:any}
       setOpen(!isOpen);
     } else {
       console.log('Open: ' + node.file_path)
-      readFile(node.file_path).then((message:any) => {
-			    console.log(message);
-          setFile(message);
-        })
-        .catch((error:any) => {
-            console.error(error);
-        });
-      
+      setFile(node.file_path);
     }
   }
 
