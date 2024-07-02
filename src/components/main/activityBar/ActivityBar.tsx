@@ -5,7 +5,6 @@ const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:an
 
     const clicked = (name:string) => {
         setCurrentMenu((name === currentMenu) ? "" : name);
-        
     }
 
     return (

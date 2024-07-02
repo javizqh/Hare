@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import Draggable from 'react-draggable';
 import ActivityBar from "./activityBar/ActivityBar";
+import SideBar from "./sideBar/SideBar";
 
-import config from "./../../config/config.json";
+import config from "../../config/config.json";
 
 const MainScreen = ({} : {}) => {
 
@@ -39,7 +40,10 @@ const MainScreen = ({} : {}) => {
           currentMenu={currentMenu}
           buttons={config.activitiesButtons}/>
         { isSideBarOpen &&
-          <div id="sideBar" className="sideBar" style={{display: 'block', width: dragPosX - 48}}></div>
+          <SideBar
+            currentMenu={currentMenu}
+            dragPosX={dragPosX}
+          />
         }
         { isSideBarOpen &&
           <Draggable axis="x" onDrag={handleDrag} bounds={{left: 48, right: 1000}} position={{x: dragPosX , y:0}}>
@@ -50,13 +54,16 @@ const MainScreen = ({} : {}) => {
           { isEditorOpen ?
             (<div id="editor-container" className = "editor-container">
               <div id="files-in-editor" className="files-in-editor"></div>
-              <div id="editor" className="editor">
-              <Editor height="100%" theme="vs-dark" defaultLanguage="javascript" defaultValue="// some comment" />
-              </div>
-            </div>) :
-            (<svg id="splash-icon" className="splash-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" style={{display: 'none'}}>
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m8 8-4 4 4 4m8 0 4-4-4-4m-2-3-4 14"/>
-            </svg>)
+                <div id="editor" className="editor">
+                <Editor height="100%" theme="vs-dark" defaultLanguage="javascript" defaultValue="// some comment" />
+                </div>
+            </div>
+            ) :
+            (<div id="editor-container" className = "editor-container">
+              <svg id="splash-icon" className="splash-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m8 8-4 4 4 4m8 0 4-4-4-4m-2-3-4 14"/>
+              </svg>
+            </div>)
           }
           <div id = "editor-dragbar" className = "dragbar dragbar-vert"></div>
           <div id="terminal-container" className="terminal-container">

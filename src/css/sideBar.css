@@ -7,3 +7,32 @@
         z-index: 1;
         height: calc(100% - var(--statusBar-height));
 }
+
+.sideBar-file-tree-arrow {
+        height: 16px;
+        width: 16px;
+        padding: 0 6px 0 8px;
+}
+
+.sideBar-file-tree {
+        display: flex;
+}
+
+.sideBar-file-tree svg {
+        align-self: center;
+}
+
+.sideBar-file-tree-icon {
+        height: 16px;
+        width: 16px;
+        padding-right: 6px;
+}
+
+.sideBar-file-tree label {
+        padding-left: 5px;
+        color:#ffffff;
+}
+
+.sideBar-file-tree:hover {
+        background-color: #2a2d2e;
+}

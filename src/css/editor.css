@@ -1,19 +1,19 @@
 .main-view-container {
         position:absolute;
+        background-color: var(--background);
         top: 0;
         height: calc(100% - var(--statusBar-height));
 }
 
 .splash-icon {
         position: absolute;
+        align-content: center;
+        justify-content: center;
         width: 320px;
         height: 320px;
         color: #ff9900;
         pointer-events: none;
         z-index: 1;
-        left: 620px;
-        top: 320px;
-        z-index: 0;
 }
 
 .editor-container {
