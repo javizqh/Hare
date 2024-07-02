@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {readFile} from "../../../API";
 
-const FileTree = ({node, depth} : {node:any, depth:number}) => {
+const FileTree = ({node, depth, setFile} : {node:any, depth:number, setFile:any}) => {
   const [isOpen, setOpen] = useState<boolean>(false);
 
   const handleClick = () => {
@@ -11,6 +11,7 @@ const FileTree = ({node, depth} : {node:any, depth:number}) => {
       console.log('Open: ' + node.file_path)
       readFile(node.file_path).then((message:any) => {
 			    console.log(message);
+          setFile(message);
         })
         .catch((error:any) => {
             console.error(error);
@@ -63,7 +64,7 @@ const FileTree = ({node, depth} : {node:any, depth:number}) => {
       { (node.files !== undefined && isOpen) &&
       Object.entries(node.files).map((project) => {
         return (
-          <FileTree node={project[1]} depth={depth+1} />
+          <FileTree node={project[1]} depth={depth+1} setFile={setFile}/>
         );
       })}
     </div>

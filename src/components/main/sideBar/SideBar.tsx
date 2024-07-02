@@ -9,7 +9,7 @@ file_path: string;
 files: [];
 }
 
-const SideBar = ({currentMenu, dragPosX} : {currentMenu:string ,dragPosX:number}) => {
+const SideBar = ({currentMenu, dragPosX, setFile} : {currentMenu:string ,dragPosX:number, setFile:any}) => {
 
     const [files, setFiles] = useState<any|FileStructure>();
 
@@ -29,7 +29,7 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:string ,dragPosX:number}
             Object.entries(files[0]!.files).map((project) => {
                 console.log(project[1].is_dir)
                 return (
-                    <FileTree node={project[1]} depth={0} />
+                    <FileTree node={project[1]} depth={0} setFile={setFile}/>
                 )
             })}
         </div>

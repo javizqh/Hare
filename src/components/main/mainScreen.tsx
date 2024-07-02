@@ -12,6 +12,7 @@ const MainScreen = ({} : {}) => {
     const [isEditorOpen, setEditorOpen] = useState(false);
     const [isSideBarOpen, setSideBarOpenEditorOpen] = useState(false);
     const [currentMenu, setCurrentMenu] = useState("");
+    const [file, setFile] = useState<any>("");
 
     useEffect(() => {
       setEditorOpen(true);
@@ -43,6 +44,7 @@ const MainScreen = ({} : {}) => {
           <SideBar
             currentMenu={currentMenu}
             dragPosX={dragPosX}
+            setFile={setFile}
           />
         }
         { isSideBarOpen &&
@@ -55,7 +57,7 @@ const MainScreen = ({} : {}) => {
             (<div id="editor-container" className = "editor-container">
               <div id="files-in-editor" className="files-in-editor"></div>
                 <div id="editor" className="editor">
-                <Editor height="100%" theme="vs-dark" defaultLanguage="javascript" defaultValue="// some comment" />
+                <Editor height="100%" theme="vs-dark" defaultLanguage="javascript" defaultValue="// some comment" value={file} />
                 </div>
             </div>
             ) :
