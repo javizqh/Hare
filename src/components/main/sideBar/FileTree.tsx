@@ -1,17 +1,50 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {readFile} from "../../../API";
+import {readDir} from "../../../API";
 
-const FileTree = ({node, depth, setFile} : {node:any, depth:number, setFile:any}) => {
+interface FileStructure {
+is_dir: boolean;
+file_name: string;
+file_path: string;
+open: boolean;
+files: FileStructure[];
+}
+
+const FileTree = ({node, depth, setFile, tree} : {node:any, depth:number, setFile:any, tree:any}) => {
+  const [subFiles, setSubFiles] = useState<any|FileStructure>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
 
   const handleClick = () => {
     if (node.is_dir) {
+      node.open = !isOpen;
       setOpen(!isOpen);
+      console.log(tree)
     } else {
       console.log('Open: ' + node.file_path)
       setFile(node.file_path);
     }
   }
+
+  useEffect(() => {
+    // const found = tree.entry.find((element:FileStructure) => element === );
+    setOpen(node.open);
+  }, []);
+
+
+  useEffect(() => {
+    if (isOpen) {
+      if (node.files.length === 0) {
+        readDir(node.file_path).then((message:any) => {
+            setSubFiles(message);
+            node.files = message;
+        })
+        .catch((error:any) => {
+            console.error(error);
+        });
+      } else {
+        setSubFiles(node.files);
+      }
+    }
+  }, [isOpen]);
 
   return (
     <div className="sideBar-content" key={node.file_path}>
@@ -54,10 +87,10 @@ const FileTree = ({node, depth, setFile} : {node:any, depth:number, setFile:any}
           {node.file_name}
         </label>
       </div>
-      { (node.files !== undefined && isOpen) &&
-      Object.entries(node.files).map((project) => {
+      { (subFiles !== null && isOpen) &&
+      Object.entries(subFiles).map((project) => {
         return (
-          <FileTree node={project[1]} depth={depth+1} setFile={setFile}/>
+          <FileTree node={project[1]} depth={depth+1} setFile={setFile} tree={tree}/>
         );
       })}
     </div>

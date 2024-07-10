@@ -1,35 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {readDir} from "../../../API";
 import FileTree from "./FileTree";
+import { getTauriVersion } from '@tauri-apps/api/app';
 
 interface FileStructure {
-input: boolean;
+is_dir: boolean;
 file_name: string;
 file_path: string;
-files: [];
+open: boolean;
+files: FileStructure[];
 }
+
+interface TreeSaveStructure {
+    entry: FileStructure[];
+}
+
+let savedTree:TreeSaveStructure|null = null;
 
 const SideBar = ({currentMenu, dragPosX, setFile} : {currentMenu:string ,dragPosX:number, setFile:any}) => {
 
-    const [files, setFiles] = useState<any|FileStructure>();
+    const [tree, setTree] = useState<any|TreeSaveStructure>(null);
 
     useEffect(() => {
-        readDir().then((message:any) => {
-			setFiles(message);
-        })
-        .catch((error:any) => {
-            console.error(error);
-        });
+        if (currentMenu === 'fileExplorer') {
+            console.log(tree)
+            if (tree === null) {
+                if (savedTree) {
+                    setTree(savedTree);
+                    return;
+                }
+                readDir('/home/javier/Code/Tauri/hare/Hare').then((message:any) => {
+                    let newTree:TreeSaveStructure = {entry: message};
+                    setTree(newTree);
+                })
+                .catch((error:any) => {
+                    console.error(error);
+                });
+            }
+        }
     }, [currentMenu]);
+
+    useEffect(() => {
+        savedTree = tree;
+    }, [tree]);
 
     return (
         <div id="sideBar" className="sideBar" style={{display: 'block', width: dragPosX - 48}}>
             <div className="sideBar-title">{currentMenu}</div>
-            { currentMenu === 'fileExplorer' && files !== undefined &&
-            Object.entries(files[0]!.files).map((project) => {
-                console.log(project[1].is_dir)
+            { currentMenu === 'fileExplorer' && tree &&
+            Object.entries(tree.entry).map((project) => {
                 return (
-                    <FileTree node={project[1]} depth={0} setFile={setFile}/>
+                    <FileTree node={project[1]} depth={0} setFile={setFile} tree={savedTree}/>
                 )
             })}
         </div>
