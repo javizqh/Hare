@@ -18,7 +18,6 @@ const EditorView = ({file, isOpen} : {file:any, isOpen:boolean}) => {
       if (file !== "") {
         console.log(file);
         readFile(file).then((message:any) => {
-			    console.log(message);
           setCode(message);
         })
         .catch((error:any) => {
@@ -31,12 +30,12 @@ const EditorView = ({file, isOpen} : {file:any, isOpen:boolean}) => {
         }
         setLanguage(newLanguage);
 		if (editorRef.current) {
-			console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
+			// console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
 		}
       }
   }, [file]);
 
-	if (isOpen) {
+	if (file !== "") {
 		return (
 			<div id="editor-container" className = "editor-container">
 				<div id="files-in-editor" className="files-in-editor">{file}</div>

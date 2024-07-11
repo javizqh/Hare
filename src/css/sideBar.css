@@ -18,6 +18,10 @@
         display: flex;
 }
 
+.sideBar-file-tree-open {
+        background-color: #2a2d2e;
+}
+
 .sideBar-file-tree svg {
         align-self: center;
 }
@@ -35,4 +39,8 @@
 
 .sideBar-file-tree:hover {
         background-color: #2a2d2e;
+}
+
+.sideBar-file-tree:focus {
+        background-color: #7e6207;
 }

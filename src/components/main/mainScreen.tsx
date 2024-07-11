@@ -46,6 +46,7 @@ const MainScreen = ({} : {}) => {
             currentMenu={currentMenu}
             dragPosX={dragPosX}
             setFile={setFile}
+            openFile={file}
           />
         }
         { isSideBarOpen &&

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {readDir} from "../../../API";
 import FileTree from "./FileTree";
-import { getTauriVersion } from '@tauri-apps/api/app';
 
 interface FileStructure {
 is_dir: boolean;
@@ -17,7 +16,7 @@ interface TreeSaveStructure {
 
 let savedTree:TreeSaveStructure|null = null;
 
-const SideBar = ({currentMenu, dragPosX, setFile} : {currentMenu:string ,dragPosX:number, setFile:any}) => {
+const SideBar = ({currentMenu, dragPosX, setFile, openFile} : {currentMenu:string ,dragPosX:number, setFile:any, openFile:any}) => {
 
     const [tree, setTree] = useState<any|TreeSaveStructure>(null);
 
@@ -50,7 +49,7 @@ const SideBar = ({currentMenu, dragPosX, setFile} : {currentMenu:string ,dragPos
             { currentMenu === 'fileExplorer' && tree &&
             Object.entries(tree.entry).map((project) => {
                 return (
-                    <FileTree node={project[1]} depth={0} setFile={setFile} tree={savedTree}/>
+                    <FileTree node={project[1]} depth={0} setFile={setFile} openFile={openFile} tree={savedTree}/>
                 )
             })}
         </div>

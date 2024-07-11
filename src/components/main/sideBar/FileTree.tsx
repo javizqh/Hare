@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {readDir} from "../../../API";
+import {readDir, deleteFile} from "../../../API";
 
 interface FileStructure {
 is_dir: boolean;
@@ -9,7 +9,7 @@ open: boolean;
 files: FileStructure[];
 }
 
-const FileTree = ({node, depth, setFile, tree} : {node:any, depth:number, setFile:any, tree:any}) => {
+const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:number, setFile:any, openFile:any, tree:any}) => {
   const [subFiles, setSubFiles] = useState<any|FileStructure>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
 
@@ -25,9 +25,12 @@ const FileTree = ({node, depth, setFile, tree} : {node:any, depth:number, setFil
   }
 
   useEffect(() => {
-    // const found = tree.entry.find((element:FileStructure) => element === );
     setOpen(node.open);
   }, []);
+
+  useEffect(() => {
+    console.log((openFile === node.file_path))
+  }, [openFile]);
 
 
   useEffect(() => {
@@ -46,9 +49,20 @@ const FileTree = ({node, depth, setFile, tree} : {node:any, depth:number, setFil
     }
   }, [isOpen]);
 
+  const deleteFileAndRefresh = () => {
+    deleteFile(node.file_path);
+    // TODO: refresh parent folder
+  }
+
+  const handleKeyDown = (e:any) => {
+    if (e.keyCode === 46) {
+      deleteFileAndRefresh();
+    }
+  }
+
   return (
     <div className="sideBar-content" key={node.file_path}>
-      <div className="sideBar-file-tree" onClick={() => {handleClick()}}>
+      <div className={(openFile === node.file_path) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)}>
         <div className="sideBar-file-tree-indent" style={{paddingLeft: depth*8 + 'px'}}/>
         { node.is_dir ? (
         <>
@@ -90,7 +104,7 @@ const FileTree = ({node, depth, setFile, tree} : {node:any, depth:number, setFil
       { (subFiles !== null && isOpen) &&
       Object.entries(subFiles).map((project) => {
         return (
-          <FileTree node={project[1]} depth={depth+1} setFile={setFile} tree={tree}/>
+          <FileTree node={project[1]} depth={depth+1} setFile={setFile} openFile={openFile} tree={tree}/>
         );
       })}
     </div>
