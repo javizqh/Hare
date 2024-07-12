@@ -18,10 +18,10 @@ const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:an
                 {buttons.map((data: any) => {
                     return (
                         <li id={data.id} className="action-item" onClick={() => {clicked(data.id, data.tipData)}}>
-                            <svg id='icon' className={(currentMenu === data.id) ? "inside-button icon active" : "inside-button icon"} aria-hidden="true" fill={data.icon.fill} viewBox={data.icon.viewBox}>
+                            <svg id='icon' className={(currentMenu && currentMenu.id === data.id) ? "inside-button icon active" : "inside-button icon"} aria-hidden="true" fill={data.icon.fill} viewBox={data.icon.viewBox}>
                                 {Parser().parse(data.icon.svg)}
                             </svg>
-                            <div className={(currentMenu === data.id) ? "inside-button active-indicator active" : "inside-button active-indicator"}></div>
+                            <div className={(currentMenu && currentMenu.id === data.id) ? "inside-button active-indicator active" : "inside-button active-indicator"}></div>
                             <div className='inside-button hidden-element'>{data.tipData}</div>
                         </li>
                     )})}
