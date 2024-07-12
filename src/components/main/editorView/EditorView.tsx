@@ -69,9 +69,9 @@ const EditorView = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor
 		)
 	} else {
 		return (
-			<div id="editor-container" className = "editor-container">
+			<div id="editor-container" className = "editor-container editor-container-center">
 				<svg id="splash-icon" className="splash-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-				<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m8 8-4 4 4 4m8 0 4-4-4-4m-2-3-4 14"/>
+					<path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="m8 8-4 4 4 4m8 0 4-4-4-4m-2-3-4 14"/>
 				</svg>
 			</div>
 		);

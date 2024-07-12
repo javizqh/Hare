@@ -6,11 +6,8 @@
 }
 
 .splash-icon {
-        position: absolute;
-        align-content: center;
-        justify-content: center;
         width: 320px;
-        height: 320px;
+        height: 100%;
         color: #ff9900;
         pointer-events: none;
         z-index: 1;
@@ -22,6 +19,12 @@
         width: 100%;
         height: calc(100% - var(--terminalView-height));
         z-index: 1;
+}
+
+.editor-container-center {
+        display: flex;
+        justify-content: center;
+        align-content: center;
 }
 
 .editor {
