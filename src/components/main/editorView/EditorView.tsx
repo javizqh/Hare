@@ -2,9 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import {readFile} from "../../../API";
 
-const EditorView = ({file, isOpen} : {file:any, isOpen:boolean}) => {
+const EditorView = ({editorFileTabs, isOpen} : {editorFileTabs:any, isOpen:boolean}) => {
 
 	const editorRef = useRef<any>(null);
+	const [currentFile, setCurrentFile] = useState<any>("");
 	const [code, setCode] = useState<any>("");
 	const [language, setLanguage] = useState<any>("javascript");
 
@@ -14,31 +15,46 @@ const EditorView = ({file, isOpen} : {file:any, isOpen:boolean}) => {
 		editorRef.current = monaco;
 	}
 
-    useEffect(() => {
-      if (file !== "") {
-        console.log(file);
-        readFile(file).then((message:any) => {
-          setCode(message);
-        })
-        .catch((error:any) => {
-            console.error(error);
-        });
-        let newLanguage = 'javascript';
-        const extension = file.split('.').pop();
-        if (['css', 'html', 'python', 'dart'].includes(extension)) {
-          newLanguage = extension;
-        }
-        setLanguage(newLanguage);
-		if (editorRef.current) {
-			// console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
+	useEffect(() => {
+		console.log(editorFileTabs.length)
+		if (editorFileTabs.length !== 0) {
+			let match = editorFileTabs.find((element:any) => {
+				return element.current;
+			})
+			setCurrentFile(match)
+			if (editorRef.current) {
+				// console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
+			}
 		}
-      }
-  }, [file]);
+  }, [editorFileTabs]);
 
-	if (file !== "") {
+	useEffect(() => {
+		if (currentFile !== "") {
+			console.log(currentFile);
+			readFile(currentFile.path).then((message:any) => {
+				setCode(message);
+			})
+			.catch((error:any) => {
+					console.error(error);
+			});
+			let newLanguage = 'javascript';
+			const extension = currentFile.path.split('.').pop();
+			if (['css', 'html', 'python', 'dart'].includes(extension)) {
+				newLanguage = extension;
+			}
+			setLanguage(newLanguage);
+		}
+  }, [currentFile]);
+
+	if (editorFileTabs.length !== 0) {
 		return (
 			<div id="editor-container" className = "editor-container">
-				<div id="files-in-editor" className="files-in-editor">{file}</div>
+				{ Object.entries(editorFileTabs).map((tab:any) => {
+					console.log(tab)
+					return (
+						<div id="files-in-editor" className="files-in-editor">{tab[1].path}</div>
+					)
+				})}
 				<div id="editor" className="editor">
 					<Editor height="100%" theme="vs-dark" language={language} defaultValue="// some comment" value={code} onMount={handleEditorDidMount}/>
 				</div>

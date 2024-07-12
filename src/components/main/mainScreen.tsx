@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Editor from '@monaco-editor/react';
 import Draggable from 'react-draggable';
 import ActivityBar from "./activityBar/ActivityBar";
 import SideBar from "./sideBar/SideBar";
 import EditorView from "./editorView/EditorView";
 
 import config from "../../config/config.json";
+
+interface EditorTab {
+  path: string;
+  type: string;
+  current: boolean;
+}
 
 const MainScreen = ({} : {}) => {
 
@@ -14,6 +19,7 @@ const MainScreen = ({} : {}) => {
     const [isSideBarOpen, setSideBarOpenEditorOpen] = useState(false);
     const [currentMenu, setCurrentMenu] = useState("");
     const [file, setFile] = useState<any>("");
+    const [editorFileTabs, setEditorFileTabs] = useState<EditorTab[]>([]);
 
     useEffect(() => {
       setEditorOpen(true);
@@ -22,6 +28,33 @@ const MainScreen = ({} : {}) => {
     useEffect(() => {
       setSideBarOpenEditorOpen(currentMenu !== "");
     }, [currentMenu]);
+
+    const openFileInEditor = (new_tab: EditorTab) =>{
+      editorFileTabs.forEach( (tab:any) => {
+        if (tab.path !== new_tab.path) {
+          tab.current = false;
+        }
+      });
+
+      // Check if already opened
+      let match = editorFileTabs.find((element:any) => {
+        return element.path === new_tab.path;
+      })
+      if (match) {
+        match.current = true;
+        setEditorFileTabs([
+          ...editorFileTabs
+        ]);
+        return;
+      }
+
+      console.log("In")
+
+      setEditorFileTabs([
+        ...editorFileTabs,
+        new_tab
+      ]);
+    }
 
     const handleDrag = (e: any, data: any) => {
         // const { x, y } = this.state.deltaXyPos;
@@ -45,8 +78,8 @@ const MainScreen = ({} : {}) => {
           <SideBar
             currentMenu={currentMenu}
             dragPosX={dragPosX}
-            setFile={setFile}
-            openFile={file}
+            openFileInEditor={openFileInEditor}
+            editorFileTabs={editorFileTabs}
           />
         }
         { isSideBarOpen &&
@@ -55,7 +88,7 @@ const MainScreen = ({} : {}) => {
           </Draggable>
         }
         <div className = "main-view-container" style={isSideBarOpen ? {left: dragPosX, width: `calc(100% - ${dragPosX}px)`} : {left: '48px', width: `calc(100% - 48px)`}}>
-          <EditorView file={file} isOpen={isEditorOpen}/>
+          <EditorView editorFileTabs={editorFileTabs} isOpen={isEditorOpen}/>
           <div id = "editor-dragbar" className = "dragbar dragbar-vert"></div>
           <div id="terminal-container" className="terminal-container">
             <div className="terminal-tab-container"></div>

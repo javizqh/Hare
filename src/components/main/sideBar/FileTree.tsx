@@ -9,9 +9,10 @@ open: boolean;
 files: FileStructure[];
 }
 
-const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:number, setFile:any, openFile:any, tree:any}) => {
+const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:any, depth:number, openFileInEditor:any, editorFileTabs:any, tree:any}) => {
   const [subFiles, setSubFiles] = useState<any|FileStructure>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
+  const [isOpenInEditor, setOpenInEditor] = useState<boolean>(false);
 
   const handleClick = () => {
     if (node.is_dir) {
@@ -20,7 +21,7 @@ const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:numb
       console.log(tree)
     } else {
       console.log('Open: ' + node.file_path)
-      setFile(node.file_path);
+      openFileInEditor({path: node.file_path, type: 'monaco', current: true});
     }
   }
 
@@ -29,8 +30,13 @@ const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:numb
   }, []);
 
   useEffect(() => {
-    console.log((openFile === node.file_path))
-  }, [openFile]);
+    let match = editorFileTabs.find((element:any) => {
+      return element.path === node.file_path;
+    })
+    if (match) {
+      setOpenInEditor(match.current);
+    }
+  }, [editorFileTabs]);
 
 
   useEffect(() => {
@@ -81,7 +87,7 @@ const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:numb
 
   return (
     <div className="sideBar-content" key={node.file_path}>
-      <div className={(openFile === node.file_path) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)}>
+      <div className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)}>
         <div className="sideBar-file-tree-indent" style={{paddingLeft: depth*8 + 'px'}}/>
         { node.is_dir ? (
         <>
@@ -123,7 +129,7 @@ const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:numb
       { (subFiles !== null && isOpen) &&
       Object.entries(subFiles).map((project) => {
         return (
-          <FileTree node={project[1]} depth={depth+1} setFile={setFile} openFile={openFile} tree={tree}/>
+          <FileTree node={project[1]} depth={depth+1} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={tree}/>
         );
       })}
     </div>

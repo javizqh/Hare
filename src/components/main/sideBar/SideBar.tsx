@@ -16,7 +16,7 @@ interface TreeSaveStructure {
 
 let savedTree:TreeSaveStructure|null = null;
 
-const SideBar = ({currentMenu, dragPosX, setFile, openFile} : {currentMenu:string ,dragPosX:number, setFile:any, openFile:any}) => {
+const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {currentMenu:string ,dragPosX:number, openFileInEditor:any, editorFileTabs:any}) => {
 
     const [tree, setTree] = useState<any|TreeSaveStructure>(null);
 
@@ -49,7 +49,7 @@ const SideBar = ({currentMenu, dragPosX, setFile, openFile} : {currentMenu:strin
             { currentMenu === 'fileExplorer' && tree &&
             Object.entries(tree.entry).map((project) => {
                 return (
-                    <FileTree node={project[1]} depth={0} setFile={setFile} openFile={openFile} tree={savedTree}/>
+                    <FileTree node={project[1]} depth={0} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={savedTree}/>
                 )
             })}
         </div>
