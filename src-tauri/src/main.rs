@@ -99,9 +99,15 @@ fn delete_file(file_path: String) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command(rename_all = "snake_case")]
+fn delete_dir(file_path: String) -> Result<(), String> {
+    let _ = fs::remove_dir_all(file_path).unwrap();
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![ls_project, read_file, create_file, create_dir, delete_file])
+        .invoke_handler(tauri::generate_handler![ls_project, read_file, create_file, create_dir, delete_file, delete_dir])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

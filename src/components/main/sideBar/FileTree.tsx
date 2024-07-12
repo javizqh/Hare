@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {readDir, deleteFile} from "../../../API";
+import {readDir, deleteFile, deleteDir} from "../../../API";
 
 interface FileStructure {
 is_dir: boolean;
@@ -49,14 +49,33 @@ const FileTree = ({node, depth, setFile, openFile, tree} : {node:any, depth:numb
     }
   }, [isOpen]);
 
-  const deleteFileAndRefresh = () => {
-    deleteFile(node.file_path);
+  const deleteAndRefresh = () => {
+    if (node.is_dir) {
+      deleteDir(node.file_path);
+    } else {
+      deleteFile(node.file_path);
+    }
+    // TODO: refresh parent folder
+  }
+
+  const renameFileAndRefresh = () => {
+    // renameFile(node.file_path);
     // TODO: refresh parent folder
   }
 
   const handleKeyDown = (e:any) => {
-    if (e.keyCode === 46) {
-      deleteFileAndRefresh();
+    console.log(e)
+    switch (e.keyCode) {
+      case 46:
+        // Delete
+        deleteAndRefresh();
+        break;
+      case 113:
+        // F2
+        renameFileAndRefresh();
+        break;
+      default:
+        break;
     }
   }
 

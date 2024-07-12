@@ -21,6 +21,7 @@ export function deleteFile(file_path:string): any {
 }
 
 export function deleteDir(file_path:string): any {
+	return invoke('delete_dir', {file_path: file_path })
 }
 
 export function renameFile(old_path:string, new_path:string): any {
