@@ -16,12 +16,13 @@ interface TreeSaveStructure {
 
 let savedTree:TreeSaveStructure|null = null;
 
-const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {currentMenu:string ,dragPosX:number, openFileInEditor:any, editorFileTabs:any}) => {
+const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {currentMenu:any ,dragPosX:number, openFileInEditor:any, editorFileTabs:any}) => {
 
     const [tree, setTree] = useState<any|TreeSaveStructure>(null);
 
     useEffect(() => {
-        if (currentMenu === 'fileExplorer') {
+			if (currentMenu) {
+        if (currentMenu.id === 'fileExplorer') {
             console.log(tree)
             if (tree === null) {
                 if (savedTree) {
@@ -37,17 +38,19 @@ const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {cu
                 });
             }
         }
+			}
     }, [currentMenu]);
 
     useEffect(() => {
         savedTree = tree;
     }, [tree]);
 
+		if (currentMenu) {
     return (
 			<div id="sideBar" className="sideBar" style={{display: 'block', width: dragPosX - 48}}>
 				<div className="sideBar-title">
 					<div className="sideBar-title-label">
-						<h2>{currentMenu}</h2>
+						<h2>{currentMenu.name}</h2>
 					</div>
 				</div>
 				<div className="sideBar-entry">
@@ -55,7 +58,7 @@ const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {cu
 							<h2>Hare</h2>
 					</div>
 					<div className="sideBar-entry-contents">
-						{ currentMenu === 'fileExplorer' && tree &&
+						{ currentMenu.id === 'fileExplorer' && tree &&
 						Object.entries(tree.entry).map((project) => {
 							return (
 									<FileTree node={project[1]} depth={0} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={savedTree}/>
@@ -65,6 +68,7 @@ const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {cu
 				</div>
 			</div>
     );
+		}
 };
 
 export default SideBar;

@@ -14,13 +14,17 @@ interface EditorTab {
   age: number; // Lowest == Newer
 }
 
+interface MenuEntry {
+  id: string;
+  name: string;
+}
+
 const MainScreen = ({} : {}) => {
 
     const [dragPosX, setDragPosX] = useState(348);
     const [isEditorOpen, setEditorOpen] = useState(false);
     const [isSideBarOpen, setSideBarOpenEditorOpen] = useState(false);
-    const [currentMenu, setCurrentMenu] = useState("");
-    const [file, setFile] = useState<any>("");
+    const [currentMenu, setCurrentMenu] = useState<null|MenuEntry>(null);
     const [editorFileTabs, setEditorFileTabs] = useState<EditorTab[]>([]);
 
     useEffect(() => {
@@ -28,7 +32,7 @@ const MainScreen = ({} : {}) => {
     }, []);
 
     useEffect(() => {
-      setSideBarOpenEditorOpen(currentMenu !== "");
+      setSideBarOpenEditorOpen(currentMenu !== null);
     }, [currentMenu]);
 
     const openFileInEditor = (new_tab: EditorTab) =>{
@@ -97,14 +101,12 @@ const MainScreen = ({} : {}) => {
           setCurrentMenu={setCurrentMenu}
           currentMenu={currentMenu}
           buttons={config.activitiesButtons}/>
-        { isSideBarOpen &&
-          <SideBar
-            currentMenu={currentMenu}
-            dragPosX={dragPosX}
-            openFileInEditor={openFileInEditor}
-            editorFileTabs={editorFileTabs}
-          />
-        }
+        <SideBar
+          currentMenu={currentMenu}
+          dragPosX={dragPosX}
+          openFileInEditor={openFileInEditor}
+          editorFileTabs={editorFileTabs}
+        />
         { isSideBarOpen &&
           <Draggable axis="x" onDrag={handleDrag} bounds={{left: 48, right: 1000}} position={{x: dragPosX , y:0}}>
             <div id = "sideBar-dragbar" className = "dragbar dragbar-horiz" style={{display: 'block'}}></div>

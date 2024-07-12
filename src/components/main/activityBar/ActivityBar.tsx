@@ -1,10 +1,14 @@
 import SettingsContainer from "./settings/SettingsContainer";
 import { Parser } from 'html-to-react';
 
-const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:any, currentMenu:string ,buttons:any}) => {
+const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:any, currentMenu:any ,buttons:any}) => {
 
-    const clicked = (name:string) => {
-        setCurrentMenu((name === currentMenu) ? "" : name);
+    const clicked = (id:string, name:string) => {
+        if (currentMenu) {
+            setCurrentMenu((id === currentMenu.id) ? null : {id:id, name:name});
+        } else {
+            setCurrentMenu({id:id, name:name});
+        }
     }
 
     return (
@@ -13,7 +17,7 @@ const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:an
             <ul id="actions-container" className="actions-container">
                 {buttons.map((data: any) => {
                     return (
-                        <li id={data.id} className="action-item" onClick={() => {clicked(data.id)}}>
+                        <li id={data.id} className="action-item" onClick={() => {clicked(data.id, data.tipData)}}>
                             <svg id='icon' className={(currentMenu === data.id) ? "inside-button icon active" : "inside-button icon"} aria-hidden="true" fill={data.icon.fill} viewBox={data.icon.viewBox}>
                                 {Parser().parse(data.icon.svg)}
                             </svg>
