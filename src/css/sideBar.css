@@ -21,7 +21,7 @@
 }
 
 .sideBar-file-tree-open {
-        background-color: #2a2d2e;
+        background-color: var(--activityBar-background);
 }
 
 .sideBar-file-tree svg {
@@ -47,4 +47,43 @@
 
 .sideBar-file-tree:focus {
         background-color: #7e6207;
+}
+
+.sideBar-entry {
+        border-top: 1px solid var(--activityBar-background);
+        padding-top: 3px;
+}
+
+.sideBar-title {
+        height: 35px;
+        padding-left: 8px;
+        padding-right: 8px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+}
+
+.sideBar-title-label {
+        overflow: hidden;
+        padding-left: 12px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+}
+
+h2 {
+        cursor: default;
+        text-transform: uppercase;
+        font-size: 11px;
+        font-weight: 400;
+        color: #bbbbbb;
+        margin: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+}
+
+.sideBar-entry-contents {
+        overflow-y: auto;
+        max-height: 1135px;
+        /* TODO:Improve this */
 }

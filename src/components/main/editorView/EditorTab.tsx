@@ -11,7 +11,7 @@ const EditorTab = ({tab, openFileInEditor, closeFileInEditor} : {tab:any, openFi
 		closeFileInEditor(tab);
   }
 
-	// Tab entry { tab icon (22x22px), tab name, tab changes (hover or selected (color white) tab close (20x20px + 2padd))}
+	// Tab entry { tab icon (22x22px), tab name, tab changes (hover or selected (color white) tab close (16x16px + 2padd))}
 
 	return (
 		<div 

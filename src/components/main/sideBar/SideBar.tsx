@@ -44,15 +44,26 @@ const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {cu
     }, [tree]);
 
     return (
-        <div id="sideBar" className="sideBar" style={{display: 'block', width: dragPosX - 48}}>
-            <div className="sideBar-title">{currentMenu}</div>
-            { currentMenu === 'fileExplorer' && tree &&
-            Object.entries(tree.entry).map((project) => {
-                return (
-                    <FileTree node={project[1]} depth={0} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={savedTree}/>
-                )
-            })}
-        </div>
+			<div id="sideBar" className="sideBar" style={{display: 'block', width: dragPosX - 48}}>
+				<div className="sideBar-title">
+					<div className="sideBar-title-label">
+						<h2>{currentMenu}</h2>
+					</div>
+				</div>
+				<div className="sideBar-entry">
+					<div className="sideBar-title-label">
+							<h2>Hare</h2>
+					</div>
+					<div className="sideBar-entry-contents">
+						{ currentMenu === 'fileExplorer' && tree &&
+						Object.entries(tree.entry).map((project) => {
+							return (
+									<FileTree node={project[1]} depth={0} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={savedTree}/>
+							)
+						})}
+					</div>
+				</div>
+			</div>
     );
 };
 
