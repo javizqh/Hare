@@ -11,6 +11,7 @@ interface EditorTab {
   name: string;
   type: string;
   current: boolean;
+  age: number; // Lowest == Newer
 }
 
 const MainScreen = ({} : {}) => {
@@ -32,6 +33,7 @@ const MainScreen = ({} : {}) => {
 
     const openFileInEditor = (new_tab: EditorTab) =>{
       editorFileTabs.forEach( (tab:any) => {
+        tab.age = tab.age + 1;
         if (tab.path !== new_tab.path) {
           tab.current = false;
         }
@@ -43,6 +45,7 @@ const MainScreen = ({} : {}) => {
       })
       if (match) {
         match.current = true;
+        match.age = 0;
         setEditorFileTabs([
           ...editorFileTabs
         ]);
@@ -53,6 +56,27 @@ const MainScreen = ({} : {}) => {
         ...editorFileTabs,
         new_tab
       ]);
+    }
+
+    const closeFileInEditor = (close_tab: EditorTab) =>{
+      let latest:any = null;
+      editorFileTabs.forEach( (tab:any) => {
+        if ( tab.path == close_tab.path ) {return}
+        if (latest === null ) {
+          latest = tab;
+        } else if (latest.age > tab.age) {
+          latest = tab;
+        }
+        tab.age = tab.age - 1;
+      });
+
+      if (latest) {
+        latest.current = true;
+      }
+
+      setEditorFileTabs(
+        editorFileTabs.filter(a => a.path !== close_tab.path)
+      );
     }
 
     const handleDrag = (e: any, data: any) => {
@@ -87,7 +111,7 @@ const MainScreen = ({} : {}) => {
           </Draggable>
         }
         <div className = "main-view-container" style={isSideBarOpen ? {left: dragPosX, width: `calc(100% - ${dragPosX}px)`} : {left: '48px', width: `calc(100% - 48px)`}}>
-          <EditorView editorFileTabs={editorFileTabs} isOpen={isEditorOpen} openFileInEditor={openFileInEditor}/>
+          <EditorView editorFileTabs={editorFileTabs} isOpen={isEditorOpen} openFileInEditor={openFileInEditor} closeFileInEditor={closeFileInEditor}/>
           <div id = "editor-dragbar" className = "dragbar dragbar-vert"></div>
           <div id="terminal-container" className="terminal-container">
             <div className="terminal-tab-container"></div>

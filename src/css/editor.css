@@ -57,16 +57,18 @@
 }
 
 .editor-tab-entry {
+        display: flex;
+        flex-direction: row;
         position: relative;
         top: 0;
         height: 100%;
         width: fit-content;
         padding-left: 10px;
         padding-right: 10px;
-        align-content: center;
+        align-items: center;
         user-select: none;
         cursor: pointer;
-        font-size: 13px;
+        border-right: 1px solid var(--sideBar-background);
 }
 
 .editor-tab-entry-selected {
@@ -74,5 +76,25 @@
 }
 
 .editor-tab-entry-unselected {
+        background-color: var(--activityBar-background);
+}
+
+.editor-tab-entry-label {
+        font-size: 13px;
+        text-align: center;
+        pointer-events: none
+}
+
+.editor-tab-entry-icon {
+        /* width: 22px; */
+}
+
+.editor-tab-entry-close {
+        font-size: 13px;
+        padding-left: 5px;
+}
+
+.editor-tab-entry-close:hover {
+        font-size: 13px;
         background-color: var(--activityBar-background);
 }

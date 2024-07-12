@@ -21,7 +21,7 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
       console.log(tree)
     } else {
       console.log('Open: ' + node.file_path)
-      openFileInEditor({path: node.file_path, name:node.file_name, type: 'monaco', current: true});
+      openFileInEditor({path: node.file_path, name:node.file_name, type: 'monaco', current: true, age:0});
     }
   }
 
@@ -35,6 +35,8 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
     })
     if (match) {
       setOpenInEditor(match.current);
+    } else {
+      setOpenInEditor(false);
     }
   }, [editorFileTabs]);
 

@@ -3,7 +3,7 @@ import Editor from '@monaco-editor/react';
 import {readFile} from "../../../API";
 import EditorTab from './EditorTab';
 
-const EditorView = ({editorFileTabs, isOpen, openFileInEditor} : {editorFileTabs:any, isOpen:boolean, openFileInEditor:any}) => {
+const EditorView = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor} : {editorFileTabs:any, isOpen:boolean, openFileInEditor:any, closeFileInEditor:any}) => {
 
 	const editorRef = useRef<any>(null);
 	const [currentFile, setCurrentFile] = useState<any>("");
@@ -22,11 +22,11 @@ const EditorView = ({editorFileTabs, isOpen, openFileInEditor} : {editorFileTabs
   }
 
 	useEffect(() => {
-		console.log(editorFileTabs.length)
 		if (editorFileTabs.length !== 0) {
 			let match = editorFileTabs.find((element:any) => {
 				return element.current;
 			})
+			console.log(match);
 			setCurrentFile(match)
 			if (editorRef.current) {
 				// console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
@@ -58,7 +58,7 @@ const EditorView = ({editorFileTabs, isOpen, openFileInEditor} : {editorFileTabs
 				<div className="editor-tab-container">
 				{ Object.entries(editorFileTabs).map((tab:any) => {
 					return (
-						<EditorTab tab={tab[1]} openFileInEditor={openFileInEditor}/>
+						<EditorTab tab={tab[1]} openFileInEditor={openFileInEditor} closeFileInEditor={closeFileInEditor}/>
 					)
 				})}
 				</div>
