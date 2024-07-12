@@ -16,6 +16,8 @@
 
 .sideBar-file-tree {
         display: flex;
+        cursor: pointer;
+        height: 22px;
 }
 
 .sideBar-file-tree-open {
@@ -34,7 +36,9 @@
 
 .sideBar-file-tree label {
         padding-left: 5px;
+        font-size: 13px;
         color:#ffffff;
+        align-content: center;
 }
 
 .sideBar-file-tree:hover {

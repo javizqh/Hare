@@ -8,6 +8,7 @@ import config from "../../config/config.json";
 
 interface EditorTab {
   path: string;
+  name: string;
   type: string;
   current: boolean;
 }
@@ -48,8 +49,6 @@ const MainScreen = ({} : {}) => {
         return;
       }
 
-      console.log("In")
-
       setEditorFileTabs([
         ...editorFileTabs,
         new_tab
@@ -88,7 +87,7 @@ const MainScreen = ({} : {}) => {
           </Draggable>
         }
         <div className = "main-view-container" style={isSideBarOpen ? {left: dragPosX, width: `calc(100% - ${dragPosX}px)`} : {left: '48px', width: `calc(100% - 48px)`}}>
-          <EditorView editorFileTabs={editorFileTabs} isOpen={isEditorOpen}/>
+          <EditorView editorFileTabs={editorFileTabs} isOpen={isEditorOpen} openFileInEditor={openFileInEditor}/>
           <div id = "editor-dragbar" className = "dragbar dragbar-vert"></div>
           <div id="terminal-container" className="terminal-container">
             <div className="terminal-tab-container"></div>

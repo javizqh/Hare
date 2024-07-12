@@ -21,7 +21,7 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
       console.log(tree)
     } else {
       console.log('Open: ' + node.file_path)
-      openFileInEditor({path: node.file_path, type: 'monaco', current: true});
+      openFileInEditor({path: node.file_path, name:node.file_name, type: 'monaco', current: true});
     }
   }
 

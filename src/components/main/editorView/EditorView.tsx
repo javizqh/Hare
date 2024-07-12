@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import {readFile} from "../../../API";
+import EditorTab from './EditorTab';
 
-const EditorView = ({editorFileTabs, isOpen} : {editorFileTabs:any, isOpen:boolean}) => {
+const EditorView = ({editorFileTabs, isOpen, openFileInEditor} : {editorFileTabs:any, isOpen:boolean, openFileInEditor:any}) => {
 
 	const editorRef = useRef<any>(null);
 	const [currentFile, setCurrentFile] = useState<any>("");
@@ -14,6 +15,11 @@ const EditorView = ({editorFileTabs, isOpen} : {editorFileTabs:any, isOpen:boole
 		// you can also store it in `useRef` for further usage
 		editorRef.current = monaco;
 	}
+
+	const handleClick = (tab:any) => {
+		tab.current =true;
+		openFileInEditor(tab);
+  }
 
 	useEffect(() => {
 		console.log(editorFileTabs.length)
@@ -49,12 +55,13 @@ const EditorView = ({editorFileTabs, isOpen} : {editorFileTabs:any, isOpen:boole
 	if (editorFileTabs.length !== 0) {
 		return (
 			<div id="editor-container" className = "editor-container">
+				<div className="editor-tab-container">
 				{ Object.entries(editorFileTabs).map((tab:any) => {
-					console.log(tab)
 					return (
-						<div id="files-in-editor" className="files-in-editor">{tab[1].path}</div>
+						<EditorTab tab={tab[1]} openFileInEditor={openFileInEditor}/>
 					)
 				})}
+				</div>
 				<div id="editor" className="editor">
 					<Editor height="100%" theme="vs-dark" language={language} defaultValue="// some comment" value={code} onMount={handleEditorDidMount}/>
 				</div>
