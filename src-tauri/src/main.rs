@@ -1,9 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{path::{Path, PathBuf}, ptr::null};
+use std::path::PathBuf;
 use std::fs;
-use std::io;
+// use std::io;
 
 #[derive(Clone, serde::Serialize)]
 struct FileStructure {

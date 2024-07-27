@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
 import {readFile} from "../../../API";
 import EditorTab from './EditorTab';
+import { DiffEditor } from '@monaco-editor/react';
 
 const EditorView = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor} : {editorFileTabs:any, isOpen:boolean, openFileInEditor:any, closeFileInEditor:any}) => {
 
@@ -30,6 +31,7 @@ const EditorView = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor
 			setCurrentFile(match)
 			if (editorRef.current) {
 				// console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
+				// editorRef.current.revealLine(0);
 			}
 		}
   }, [editorFileTabs]);
@@ -48,13 +50,18 @@ const EditorView = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor
 			if (['css', 'html', 'python', 'dart'].includes(extension)) {
 				newLanguage = extension;
 			}
-			setLanguage(newLanguage);
+			if (extension === 'tsx') {
+				setLanguage("typescript");
+			} else {
+				setLanguage(newLanguage);
+			}
 		}
   }, [currentFile]);
 
-	if (editorFileTabs.length !== 0) {
-		return (
-			<div id="editor-container" className = "editor-container">
+	return (
+		<div id="editor-container" className = "editor-container">
+			{(editorFileTabs.length !== 0) &&
+			<>
 				<div className="editor-tab-container">
 				{ Object.entries(editorFileTabs).map((tab:any) => {
 					return (
@@ -63,15 +70,25 @@ const EditorView = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor
 				})}
 				</div>
 				<div id="editor" className="editor">
-					<Editor height="100%" theme="vs-dark" language={language} defaultValue="// some comment" value={code} onMount={handleEditorDidMount}/>
+					<Editor
+						height="100%"
+						theme="vs-dark"
+						language={language}
+						defaultValue=""
+						value={code}
+						onMount={handleEditorDidMount}/>
+					{/* <DiffEditor
+						original={code}
+						modified={"modifiedCode"}
+						height="100%"
+						theme="vs-dark"
+						language="javascript"
+					/> */}
 				</div>
-			</div>
-		)
-	} else {
-		return (
-			<div id="editor-container" className = "editor-container"/>
-		);
-	}
+			</>
+			}
+		</div>
+	)
 };
 
 export default EditorView;

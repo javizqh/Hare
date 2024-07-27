@@ -88,7 +88,7 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
   }
 
   return (
-    <div className="sideBar-content" key={node.file_path}>
+    <div className="sideBar-entry-content" key={node.file_path} title={node.file_path}>
       <div className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)}>
         <div className="sideBar-file-tree-indent" style={{paddingLeft: depth*8 + 'px'}}/>
         { node.is_dir ? (

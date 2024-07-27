@@ -1,11 +1,13 @@
 .sideBar {
         background-color: var(--sideBar-background);
-        width: var(--sideBar-width);
+        /* width: var(--sideBar-width); */
         position:absolute;
         top: 0;
         left: 48px;
         z-index: 1;
         height: calc(100% - var(--statusBar-height));
+        display: flex;
+        flex-direction: column;
 }
 
 .sideBar-file-tree-arrow {
@@ -53,9 +55,14 @@
         border-top: 1px solid var(--activityBar-background);
         padding-top: 3px;
         background-color: var(--sideBar-background);
+        height: fit-content;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
 }
 
-.sideBar-title {
+.sideBar-title, .sideBar-entry-title {
         height: 35px;
         padding-left: 8px;
         padding-right: 8px;
@@ -83,8 +90,18 @@ h2 {
         white-space: nowrap;
 }
 
+.sideBar-entry-title h2 {
+        color: #ffffff;
+}
+
+.sideBar-content {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 1px;
+}
+
 .sideBar-entry-contents {
         overflow-y: auto;
-        max-height: 1135px;
-        /* TODO:Improve this */
+        flex: 1 1 1px;
 }

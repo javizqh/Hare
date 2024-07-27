@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {readDir} from "../../../API";
 import FileTree from "./FileTree";
+import TitleBar from "./sections/TitleBar";
+import CollapsableSection from "./sections/CollapsableSection";
 
 interface FileStructure {
 is_dir: boolean;
@@ -47,24 +49,17 @@ const SideBar = ({currentMenu, dragPosX, openFileInEditor, editorFileTabs} : {cu
 
 		if (currentMenu) {
     return (
-			<div id="sideBar" className="sideBar" style={{display: 'block', width: dragPosX - 48}}>
-				<div className="sideBar-title">
-					<div className="sideBar-title-label">
-						<h2>{currentMenu.name}</h2>
-					</div>
-				</div>
-				<div className="sideBar-entry">
-					<div className="sideBar-title-label">
-							<h2>Hare</h2>
-					</div>
-					<div className="sideBar-entry-contents">
+			<div id="sideBar" className="sideBar" style={{width: dragPosX - 48}}>
+				<TitleBar title={currentMenu.name}/>
+				<div className="sideBar-content">
+					<CollapsableSection title={"Hare"} menu={"a"}>
 						{ currentMenu.id === 'fileExplorer' && tree &&
 						Object.entries(tree.entry).map((project) => {
 							return (
-									<FileTree node={project[1]} depth={0} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={savedTree}/>
+								<FileTree node={project[1]} depth={0} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={savedTree}/>
 							)
 						})}
-					</div>
+					</CollapsableSection>
 				</div>
 			</div>
     );
