@@ -62,13 +62,22 @@
         flex-grow: 1;
 }
 
-.sideBar-title, .sideBar-entry-title {
+.sideBar-title {
         height: 35px;
         padding-left: 8px;
         padding-right: 8px;
         display: flex;
         flex-direction: row;
         align-items: center;
+}
+
+.sideBar-entry-title {
+        height: 22px;
+        padding-left: 8px;
+        padding-right: 8px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;  
 }
 
 .sideBar-title-label {

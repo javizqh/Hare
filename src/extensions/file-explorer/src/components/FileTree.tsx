@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {readDir, deleteFile, deleteDir} from "../../../API";
 
 interface FileStructure {
-is_dir: boolean;
-file_name: string;
-file_path: string;
-open: boolean;
-files: FileStructure[];
+  is_dir: boolean;
+  file_name: string;
+  file_path: string;
+  open: boolean;
+  files: FileStructure[];
 }
 
-const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:any, depth:number, openFileInEditor:any, editorFileTabs:any, tree:any}) => {
+interface TreeSaveStructure {
+    entry: FileStructure[];
+}
+
+const FileTree = ({HARE, node, depth, EditorAPI, tree} : {HARE:any, node:any, depth:number, EditorAPI:any, tree:any}) => {
   const [subFiles, setSubFiles] = useState<any|FileStructure>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
   const [isOpenInEditor, setOpenInEditor] = useState<boolean>(false);
@@ -21,7 +24,7 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
       console.log(tree)
     } else {
       console.log('Open: ' + node.file_path)
-      openFileInEditor({path: node.file_path, name:node.file_name, type: 'monaco', current: true, age:0});
+      EditorAPI.openNewFile(EditorAPI.createFileInfo(node.file_path, node.file_name, 'monaco'));
     }
   }
 
@@ -30,7 +33,7 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
   }, []);
 
   useEffect(() => {
-    let match = editorFileTabs.find((element:any) => {
+    let match = EditorAPI.openFiles.find((element:any) => {
       return element.path === node.file_path;
     })
     if (match) {
@@ -38,13 +41,13 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
     } else {
       setOpenInEditor(false);
     }
-  }, [editorFileTabs]);
+  }, [EditorAPI.openFiles]);
 
 
   useEffect(() => {
     if (isOpen) {
       if (node.files.length === 0) {
-        readDir(node.file_path).then((message:any) => {
+        HARE.readDir(node.file_path).then((message:any) => {
             setSubFiles(message);
             node.files = message;
         })
@@ -59,9 +62,9 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
 
   const deleteAndRefresh = () => {
     if (node.is_dir) {
-      deleteDir(node.file_path);
+      HARE.deleteDir(node.file_path);
     } else {
-      deleteFile(node.file_path);
+      HARE.deleteFile(node.file_path);
     }
     // TODO: refresh parent folder
   }
@@ -131,7 +134,7 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
       { (subFiles !== null && isOpen) &&
       Object.entries(subFiles).map((project) => {
         return (
-          <FileTree node={project[1]} depth={depth+1} openFileInEditor={openFileInEditor} editorFileTabs={editorFileTabs} tree={tree}/>
+          <FileTree HARE={HARE} node={project[1]} depth={depth+1} EditorAPI={EditorAPI} tree={tree}/>
         );
       })}
     </div>
@@ -139,3 +142,4 @@ const FileTree = ({node, depth, openFileInEditor, editorFileTabs, tree} : {node:
 };
 
 export default FileTree;
+export type {FileStructure, TreeSaveStructure};

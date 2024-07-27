@@ -93,6 +93,16 @@ const MainScreen = ({} : {}) => {
         setDragPosX(newX);
     };
 
+    const createFileInfo = (path: string, name:string, type:string) => {
+      return {path: path, name:name, type: type, current: true, age:0};
+    }
+
+    const EditorAPI = {
+      openFiles: editorFileTabs,
+      openNewFile: openFileInEditor,
+      createFileInfo: createFileInfo,
+    }
+
     return (
     <>
       <div className = "vertical-container">
@@ -104,8 +114,7 @@ const MainScreen = ({} : {}) => {
         <SideBar
           currentMenu={currentMenu}
           dragPosX={dragPosX}
-          openFileInEditor={openFileInEditor}
-          editorFileTabs={editorFileTabs}
+          EditorAPI={EditorAPI}
         />
         { isSideBarOpen &&
           <Draggable axis="x" onDrag={handleDrag} bounds={{left: 48, right: 1000}} position={{x: dragPosX , y:0}}>
