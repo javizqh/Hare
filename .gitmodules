@@ -1,0 +1,3 @@
+[submodule "src/extensions/hare.file-explorer"]
+	path = src/extensions/hare.file-explorer
+	url = https://github.com/Hare-IDE/hare.file-explorer.git

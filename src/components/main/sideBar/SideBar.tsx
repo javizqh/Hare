@@ -8,7 +8,7 @@ const SideBar = ({currentMenu, dragPosX, EditorAPI} : {currentMenu:any ,dragPosX
     useEffect(() => {
 			if (currentMenu) {
         if (currentMenu.id === 'fileExplorer') {
-					updateSideBarMenu(lazy(() => import("../../../extensions/file-explorer/src/src").then((module) => ({ default: module.SideBar }))));
+					updateSideBarMenu(lazy(() => import("../../../extensions/hare.file-explorer/src/src").then((module) => ({ default: module.SideBar }))));
         } else {
 					updateSideBarMenu(null)
 				}
