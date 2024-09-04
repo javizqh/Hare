@@ -1,20 +1,13 @@
 import SettingsContainer from "./settings/SettingsContainer";
-import { Parser } from 'html-to-react';
+import * as hare from "../../../api";
+import {Extension} from "../../../Extension";
 
-const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:any, currentMenu:any ,buttons:any}) => {
-
-    const clicked = (id:string, name:string) => {
-        if (currentMenu) {
-            setCurrentMenu((id === currentMenu.id) ? null : {id:id, name:name});
-        } else {
-            setCurrentMenu({id:id, name:name});
-        }
-    }
+const ActivityBar = ({setCurrentMenu, currentMenu, buttons, extensions} : {setCurrentMenu:any, currentMenu:any ,buttons:any, extensions:Extension[]}) => {
 
     return (
         <>
         <div id = "activitybar" className="activitybar">
-            <ul id="actions-container" className="actions-container">
+            {/* <ul id="actions-container" className="actions-container">
                 {buttons.map((data: any) => {
                     return (
                         <li id={data.id} className="action-item" onClick={() => {clicked(data.id, data.tipData)}}>
@@ -25,6 +18,19 @@ const ActivityBar = ({setCurrentMenu, currentMenu, buttons} : {setCurrentMenu:an
                             <div className='inside-button hidden-element'>{data.tipData}</div>
                         </li>
                     )})}
+            </ul> */}
+            <ul id="actions-container" className="actions-container">
+                {extensions.map((extension: Extension) => {
+                    return (
+                        extension.getActivityBar().map((data:hare.activityBarMenu) => {
+                        console.log(data)
+                        return (
+                            <hare.HareActivityBarMenu
+                                currentMenuId={currentMenu}
+                                setCurrentMenuId={setCurrentMenu}
+                                data={data}
+                            />
+                    )}))})}
             </ul>
             <SettingsContainer/>
         </div>

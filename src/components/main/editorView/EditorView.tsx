@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Editor from '@monaco-editor/react';
-import {readFile} from "../../../API";
+import {readFile} from "../../../API2";
 import EditorTab from './EditorTab';
 import { DiffEditor } from '@monaco-editor/react';
 

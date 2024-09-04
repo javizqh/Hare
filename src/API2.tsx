@@ -24,6 +24,10 @@ export function deleteDir(file_path:string): any {
 	return invoke('delete_dir', {file_path: file_path })
 }
 
+export function load_extensions(): any {
+	return invoke('load_extensions', {})
+}
+
 export function renameFile(old_path:string, new_path:string): any {
 }
 

@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
+import { ContextMenuProvider } from './contextMenu/contextMenuContext';
 import ActivityBar from "./activityBar/ActivityBar";
 import SideBar from "./sideBar/SideBar";
 import EditorView from "./editorView/EditorView";
 
 import config from "../../config/config.json";
+import {Extension} from "../../App"
 
 interface EditorTab {
   path: string;
@@ -14,17 +16,12 @@ interface EditorTab {
   age: number; // Lowest == Newer
 }
 
-interface MenuEntry {
-  id: string;
-  name: string;
-}
-
-const MainScreen = ({} : {}) => {
+const MainScreen = ({extensions} : {extensions:Extension[]}) => {
 
     const [dragPosX, setDragPosX] = useState(348);
     const [isEditorOpen, setEditorOpen] = useState(false);
     const [isSideBarOpen, setSideBarOpenEditorOpen] = useState(false);
-    const [currentMenu, setCurrentMenu] = useState<null|MenuEntry>(null);
+    const [currentMenu, setCurrentMenu] = useState<string>('');
     const [editorFileTabs, setEditorFileTabs] = useState<EditorTab[]>([]);
 
     useEffect(() => {
@@ -32,7 +29,7 @@ const MainScreen = ({} : {}) => {
     }, []);
 
     useEffect(() => {
-      setSideBarOpenEditorOpen(currentMenu !== null);
+      setSideBarOpenEditorOpen(currentMenu !== '');
     }, [currentMenu]);
 
     const openFileInEditor = (new_tab: EditorTab) =>{
@@ -104,17 +101,20 @@ const MainScreen = ({} : {}) => {
     }
 
     return (
-    <>
+    <ContextMenuProvider>
       <div className = "vertical-container">
       <div className = "horiz-container">
         <ActivityBar 
           setCurrentMenu={setCurrentMenu}
           currentMenu={currentMenu}
-          buttons={config.activitiesButtons}/>
+          buttons={config.activitiesButtons}
+          extensions={extensions}
+        />
         <SideBar
           currentMenu={currentMenu}
           dragPosX={dragPosX}
           EditorAPI={EditorAPI}
+          extensions={extensions}
         />
         { isSideBarOpen &&
           <Draggable axis="x" onDrag={handleDrag} bounds={{left: 48, right: 1000}} position={{x: dragPosX , y:0}}>
@@ -132,7 +132,7 @@ const MainScreen = ({} : {}) => {
       <div className="status-bar">
       </div>
     </div>
-    </>
+    </ContextMenuProvider>
   );
 }
 

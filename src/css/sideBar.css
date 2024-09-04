@@ -1,6 +1,5 @@
 .sideBar {
         background-color: var(--sideBar-background);
-        /* width: var(--sideBar-width); */
         position:absolute;
         top: 0;
         left: 48px;

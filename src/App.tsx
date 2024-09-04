@@ -1,8 +1,8 @@
 import MainScreen from "./components/main/mainScreen.tsx";
 import WelcomeScreen from "./components/welcome/WelcomeScreen";
-// import Bar from "/home/javier/.hare/extensions/test/src/src.tsx";
-// import Bar from "./extensions/file-explorer/src/src.tsx";
-import * as API from "./API.tsx";
+import * as Hare from "./API2.tsx"
+import React, { useState, useEffect, useRef } from 'react';
+import {Extension, RustExtension} from "./Extension";
 
 import "./css/activitybar.css";
 import "./css/contextMenu.css";
@@ -13,13 +13,29 @@ import "./css/statusBar.css";
 import "./css/miscellaneous.css";
 
 const App = () => {
+    const [extensions, setExtensions] = useState<Extension[]>([]);
     // return (
     //     <><WelcomeScreen></WelcomeScreen></>
     // );
 
+    useEffect(()=>{
+        Hare.load_extensions().then((new_extensions:RustExtension[]) => {
+            new_extensions.forEach(extension => {
+                let ext = new Extension(extension)
+                setExtensions([
+                    ext,
+                    ...extensions // Put old items at the end
+                ]);
+            });
+        })
+        .catch((error:any) => {
+            console.error(error);
+        });
+    }, [])
+
     return (
     
-        <><MainScreen></MainScreen></>
+        <><MainScreen extensions={extensions}/></>
     );
 };
 

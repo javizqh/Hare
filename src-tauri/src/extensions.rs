@@ -1,0 +1,139 @@
+use std::path::PathBuf;
+use std::fs;
+use serde_json::Value;
+
+#[derive(Clone, serde::Serialize)]
+struct HareActivityBarMenu {
+  id: String,
+  title: String,
+  icon: String, // File
+}
+
+#[derive(Clone, serde::Serialize)]
+struct HareSideBarMenu {
+  activity_bar_menu_id: String, // Which menu is the parent
+  id: String,
+  title: String,
+  when: String, // File
+}
+
+#[derive(Clone, serde::Serialize)]
+pub struct HareExtension {
+  root: String,
+  id: String,
+  version: String,
+  name: String,
+  description: String,
+  main: String,
+  activity_bar_menus: Vec<HareActivityBarMenu>,
+  side_bar_menus: Vec<HareSideBarMenu>
+}
+
+
+impl HareExtension {
+  pub fn new(path:PathBuf) -> HareExtension {
+    let file = fs::File::open(path.clone().join("package.json"))
+        .expect("file should open read only");
+    let json: serde_json::Value = serde_json::from_reader(file)
+        .expect("file should be proper JSON");
+  
+    let id: String = json.get("name").expect("file should have name key").to_string();
+    let version = json.get("version").expect("file should have version key").to_string();
+    let name = json.get("displayName").expect("file should have displayName key").to_string();
+    let description = json.get("description").expect("file should have description key").to_string();
+    let main = json.get("main").expect("file should have main key").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+
+    // TODO: this for every type of contribution
+    let contributes: Value = json.get("contributes").unwrap().clone();
+    let views_containers: Value = contributes.get("viewsContainers").unwrap().clone();
+    let activitybar: Value = views_containers.get("activitybar").unwrap().clone();
+    let activity_bar_menus: Vec<HareActivityBarMenu> = Self::load_activitybar(path.clone(), activitybar);
+
+    let views: Value = contributes.get("views").unwrap().clone();
+    let side_bar_menus: Vec<HareSideBarMenu> = Self::load_side_bar_menus(views);
+
+    HareExtension {
+      root: path.to_str().unwrap().into(),
+      id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+      version: version.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+      name: name.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+      description: description.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+      main: read_file(path.join(main).to_str().unwrap().into()).unwrap(),
+      activity_bar_menus,
+      side_bar_menus
+    }
+  }
+
+  fn check_locale() {
+    // TODO: if name enclosed in %% check for locales 
+  }
+
+  fn load_activitybar(root:PathBuf, json: Value) -> Vec<HareActivityBarMenu>{
+    let mut activitybar: Vec<HareActivityBarMenu> = Vec::new();
+    
+    for entry in json.as_array().unwrap().to_vec() {
+      let id: String = entry.get("id").expect("file should have id key").to_string();
+      let title = entry.get("title").expect("file should have title key").to_string();
+      let icon: String = entry.get("icon").expect("file should have icon key").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+      activitybar.push(
+        HareActivityBarMenu {
+          id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+          title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+          icon: read_file(root.join(icon).to_str().unwrap().into()).unwrap()
+        }
+      );
+    }
+
+    return activitybar;
+  }
+
+  fn load_side_bar_menus(views: Value) -> Vec<HareSideBarMenu>{
+    let mut side_bar_menus: Vec<HareSideBarMenu> = Vec::new();
+    
+    for view in views.as_object().unwrap() {
+      let (key, val) = view;
+      for entry in val.as_array().unwrap().to_vec() {
+        let id = entry.get("id").expect("file should have id key").to_string();
+        let title = entry.get("title").expect("file should have title key").to_string();
+
+        let tmp_when = entry.get("when");
+        let mut when: String = "true".into();
+        if tmp_when.is_some() {
+          when = tmp_when.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+        }
+        side_bar_menus.push(
+          HareSideBarMenu {
+            activity_bar_menu_id: key.to_string(),
+            id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+            title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+            when
+          }
+        );
+      }
+    }
+
+    return side_bar_menus;
+  }
+
+
+}
+
+fn read_file(file_path: String) -> Result<String, String> {
+    match fs::metadata(file_path.clone()) {
+        Ok(metadata) => {
+            if metadata.is_file() {
+                let file_contents = fs::read_to_string(file_path).unwrap();
+                return Ok(file_contents);
+            } else {
+                println!("Path exists, but it's not a file.");
+                return Err("Path exists, but it's not a file.".into());
+                // Handle the case where the path exists but is not a file
+            }
+        }
+        Err(_) => {
+            println!("File does not exist.");
+            return Err("File does not exist.".into());
+            // Handle the case where the file does not exist
+        }
+    }
+}
