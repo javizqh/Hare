@@ -6,7 +6,7 @@ import SideBar from "./sideBar/SideBar";
 import EditorView from "./editorView/EditorView";
 
 import config from "../../config/config.json";
-import {Extension} from "../../App"
+import {Extension} from "../../types/Extension.ts";
 
 interface EditorTab {
   path: string;
@@ -94,12 +94,6 @@ const MainScreen = ({extensions} : {extensions:Extension[]}) => {
       return {path: path, name:name, type: type, current: true, age:0};
     }
 
-    const EditorAPI = {
-      openFiles: editorFileTabs,
-      openNewFile: openFileInEditor,
-      createFileInfo: createFileInfo,
-    }
-
     return (
     <ContextMenuProvider>
       <div className = "vertical-container">
@@ -107,14 +101,10 @@ const MainScreen = ({extensions} : {extensions:Extension[]}) => {
         <ActivityBar 
           setCurrentMenu={setCurrentMenu}
           currentMenu={currentMenu}
-          buttons={config.activitiesButtons}
-          extensions={extensions}
         />
         <SideBar
           currentMenu={currentMenu}
           dragPosX={dragPosX}
-          EditorAPI={EditorAPI}
-          extensions={extensions}
         />
         { isSideBarOpen &&
           <Draggable axis="x" onDrag={handleDrag} bounds={{left: 48, right: 1000}} position={{x: dragPosX , y:0}}>

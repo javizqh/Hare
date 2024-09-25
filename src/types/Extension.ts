@@ -1,4 +1,6 @@
-import * as hare from "./api.tsx";
+import * as API2 from "../API2.tsx";
+
+import {hare} from "../hare.d.ts";
 
 export interface RustExtension {
   readonly root: string;
@@ -7,9 +9,11 @@ export interface RustExtension {
   readonly name: string;
   readonly description: string;
   readonly main: string;
-  readonly activity_bar_menus: hare.activityBarMenu[];
-  readonly side_bar_menus: hare.sideBarMenu[];
+  readonly activity_bar_menus: hare.IHareViewContainers[];
+  readonly views: hare.View[];
 }
+
+//TODO: check for activation events
 
 export class Extension{
 
@@ -19,19 +23,14 @@ export class Extension{
     private readonly name: string;
     private readonly description: string;
     private source: Promise<any> | null = null;
-    private readonly activityBarMenus: hare.activityBarMenu[];
-    private readonly sideBarMenus: hare.sideBarMenu[];
 
     public constructor(data:RustExtension) {
-      console.log(data)
       this.root = data.root;
 
       this.id = data.id;
       this.version = data.version;
       this.name = data.name;
       this.description = data.description;
-      this.activityBarMenus = data.activity_bar_menus;
-      this.sideBarMenus = data.side_bar_menus;
 
       this.activateExtension(data.main);
     }
@@ -39,7 +38,7 @@ export class Extension{
     private async activateExtension(file:string): Promise<void> {
       // TODO: pass context
       this.source = this.doimport(file)
-      this.source.then(extension => extension.activate(" a"))
+      this.source.then(extension => extension.activate(API2))
     }
 
     private doimport (str:string) {
@@ -52,13 +51,5 @@ export class Extension{
 
     public getId(): string {
       return this.id;
-    }
-
-    public getActivityBar(): hare.activityBarMenu[] {
-      return this.activityBarMenus;
-    }
-
-    public getSideBar(): hare.sideBarMenu[] {
-      return this.sideBarMenus;
     }
 }

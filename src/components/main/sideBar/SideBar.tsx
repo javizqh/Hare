@@ -1,38 +1,17 @@
-import React, { useState, useEffect, useContext,  Suspense, lazy } from 'react';
+import React, { useState, useEffect, useContext} from 'react';
 import { ContextMenuContext } from '../contextMenu/contextMenuContext';
-import * as API from "../../../API2";
 import * as BasicComponents from "./sections/BasicComponents";
-import * as hare from "../../../api";
-import {Extension} from "../../../Extension";
+import {hare} from "../../../hare.d.ts";
+import {Procurator} from "../../../types/Procurator";
 
-const SideBar = ({currentMenu, dragPosX, EditorAPI, extensions} : {currentMenu:any ,dragPosX:number, EditorAPI:any, extensions:Extension[]}) => {
-		const [SideBarMenu, updateSideBarMenu] = useState<any>(null);
+const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) => {
+    const procurator = Procurator.getInstance();
+		const [containerView, setContainerView] = useState<hare.IHareViewContainers|undefined>(undefined);
 		const {menu, setMenu} = useContext(ContextMenuContext);
-		const [sideBarEntries, setSideBarEntries] = useState<{ [id: string] : hare.sideBarMenu[]; }>({});
 
     useEffect(() => {
-  		console.log(sideBarEntries)
-			if (currentMenu) {
-        if (currentMenu === 'explorer') {
-					updateSideBarMenu(lazy(() => import("../../../extensions/hare.file-explorer/src/src").then((module) => ({ default: module.SideBar }))));
-        } else {
-					updateSideBarMenu(null)
-				}
-			}
+			setContainerView(procurator.window.getContainerView(currentMenu));
     }, [currentMenu]);
-
-    useEffect(() => {
-			extensions.forEach((extension: Extension) => {
-				extension.getSideBar().forEach((entry: hare.sideBarMenu) => {
-					if (!sideBarEntries[entry.activityBarMenuId]) {
-						sideBarEntries[entry.activityBarMenuId] = [entry];
-					} else {
-						sideBarEntries[entry.activityBarMenuId].push(entry);
-					}
-				})
-			});
-			setSideBarEntries(sideBarEntries)
-    }, [extensions]);
 
     useEffect(() => {
 			console.log(menu);
@@ -41,10 +20,20 @@ const SideBar = ({currentMenu, dragPosX, EditorAPI, extensions} : {currentMenu:a
 		if (currentMenu) {
     return (
 			<div id="sideBar" className="sideBar" style={{width: dragPosX - 48}} onContextMenu={(e) => {e.preventDefault(), setMenu(e)}}>
-				<hare.HareSideBar data={sideBarEntries[currentMenu]}/>
-				{/* { SideBarMenu &&
-					<SideBarMenu HARE={API} EditorAPI={EditorAPI} BaseComponents={BasicComponents}/>
-				} */}
+				{containerView &&
+					<>
+					<BasicComponents.TitleBar title={containerView.title}/>
+					<div className="sideBar-content">
+						{containerView.views.map((entry:hare.IHareView) => {
+								return (
+									<BasicComponents.CollapsableSection data={entry}>
+									{/* TODO: Tree is a json: 'folder':{...} */}
+									</BasicComponents.CollapsableSection>
+								)
+						})}
+					</div>
+					</>
+				}
 			</div>
     );
 		}

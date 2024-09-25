@@ -2,7 +2,10 @@ import MainScreen from "./components/main/mainScreen.tsx";
 import WelcomeScreen from "./components/welcome/WelcomeScreen";
 import * as Hare from "./API2.tsx"
 import React, { useState, useEffect, useRef } from 'react';
-import {Extension, RustExtension} from "./Extension";
+import {Extension, RustExtension} from "./types/Extension.ts";
+
+import {Procurator} from "./types/Procurator";
+import {hare} from "./hare.d.ts";
 
 import "./css/activitybar.css";
 import "./css/contextMenu.css";
@@ -20,7 +23,14 @@ const App = () => {
 
     useEffect(()=>{
         Hare.load_extensions().then((new_extensions:RustExtension[]) => {
+            var procurator = Procurator.getInstance();
             new_extensions.forEach(extension => {
+                extension.activity_bar_menus.forEach(viewContainer => {
+                    procurator.window.registerContainerView(hare.HareViewPanel.PrimaryBar, viewContainer);
+                })
+                extension.views.forEach(view => {
+                    procurator.window.registerView(view);
+                })
                 let ext = new Extension(extension)
                 setExtensions([
                     ext,

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import * as hare from "../../../../api";
+import {hare} from "../../../../hare.d.ts";
 
-const CollapsableSection = ({data} : {data:hare.sideBarMenu}) => {
+const CollapsableSection = ({data} : {data:hare.IHareView}) => {
   const [open, isOpen] = useState<boolean>(false);
 
   return (

@@ -3,15 +3,16 @@ use std::fs;
 use serde_json::Value;
 
 #[derive(Clone, serde::Serialize)]
-struct HareActivityBarMenu {
+struct ViewContainer {
   id: String,
   title: String,
   icon: String, // File
+  views: Vec<String>,
 }
 
 #[derive(Clone, serde::Serialize)]
 struct HareSideBarMenu {
-  activity_bar_menu_id: String, // Which menu is the parent
+  parentId: String, // Which menu is the parent
   id: String,
   title: String,
   when: String, // File
@@ -25,10 +26,11 @@ pub struct HareExtension {
   name: String,
   description: String,
   main: String,
-  activity_bar_menus: Vec<HareActivityBarMenu>,
-  side_bar_menus: Vec<HareSideBarMenu>
+  activity_bar_menus: Vec<ViewContainer>,
+  views: Vec<HareSideBarMenu>
 }
 
+//TODO: check for activation events
 
 impl HareExtension {
   pub fn new(path:PathBuf) -> HareExtension {
@@ -46,11 +48,11 @@ impl HareExtension {
     // TODO: this for every type of contribution
     let contributes: Value = json.get("contributes").unwrap().clone();
     let views_containers: Value = contributes.get("viewsContainers").unwrap().clone();
-    let activitybar: Value = views_containers.get("activitybar").unwrap().clone();
-    let activity_bar_menus: Vec<HareActivityBarMenu> = Self::load_activitybar(path.clone(), activitybar);
+    let activitybar: Value = views_containers.get("primary_bar").unwrap().clone();
+    let activity_bar_menus: Vec<ViewContainer> = Self::load_activitybar(path.clone(), activitybar);
 
     let views: Value = contributes.get("views").unwrap().clone();
-    let side_bar_menus: Vec<HareSideBarMenu> = Self::load_side_bar_menus(views);
+    let views: Vec<HareSideBarMenu> = Self::load_side_bar_menus(views);
 
     HareExtension {
       root: path.to_str().unwrap().into(),
@@ -60,7 +62,7 @@ impl HareExtension {
       description: description.trim_matches(|c| c == '\"' || c == '\'').to_string(),
       main: read_file(path.join(main).to_str().unwrap().into()).unwrap(),
       activity_bar_menus,
-      side_bar_menus
+      views
     }
   }
 
@@ -68,18 +70,19 @@ impl HareExtension {
     // TODO: if name enclosed in %% check for locales 
   }
 
-  fn load_activitybar(root:PathBuf, json: Value) -> Vec<HareActivityBarMenu>{
-    let mut activitybar: Vec<HareActivityBarMenu> = Vec::new();
+  fn load_activitybar(root:PathBuf, json: Value) -> Vec<ViewContainer>{
+    let mut activitybar: Vec<ViewContainer> = Vec::new();
     
     for entry in json.as_array().unwrap().to_vec() {
       let id: String = entry.get("id").expect("file should have id key").to_string();
       let title = entry.get("title").expect("file should have title key").to_string();
       let icon: String = entry.get("icon").expect("file should have icon key").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
       activitybar.push(
-        HareActivityBarMenu {
+        ViewContainer {
           id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
           title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
-          icon: read_file(root.join(icon).to_str().unwrap().into()).unwrap()
+          icon: read_file(root.join(icon).to_str().unwrap().into()).unwrap(),
+          views: [].to_vec()
         }
       );
     }
@@ -88,7 +91,7 @@ impl HareExtension {
   }
 
   fn load_side_bar_menus(views: Value) -> Vec<HareSideBarMenu>{
-    let mut side_bar_menus: Vec<HareSideBarMenu> = Vec::new();
+    let mut new_views: Vec<HareSideBarMenu> = Vec::new();
     
     for view in views.as_object().unwrap() {
       let (key, val) = view;
@@ -101,9 +104,9 @@ impl HareExtension {
         if tmp_when.is_some() {
           when = tmp_when.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
         }
-        side_bar_menus.push(
+        new_views.push(
           HareSideBarMenu {
-            activity_bar_menu_id: key.to_string(),
+            parentId: key.to_string(),
             id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
             title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
             when
@@ -112,7 +115,7 @@ impl HareExtension {
       }
     }
 
-    return side_bar_menus;
+    return new_views;
   }
 
 

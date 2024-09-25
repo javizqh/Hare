@@ -132,7 +132,8 @@ fn delete_dir(file_path: String) -> Result<(), String> {
 #[tauri::command(rename_all = "snake_case")]
 fn load_extensions() -> Result<Vec<HareExtension>, String> {
     let mut vec: Vec<HareExtension> = Vec::new();
-    vec.push(HareExtension::new("/home/javier/Code/Tauri/hare/Hare/src/extensions/hare.file-explorer".into()));
+    // vec.push(HareExtension::new("/home/javier/Code/Tauri/hare/Hare/src/extensions/hare.file-explorer".into()));
+    vec.push(HareExtension::new("/home/javier/.hare/extensions/hare.explorer/".into()));
     Ok(vec)
 }
 
