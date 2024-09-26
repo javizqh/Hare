@@ -1,5 +1,7 @@
 use std::fs;
 
+//TODO: search gap buffer y tree sitter
+
 pub fn hare_read_file(file_path: String) -> Result<String, String> {
     match fs::metadata(file_path.clone()) {
         Ok(metadata) => {

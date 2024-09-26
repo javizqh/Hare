@@ -9,6 +9,8 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 		const [containerView, setContainerView] = useState<hare.IHareViewContainers|undefined>(undefined);
 		const {menu, setMenu} = useContext(ContextMenuContext);
 
+		procurator.window.registerTreeViewProvider("jsonOutline", new Test());
+
     useEffect(() => {
 			setContainerView(procurator.window.getContainerView(currentMenu));
     }, [currentMenu]);
@@ -38,5 +40,24 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
     );
 		}
 };
+
+class Test implements hare.TreeViewProvider<number> {
+	constructor() {
+
+	}
+
+	getChildren(element?: number | undefined): hare.ProviderResult<number[]> {
+		if (element === undefined) {
+			return [0,1]
+		}
+
+		return [5,6,7];
+	}
+
+	getTreeItem(element: number): hare.TreeItem | PromiseLike<hare.TreeItem> {
+		const treeItem: hare.TreeItem = new hare.TreeItem(element.toString(), hare.TreeItemState.Expanded);
+		return treeItem;
+	}
+}
 
 export default SideBar;
