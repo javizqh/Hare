@@ -51,6 +51,10 @@ class Test implements hare.TreeViewProvider<number> {
 			return [0,1]
 		}
 
+		if (element === 5) {
+			return undefined
+		}
+
 		return [5,6,7];
 	}
 
