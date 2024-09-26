@@ -6,6 +6,12 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
   const [isOpenInEditor, setOpenInEditor] = useState<boolean>(false);
   const node = viewProvider.getTreeItem(item);
 
+  const padding = [];
+
+  for (let i = 0; i < depth; i++) {
+    padding.push(<div className="sideBar-file-tree-indent"/>);
+}
+
   console.log(item)
 
   const handleClick = () => {
@@ -59,7 +65,7 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
   return (
     <div className="sideBar-entry-content" key={node.label} title={node.label}>
       <div className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)}>
-        <div className="sideBar-file-tree-indent" style={{paddingLeft: depth*8 + 'px'}}/>
+        {padding}
         { isOpen ? (
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="sideBar-file-tree-arrow" viewBox="0 0 24 24">
             <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>

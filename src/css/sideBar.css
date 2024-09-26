@@ -13,12 +13,20 @@
         height: 16px;
         width: 16px;
         padding: 0 6px 0 8px;
+        opacity: 60%;
 }
 
 .sideBar-file-tree {
         display: flex;
         cursor: pointer;
         height: 22px;
+}
+
+.sideBar-file-tree-indent {
+        width: 2px;
+        margin-left: 6px;
+        background-color: var(--activityBar-background);
+        opacity: 50%;
 }
 
 .sideBar-file-tree-open {
@@ -39,7 +47,7 @@
         padding-left: 5px;
         font-size: 13px;
         color:#ffffff;
-        align-content: center;
+        align-self: center;
 }
 
 .sideBar-file-tree:hover {
@@ -106,6 +114,7 @@ h2 {
         height: 16px;
         width: 16px;
         padding-right: 2px;
+        opacity: 60%;
 }
 
 .sideBar-entry-menu {

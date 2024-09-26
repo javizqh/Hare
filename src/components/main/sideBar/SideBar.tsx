@@ -59,7 +59,7 @@ class Test implements hare.TreeViewProvider<number> {
 	}
 
 	getTreeItem(element: number): hare.TreeItem | PromiseLike<hare.TreeItem> {
-		const treeItem: hare.TreeItem = new hare.TreeItem(element.toString(), hare.TreeItemState.Expanded);
+		const treeItem: hare.TreeItem = new hare.TreeItem("Number: " + element.toString(), hare.TreeItemState.Expanded);
 		return treeItem;
 	}
 }
