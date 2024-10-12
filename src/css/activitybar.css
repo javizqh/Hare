@@ -130,11 +130,12 @@
 .icon {
         width: 32px;
         height: 32px;
-        color: var(--activityBar-unselected);
+        color: var(--activityBar-selected);
         pointer-events: none;
         z-index: 1;
         left: 8px;
         top: 8px;
+        opacity: 60%;
 }
 
 .action-item:hover .icon,
@@ -145,5 +146,4 @@
 .active {
         visibility: visible;
         opacity: 1;
-        color: var(--activityBar-selected) !important;
 }

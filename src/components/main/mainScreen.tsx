@@ -3,7 +3,7 @@ import Draggable from 'react-draggable';
 import { ContextMenuProvider } from './contextMenu/contextMenuContext';
 import ActivityBar from "./activityBar/ActivityBar";
 import SideBar from "./sideBar/SideBar";
-import EditorView from "./editorView/EditorView";
+import EditorContainer from "./editorView/EditorContainer";
 
 import config from "../../config/config.json";
 import {Extension} from "../../types/Extension.ts";
@@ -112,7 +112,7 @@ const MainScreen = ({extensions} : {extensions:Extension[]}) => {
           </Draggable>
         }
         <div className = "main-view-container" style={isSideBarOpen ? {left: dragPosX, width: `calc(100% - ${dragPosX}px)`} : {left: '48px', width: `calc(100% - 48px)`}}>
-          <EditorView editorFileTabs={editorFileTabs} isOpen={isEditorOpen} openFileInEditor={openFileInEditor} closeFileInEditor={closeFileInEditor}/>
+          <EditorContainer editorFileTabs={editorFileTabs} isOpen={isEditorOpen} openFileInEditor={openFileInEditor} closeFileInEditor={closeFileInEditor}/>
           <div id = "editor-dragbar" className = "dragbar dragbar-vert"></div>
           <div id="terminal-container" className="terminal-container">
             <div className="terminal-tab-container"></div>

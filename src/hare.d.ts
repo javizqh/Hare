@@ -53,7 +53,7 @@ export module hare {
     | T
     | undefined
     | null
-    // | PromiseLike<T | undefined | null>;
+    | PromiseLike<T | undefined | null>;
 
   export interface TreeViewProvider<T> {
     // _onDidChangeTreeData: vscode.EventEmitter<T | undefined | null | void> = new vscode.EventEmitter<T | undefined | null | void>();
@@ -141,7 +141,7 @@ export module hare {
     ){
       this.label = label;
       this.collapsibleState = collapsibleState;
-    };;
+    };
   }
 
   export enum TreeItemState {

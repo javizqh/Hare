@@ -4,6 +4,8 @@ import * as BasicComponents from "./sections/BasicComponents";
 import {hare} from "../../../hare.d.ts";
 import {Procurator} from "../../../types/Procurator";
 
+import {readDir, readFile} from "../../../API2.tsx";
+
 const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) => {
     const procurator = Procurator.getInstance();
 		const [containerView, setContainerView] = useState<hare.IHareViewContainers|undefined>(undefined);
@@ -41,27 +43,97 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 		}
 };
 
-class Test implements hare.TreeViewProvider<number> {
+// class Test implements hare.TreeViewProvider<number> {
+// 	constructor() {
+
+// 	}
+
+// 	getChildren(element?: number | undefined): hare.ProviderResult<number[]> {
+// 		if (element === undefined) {
+// 			return [0,1]
+// 		}
+
+// 		if (element === 5) {
+// 			return undefined
+// 		}
+
+// 		readDir("/home/javier").then((content:any) => {
+// 			console.log(content)
+// 		})
+
+// 		return [5,6,7];
+// 	}
+
+// 	getTreeItem(element: number): hare.TreeItem | PromiseLike<hare.TreeItem> {
+// 		const treeItem: hare.TreeItem = new hare.TreeItem("Number: " + element.toString(), hare.TreeItemState.Expanded);
+// 		return treeItem;
+// 	}
+// }
+
+interface entry {
+	contextValue: string,
+	fileName: string,
+	url: string,
+}
+
+interface entryRust {
+	context_value: string,
+	file_name: string,
+	url: string,
+}
+
+class Test implements hare.TreeViewProvider<entry> {
 	constructor() {
 
 	}
 
-	getChildren(element?: number | undefined): hare.ProviderResult<number[]> {
-		if (element === undefined) {
-			return [0,1]
+	async getChildren(element?: entry | undefined): hare.ProviderResult<entry[]> {
+		var childs: entry[] = [];
+		var url: string = "/home/javier";
+
+		if (element !== undefined) {
+			url = element.url;
 		}
 
-		if (element === 5) {
+		await readDir(url).then((content:entryRust[]) => {
+			content.forEach((element:entryRust) => {
+				childs.push({
+					contextValue: element.context_value,
+					fileName: element.file_name,
+					url: element.url,
+				})
+			});
+		})
+
+		if (childs.length === 0) {
 			return undefined
 		}
 
-		return [5,6,7];
+		return childs;
 	}
 
-	getTreeItem(element: number): hare.TreeItem | PromiseLike<hare.TreeItem> {
-		const treeItem: hare.TreeItem = new hare.TreeItem("Number: " + element.toString(), hare.TreeItemState.Expanded);
+	async getTreeItem(element: entry): hare.TreeItem | PromiseLike<hare.TreeItem> {
+		const treeItem: hare.TreeItem = new hare.TreeItem(element.fileName.toString(), hare.TreeItemState.Expanded);
+		treeItem.contextValue = element.contextValue;
+		if (treeItem.contextValue === "file") {
+			treeItem.iconPath = "/home/javier/.hare/extensions/hare.explorer/media/file.svg";
+		} else {
+			treeItem.iconPath = "/home/javier/.hare/extensions/hare.explorer/media/folder.svg";
+		}
+
+		if (treeItem.contextValue === "file") {
+			treeItem.command = () => {
+				readFile(element.url).then((content:string) => {
+					console.log(content)
+				})
+			}
+		} else {
+			treeItem.command = () => {}
+		}
+
 		return treeItem;
 	}
 }
+
 
 export default SideBar;

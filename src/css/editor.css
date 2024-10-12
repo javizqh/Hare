@@ -111,3 +111,8 @@
 .editor-tab-entry-close:hover {
         background-color: var(--activityBar-unselected);
 }
+
+.cm-editor {
+        width: 100%;
+        height: 100%;
+}

@@ -4,7 +4,13 @@ import TreeItem from './TreeItem.tsx';
 
 const CollapsableSection = ({data} : {data:hare.IHareView}) => {
   const [open, isOpen] = useState<boolean>(false);
-  console.log(data.viewProvider?.getChildren())
+  const [children, setChildren] = useState<any>(null);
+
+  useEffect(() => {
+    data.viewProvider?.getChildren().then((content:hare.ProviderResult<any>) => {
+      setChildren(content)
+    })
+  }, []);
 
   return (
     <div id={data.id} className="sideBar-entry" style={{flexGrow: (open) ? 1 : 0 }}>
@@ -28,9 +34,9 @@ const CollapsableSection = ({data} : {data:hare.IHareView}) => {
         </div>
         }
       </div>
-      {open && data.viewProvider?.getChildren() &&
-        <>
-          {data.viewProvider.getChildren()!.map((entry:any) => {
+      {open && 
+        <div className="sideBar-entry-content-container">
+          {children !== null && children!.map((entry:any) => {
             return (
               <TreeItem
                 viewProvider={data.viewProvider}
@@ -39,7 +45,7 @@ const CollapsableSection = ({data} : {data:hare.IHareView}) => {
               />
             )})
           }
-        </>
+        </div>
       }
     </div>
   );
