@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import {hare} from "../../../../hare.d.ts";
 import TreeItem from './TreeItem.tsx';
 
-const CollapsableSection = ({data} : {data:hare.IHareView}) => {
+const CollapsableSection = ({data, parent} : {data:hare.IHareView, parent:string}) => {
   const [open, isOpen] = useState<boolean>(false);
   const [children, setChildren] = useState<any>(null);
 
@@ -39,6 +39,7 @@ const CollapsableSection = ({data} : {data:hare.IHareView}) => {
           {children !== null && children!.map((entry:any) => {
             return (
               <TreeItem
+                id={parent + "/" + data.id} // TODO: also add project name
                 viewProvider={data.viewProvider}
                 item={entry}
                 depth={0}

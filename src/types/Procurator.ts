@@ -184,7 +184,7 @@ class WindowContext {
   }
 
   public registerContainerView(viewPanel: hare.HareViewPanel, viewContainer: hare.IHareViewContainers) {
-    for (const panels of Object.values(this.containerViews)) {
+    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
       const found = panels.some((container: hare.IHareViewContainers) => {
         if (container.id === viewContainer.id) {
           return true;
@@ -212,7 +212,7 @@ class WindowContext {
 
   public getContainerView(viewContainerId: string): hare.IHareViewContainers | undefined {
     var views;
-    for (const panels of Object.values(this.containerViews)) {
+    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
       const found = panels.some((container: hare.IHareViewContainers) => {
         if (container.id === viewContainerId) {
           views = container;
@@ -236,9 +236,9 @@ class WindowContext {
     }
 
     //TODO: check if duplicate
-    for (const panels of Object.values(this.containerViews)) {
+    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
       const duplicate = panels.some((container: hare.IHareViewContainers) => {
-        const foundIn = container.views.some(searchView => {
+        const foundIn = container.views.some((searchView:hare.IHareView) => {
           if (searchView.id === view.id) {
             return true;
           }
@@ -254,7 +254,7 @@ class WindowContext {
       }
     }
 
-    for (const panels of Object.values(this.containerViews)) {
+    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
       const found = panels.some((container: hare.IHareViewContainers) => {
         if (container.id === viewContainerId) {
           // container.views.push({id:view.id, title:view.title, icon:view.icon, when:view.when, viewProvider:undefined})
@@ -270,9 +270,9 @@ class WindowContext {
   }
 
   public registerTreeViewProvider(id: string, treeViewProvider: hare.TreeViewProvider<any>) {
-    for (const panels of Object.values(this.containerViews)) {
+    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
       const found = panels.some((container: hare.IHareViewContainers) => {
-        const foundIn = container.views.some(view => {
+        const foundIn = container.views.some((view:hare.IHareView) => {
           if (view.id === id) {
             view.viewProvider = treeViewProvider;
             return true;

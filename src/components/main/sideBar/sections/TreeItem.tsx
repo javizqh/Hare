@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import {hare} from "../../../../hare.d.ts";
 import { readFile } from '../../../../API2.tsx';
 
-const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvider<any>, item: any, depth:number}) => {
+const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:hare.TreeViewProvider<any>, item: any, depth:number}) => {
   const ref = React.useRef(null);
   const [isOpen, setOpen] = useState<boolean>(false);
   const [isOpenInEditor, setOpenInEditor] = useState<boolean>(false);
@@ -32,7 +32,7 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
   useEffect(() => {
     if (node) {
       var state = node.collapsibleState;
-      var raw_state = window.localStorage.getItem(node.id);
+      var raw_state = window.localStorage.getItem(id + "/" + node.id);
       setHasChildren(state !== hare.TreeItemState.None)
       if (raw_state) {
         state = JSON.parse(raw_state);
@@ -54,7 +54,7 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
       } else {
         node.collapsibleState = hare.TreeItemState.Collapsed
       }
-      window.localStorage.setItem(node.id, node.collapsibleState);
+      window.localStorage.setItem(id + "/" + node.id, node.collapsibleState);
       setOpen(node.collapsibleState === hare.TreeItemState.Expanded);
     }
     node.command();
@@ -104,6 +104,7 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
             {children!.map((entry:any) => {
               return (
                 <TreeItem
+                  id={id}
                   viewProvider={viewProvider}
                   item={entry}
                   depth={depth + 1}
