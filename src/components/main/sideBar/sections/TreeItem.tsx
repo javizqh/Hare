@@ -58,29 +58,9 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
       setOpen(node.collapsibleState === hare.TreeItemState.Expanded);
     }
     node.command();
-    // if (node.is_dir) {
-    //   node.open = !isOpen;
-    //   console.log(tree)
-    // } else {
-    //   console.log('Open: ' + node.file_path)
-    //   EditorAPI.openNewFile(EditorAPI.createFileInfo(node.file_path, node.file_name, 'monaco'));
-    // }
   }
 
   useEffect(() => {
-    // if (isOpen) {
-    //   if (node.files.length === 0) {
-    //     HARE.readDir(node.file_path).then((message:any) => {
-    //         setSubFiles(message);
-    //         node.files = message;
-    //     })
-    //     .catch((error:any) => {
-    //         console.error(error);
-    //     });
-    //   } else {
-    //     setSubFiles(node.files);
-    //   }
-    // }
     if (isOpen) {
       viewProvider.getChildren(item).then((content:hare.ProviderResult<any>) => {
         setChildren(content)
