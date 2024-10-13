@@ -27,10 +27,18 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
     viewProvider.getTreeItem(item).then((newNode:hare.TreeItem) => {
       setNode(newNode);
     })
-    setHasChildren(item.contextValue !== "file")
   }, [])
 
   useEffect(() => {
+    if (node) {
+      var state = node.collapsibleState;
+      var raw_state = window.localStorage.getItem(node.id);
+      setHasChildren(state !== hare.TreeItemState.None)
+      if (raw_state) {
+        state = JSON.parse(raw_state);
+      }
+      setOpen(state === hare.TreeItemState.Expanded);
+    }
     if (ref.current) {
       readFile(node.iconPath).then((content:string) => {
         // @ts-ignore
@@ -40,7 +48,15 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
   }, [node]);
 
   const handleClick = () => {
-    setOpen(!isOpen);
+    if (hasChildren) {
+      if (!isOpen) {
+        node.collapsibleState = hare.TreeItemState.Expanded
+      } else {
+        node.collapsibleState = hare.TreeItemState.Collapsed
+      }
+      window.localStorage.setItem(node.id, node.collapsibleState);
+      setOpen(node.collapsibleState === hare.TreeItemState.Expanded);
+    }
     node.command();
     // if (node.is_dir) {
     //   node.open = !isOpen;
@@ -95,7 +111,7 @@ const TreeItem = ({viewProvider, item, depth} : {viewProvider:hare.TreeViewProvi
     <>
     {node &&
       <div className="sideBar-entry-content" key={node.label} title={node.label}>
-        <div className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)} style={style}>
+        <div id={node.id} className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)} style={style}>
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
           <div ref={ref} className="sideBar-file-tree-icon" aria-hidden="true" />

@@ -43,33 +43,6 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 		}
 };
 
-// class Test implements hare.TreeViewProvider<number> {
-// 	constructor() {
-
-// 	}
-
-// 	getChildren(element?: number | undefined): hare.ProviderResult<number[]> {
-// 		if (element === undefined) {
-// 			return [0,1]
-// 		}
-
-// 		if (element === 5) {
-// 			return undefined
-// 		}
-
-// 		readDir("/home/javier").then((content:any) => {
-// 			console.log(content)
-// 		})
-
-// 		return [5,6,7];
-// 	}
-
-// 	getTreeItem(element: number): hare.TreeItem | PromiseLike<hare.TreeItem> {
-// 		const treeItem: hare.TreeItem = new hare.TreeItem("Number: " + element.toString(), hare.TreeItemState.Expanded);
-// 		return treeItem;
-// 	}
-// }
-
 interface entry {
 	contextValue: string,
 	fileName: string,
@@ -113,8 +86,9 @@ class Test implements hare.TreeViewProvider<entry> {
 	}
 
 	async getTreeItem(element: entry): hare.TreeItem | PromiseLike<hare.TreeItem> {
-		const treeItem: hare.TreeItem = new hare.TreeItem(element.fileName.toString(), hare.TreeItemState.Expanded);
+		const treeItem: hare.TreeItem = new hare.TreeItem(element.fileName.toString(), (element.contextValue === "file") ? hare.TreeItemState.None : hare.TreeItemState.Collapsed);
 		treeItem.contextValue = element.contextValue;
+		treeItem.id = element.url;
 		if (treeItem.contextValue === "file") {
 			treeItem.iconPath = "/home/javier/.hare/extensions/hare.explorer/media/file.svg";
 		} else {

@@ -141,6 +141,8 @@ export module hare {
     ){
       this.label = label;
       this.collapsibleState = collapsibleState;
+      //FIX: This should be unique
+      this.id = label;
     };
   }
 
