@@ -3,7 +3,7 @@ import {hare} from "../../../../hare.d.ts";
 import { readFile } from '../../../../API2.tsx';
 
 const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:hare.TreeViewProvider<any>, item: any, depth:number}) => {
-  //TODO: missing multiple selection and icon themes
+  //TODO: icon themes and move and rename
 
   const ref = React.useRef(null);
   const [isOpen, setOpen] = useState<boolean>(false);
@@ -51,6 +51,16 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
   }, [node]);
 
   const handleClick = (e:MouseEvent) => {
+    if (e.ctrlKey) {
+      viewProvider.selectedCallback([
+        ...viewProvider.selected,
+        id + "/" + node.id
+      ]);
+      return;
+    } else {
+      viewProvider.selectedCallback([id + "/" + node.id])
+    }
+
     if (hasChildren) {
       if (!isOpen) {
         node.collapsibleState = hare.TreeItemState.Expanded
@@ -59,15 +69,6 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
       }
       window.localStorage.setItem(id + "/" + node.id, node.collapsibleState);
       setOpen(node.collapsibleState === hare.TreeItemState.Expanded);
-    }
-
-    if (e.ctrlKey) {
-      viewProvider.selectedCallback([
-        ...viewProvider.selected,
-        id + "/" + node.id
-      ]);
-    } else {
-      viewProvider.selectedCallback([id + "/" + node.id])
     }
 
     node.command();
@@ -89,6 +90,10 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
   }, [isOpen]);
 
   useEffect(() => {
+    if (!node) {
+      return
+    }
+
     const found = viewProvider.selected.some((element:string) => {
       if (element === id + "/" + node.id) {
         return true;
@@ -96,7 +101,6 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
     });
 
     setSelected(found)
-    console.log(found)
   }, [viewProvider.selected])
 
   const handleKeyDown = (e:any) => {
