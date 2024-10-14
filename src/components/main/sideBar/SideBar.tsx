@@ -21,9 +21,11 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 			console.log(menu);
     }, [menu]);
 
-		if (currentMenu) {
+		if (currentMenu === '') {
+			dragPosX = 0
+		}
     return (
-			<div id="sideBar" className="sideBar" style={{width: dragPosX - 48}} onContextMenu={(e) => {e.preventDefault(), setMenu(e)}}>
+			<div id="sideBar" className="sideBar" style={{width: (currentMenu === '') ? 0: dragPosX - 48 }} onContextMenu={(e) => {e.preventDefault(), setMenu(e)}}>
 				{containerView &&
 					<>
 					<BasicComponents.TitleBar title={containerView.title}/>
@@ -40,7 +42,6 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 				}
 			</div>
     );
-		}
 };
 
 interface entry {
