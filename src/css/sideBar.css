@@ -13,7 +13,7 @@
         height: 22px;
         width: 16px;
         min-width: 16px;
-        padding: 0 6px 0 8px;
+        padding: 0 6px 0 0;
         opacity: 60%;
 }
 
@@ -22,13 +22,18 @@
         cursor: pointer;
         height: 22px;
         background-color: var(--sideBar-background);
+        padding: 0 0 0 6px;
+}
+
+.sideBar-entry-content:hover .sideBar-file-tree-indent {
+        opacity: 50%;
 }
 
 .sideBar-file-tree-indent {
         width: 8px;
         min-width: 8px;
-        border-left: 1px solid var(--activityBar-background);
-        opacity: 50%;
+        border-right: 1px solid #ff9100;
+        opacity: 0;
 }
 
 .sideBar-file-tree-open {
@@ -38,6 +43,7 @@
 .sideBar-file-tree-icon {
         height: 22px;
         width: 16px;
+        min-width: 16px;
         padding-right: 6px;
         display: flex;
         justify-content: center;

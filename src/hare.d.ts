@@ -61,6 +61,9 @@ export module hare {
 
     getChildren(element?: T): ProviderResult<T[]>;
     getTreeItem(element: T): TreeItem | PromiseLike<TreeItem>;
+
+    selectedCallback: Function;
+    selected: string[]; // Id string
   }
 
   export class TreeItem {
@@ -78,7 +81,7 @@ export module hare {
      * When `falsy`, {@link ThemeIcon.Folder Folder Theme Icon} is assigned, if item is collapsible otherwise {@link ThemeIcon.File File Theme Icon}.
      * When a file or folder {@link ThemeIcon} is specified, icon is derived from the current file icon theme for the specified theme icon using {@link TreeItem.resourceUri resourceUri} (if provided).
      */
-    iconPath?: string | hare.IHareIcon; //TODO/2
+    iconPath?: string | hare.IHareIcon; //TODO
 
     /**
      * A human-readable string which is rendered less prominent.
@@ -144,6 +147,7 @@ export module hare {
       //FIX: This should be unique
       this.id = label;
       this.description = false;
+      this.selectedState = TreeItemSelectedState.Unselected;
     };
   }
 

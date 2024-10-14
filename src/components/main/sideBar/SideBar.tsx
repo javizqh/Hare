@@ -56,8 +56,13 @@ interface entryRust {
 }
 
 class Test implements hare.TreeViewProvider<entry> {
-	constructor() {
+	selectedCallback: Function;
+	selected: string[];
 
+	constructor() {
+		const [selected, setSelected] = useState<string[]>([]);
+		this.selectedCallback = setSelected
+		this.selected = selected
 	}
 
 	async getChildren(element?: entry | undefined): hare.ProviderResult<entry[]> {

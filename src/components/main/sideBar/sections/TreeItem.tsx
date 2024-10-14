@@ -3,9 +3,11 @@ import {hare} from "../../../../hare.d.ts";
 import { readFile } from '../../../../API2.tsx';
 
 const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:hare.TreeViewProvider<any>, item: any, depth:number}) => {
+  //TODO: missing multiple selection and icon themes
+
   const ref = React.useRef(null);
   const [isOpen, setOpen] = useState<boolean>(false);
-  const [isOpenInEditor, setOpenInEditor] = useState<boolean>(false);
+  const [selected, setSelected] = useState<boolean>(false);
   const [children, setChildren] = useState<any>(null);
   const [hasChildren, setHasChildren] = useState<any>(null);
   const [style, setStyle] = useState<any>(null);
@@ -34,6 +36,7 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
       var state = node.collapsibleState;
       var raw_state = window.localStorage.getItem(id + "/" + node.id);
       setHasChildren(state !== hare.TreeItemState.None)
+      setSelected(node.selectedState);
       if (raw_state) {
         state = JSON.parse(raw_state);
       }
@@ -47,7 +50,7 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
     }
   }, [node]);
 
-  const handleClick = () => {
+  const handleClick = (e:MouseEvent) => {
     if (hasChildren) {
       if (!isOpen) {
         node.collapsibleState = hare.TreeItemState.Expanded
@@ -57,7 +60,21 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
       window.localStorage.setItem(id + "/" + node.id, node.collapsibleState);
       setOpen(node.collapsibleState === hare.TreeItemState.Expanded);
     }
+
+    if (e.ctrlKey) {
+      viewProvider.selectedCallback([
+        ...viewProvider.selected,
+        id + "/" + node.id
+      ]);
+    } else {
+      viewProvider.selectedCallback([id + "/" + node.id])
+    }
+
     node.command();
+    
+    if (e.button == 1) {
+      node.command();
+    }
   }
 
   useEffect(() => {
@@ -70,6 +87,17 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
       setStyle(null)
     }
   }, [isOpen]);
+
+  useEffect(() => {
+    const found = viewProvider.selected.some((element:string) => {
+      if (element === id + "/" + node.id) {
+        return true;
+      }
+    });
+
+    setSelected(found)
+    console.log(found)
+  }, [viewProvider.selected])
 
   const handleKeyDown = (e:any) => {
     console.log(e)
@@ -92,8 +120,8 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
     {node &&
       <div className="sideBar-entry-content" key={node.label}>
         <div id={node.id}
-          className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"}
-          onClick={() => {handleClick()}}
+          className={(selected) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"}
+          onClick={(e:any) => {handleClick(e)}}
           tabIndex={1}
           onKeyDown={(e:any) => handleKeyDown(e)}
           style={style}
