@@ -21,7 +21,7 @@
         display: flex;
         cursor: pointer;
         height: 22px;
-        background-color: var(--sideBar-background);
+        background-color: inherit;
         padding: 0 0 0 6px;
 }
 
@@ -180,4 +180,9 @@ h2 {
 
 .sideBar-entry-content {
         background-color: inherit;
+}
+
+.sideBar-entry-content[drop-active=true] {
+  background-color: var(--activityBar-unselected);
+  transition-delay: 0.1s;
 }

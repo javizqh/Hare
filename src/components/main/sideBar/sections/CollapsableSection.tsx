@@ -12,6 +12,22 @@ const CollapsableSection = ({data, parent} : {data:hare.IHareView, parent:string
     })
   }, []);
 
+  const handleKeyDown = (e:any) => {
+    console.log(e)
+    switch (e.keyCode) {
+      case 46:
+        // Delete
+        console.log("Delete",data.viewProvider.selected)
+        break;
+      case 113:
+        // F2
+        console.log(data.viewProvider.selected)
+        break;
+      default:
+        break;
+    }
+  }
+
   return (
     <div id={data.id} className="sideBar-entry" style={{flexGrow: (open) ? 1 : 0 }}>
       <div className="sideBar-entry-title" onClick={() => isOpen(!open)}>
@@ -35,7 +51,7 @@ const CollapsableSection = ({data, parent} : {data:hare.IHareView, parent:string
         }
       </div>
       {open && 
-        <div className="sideBar-entry-content-container">
+        <div className="sideBar-entry-content-container" onKeyDown={(e:any) => handleKeyDown(e)}>
           {children !== null && children!.map((entry:any) => {
             return (
               <TreeItem

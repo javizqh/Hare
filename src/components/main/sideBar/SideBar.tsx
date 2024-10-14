@@ -32,9 +32,10 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 					<div className="sideBar-content">
 						{containerView.views.map((entry:hare.IHareView) => {
 								return (
-									<BasicComponents.CollapsableSection data={entry} parent={currentMenu}>
-									{/* TODO: Tree is a json: 'folder':{...} */}
-									</BasicComponents.CollapsableSection>
+									<BasicComponents.CollapsableSection
+										data={entry} 
+										parent={currentMenu}
+									/>
 								)
 						})}
 					</div>

@@ -3,8 +3,9 @@ import {hare} from "../../../../hare.d.ts";
 import { readFile } from '../../../../API2.tsx';
 
 const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:hare.TreeViewProvider<any>, item: any, depth:number}) => {
-  //TODO: icon themes and move and rename
+  //TODO: icon themes and move
 
+  const componentRef = React.useRef(null);
   const ref = React.useRef(null);
   const [isOpen, setOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<boolean>(false);
@@ -12,11 +13,13 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
   const [hasChildren, setHasChildren] = useState<any>(null);
   const [style, setStyle] = useState<any>(null);
   const [node, setNode] = useState<hare.TreeItem |null>(null);
+  const [dropActive, setDropActive] = useState<boolean>(false);
 
   const folderStyle = {
     position: "sticky",
     top: depth*22+"px",
     zIndex: 1000-depth,
+    backgroundColor: "var(--sideBar-background)",
   };
 
   const padding = [];
@@ -103,32 +106,40 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
     setSelected(found)
   }, [viewProvider.selected])
 
-  const handleKeyDown = (e:any) => {
-    console.log(e)
-    // switch (e.keyCode) {
-    //   case 46:
-    //     // Delete
-    //     deleteAndRefresh();
-    //     break;
-    //   case 113:
-    //     // F2
-    //     renameFileAndRefresh();
-    //     break;
-    //   default:
-    //     break;
-    // }
+  //TODO: this should be reducing its size for each folder
+
+  function allowDrop(ev:any) {
+    if (componentRef.current) {
+      // componentRef.current.c("drop-active", true);
+      console.log(ev)
+      setDropActive(true)
+      ev.preventDefault();
+    }
+  }
+
+  function onDragStart(event:any) {
+      event.dataTransfer.setData('text/html', null); //cannot be empty string
+      event.dataTransfer.dropEffect = "move";
   }
 
   return (
     <>
     {node &&
-      <div className="sideBar-entry-content" key={node.label}>
+      <div className="sideBar-entry-content"
+        key={node.label}
+        ref={componentRef}
+        onDragOver={(e) => allowDrop(e)}
+        onDragLeave={() => setDropActive(false)}
+        onDrop={() => setDropActive(false)}
+        drop-active={dropActive.toString()}
+      >
         <div id={node.id}
           className={(selected) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"}
           onClick={(e:any) => {handleClick(e)}}
           tabIndex={1}
-          onKeyDown={(e:any) => handleKeyDown(e)}
           style={style}
+          draggable="true"
+          onDragStart={(e) => onDragStart(e)}
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
