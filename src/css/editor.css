@@ -39,7 +39,6 @@
         bottom: 0;
         right: 0;
         height: var(--terminalView-height);
-        z-index: 1;
 }
 
 .terminal-tab-container {

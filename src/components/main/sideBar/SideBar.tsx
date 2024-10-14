@@ -86,9 +86,11 @@ class Test implements hare.TreeViewProvider<entry> {
 	}
 
 	async getTreeItem(element: entry): hare.TreeItem | PromiseLike<hare.TreeItem> {
-		const treeItem: hare.TreeItem = new hare.TreeItem(element.fileName.toString(), (element.contextValue === "file") ? hare.TreeItemState.None : hare.TreeItemState.Collapsed);
+		const treeItem: hare.TreeItem = new hare.TreeItem(element.fileName, (element.contextValue === "file") ? hare.TreeItemState.None : hare.TreeItemState.Collapsed);
 		treeItem.contextValue = element.contextValue;
 		treeItem.id = element.url;
+		treeItem.tooltip = element.url;
+		// treeItem.description = element.contextValue;
 		if (treeItem.contextValue === "file") {
 			treeItem.iconPath = "/home/javier/.hare/extensions/hare.explorer/media/file.svg";
 		} else {

@@ -1,0 +1,65 @@
+.tooltip {
+        position: absolute;
+        visibility: hidden;
+        opacity: 0;
+        font-family: arial;
+        font-size: small;
+        pointer-events: none;
+        background: var(--activityBar-tip-background);
+        color: var(--activityBar-font);
+        justify-content: center;
+        text-align: center;
+        width: fit-content;
+        height: 20px;
+        border-radius: 4px;
+        padding-top: 3px;
+        padding-left: 6px;
+        padding-right: 6px;
+        border: var(--activityBar-tip-border) solid 1px;
+        z-index: 10001;
+        left: 55px;
+        top: 14px;
+        white-space: nowrap;
+}
+
+.tooltip:after {
+        visibility: visible;
+        opacity: 1;
+        content: '';
+        position: absolute;
+        display: block;
+        width: 0;
+        z-index: 3;
+        border-style: solid;
+        border-color: transparent var(--activityBar-tip-background);
+        border-width: 3px 5px 3px 0;
+        top: 50%;
+        left: -5px;
+        margin-top: -3px;
+}
+
+.tooltip:before {
+        visibility: visible;
+        opacity: 1;
+        content: '';
+        position: absolute;
+        width: 0;
+        z-index: 3;
+        border-style: solid;
+        border-color: transparent var(--activityBar-tip-border);
+        border-width: 4px 6px 4px 0;
+        top: 50%;
+        left: -6.5px;
+        margin-top: -4px;
+        display: block;
+}
+
+.has-tooltip:hover .tooltip{
+        visibility: visible;
+        opacity: 1;
+}
+
+.tree-tooltip {
+        left: 70%;
+        top: unset;
+}

@@ -90,14 +90,25 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
   return (
     <>
     {node &&
-      <div className="sideBar-entry-content" key={node.label} title={node.label}>
-        <div id={node.id} className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"} onClick={() => {handleClick()}} tabIndex={1} onKeyDown={(e:any) => handleKeyDown(e)} style={style}>
+      <div className="sideBar-entry-content" key={node.label}>
+        <div id={node.id}
+          className={(isOpenInEditor) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"}
+          onClick={() => {handleClick()}}
+          tabIndex={1}
+          onKeyDown={(e:any) => handleKeyDown(e)}
+          style={style}
+        >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
           <div ref={ref} className="sideBar-file-tree-icon" aria-hidden="true" />
-          <label>
+          <label title={node.tooltip}>
             {node.label}
           </label>
+          {node.description &&
+            <label className='description'>
+              {node.description}
+            </label>
+          }
         </div>
         {isOpen && children &&
           <>
@@ -126,13 +137,13 @@ const ArrowIndicator = ({hasChild, open}: {hasChild:boolean, open:boolean}) => {
   }
 
   if (open) {
-    return (          
+    return (
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="sideBar-file-tree-arrow" viewBox="0 0 24 24">
         <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
       </svg>
     )
   } else {
-    return (          
+    return (
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="sideBar-file-tree-arrow" viewBox="0 0 24 24">
         <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
       </svg>

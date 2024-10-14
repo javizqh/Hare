@@ -78,7 +78,7 @@ export module hare {
      * When `falsy`, {@link ThemeIcon.Folder Folder Theme Icon} is assigned, if item is collapsible otherwise {@link ThemeIcon.File File Theme Icon}.
      * When a file or folder {@link ThemeIcon} is specified, icon is derived from the current file icon theme for the specified theme icon using {@link TreeItem.resourceUri resourceUri} (if provided).
      */
-    iconPath?: string | hare.IHareIcon;
+    iconPath?: string | hare.IHareIcon; //TODO/2
 
     /**
      * A human-readable string which is rendered less prominent.
@@ -98,7 +98,7 @@ export module hare {
      * something in the editor. Using these commands ensures that the resulting editor will
      * appear consistent with how other built-in trees open editors.
      */
-    command?: hare.Command;
+    command?: hare.Command; //TODO
 
     /**
      * {@link TreeItemCollapsibleState} of the tree item.
@@ -129,7 +129,7 @@ export module hare {
      * {@link TreeItemCheckboxState TreeItemCheckboxState} of the tree item.
      * {@link TreeDataProvider.onDidChangeTreeData onDidChangeTreeData} should be fired when {@link TreeItem.checkboxState checkboxState} changes.
      */
-    selectedState?: hare.TreeItemSelectedState;
+    selectedState?: hare.TreeItemSelectedState; //TODO
 
     /**
      * @param label A human-readable string describing this item
@@ -143,6 +143,7 @@ export module hare {
       this.collapsibleState = collapsibleState;
       //FIX: This should be unique
       this.id = label;
+      this.description = false;
     };
   }
 
