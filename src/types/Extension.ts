@@ -1,6 +1,5 @@
+import { IHareViewContainers, View } from "@hare-ide/hare";
 import * as API2 from "../API2.tsx";
-
-import {hare} from "../hare.d.ts";
 
 export interface RustExtension {
   readonly root: string;
@@ -9,8 +8,8 @@ export interface RustExtension {
   readonly name: string;
   readonly description: string;
   readonly main: string;
-  readonly activity_bar_menus: hare.IHareViewContainers[];
-  readonly views: hare.View[];
+  readonly activity_bar_menus: IHareViewContainers[];
+  readonly views: View[];
 }
 
 //TODO: check for activation events

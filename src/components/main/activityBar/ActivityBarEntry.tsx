@@ -1,7 +1,7 @@
+import { IHareViewContainers } from "@hare-ide/hare";
 import React, {useEffect} from "react";
-import {hare} from "../../../hare.d.ts";
 
-const ActivityBarEntry = ({currentMenuId, setCurrentMenuId, data} : {currentMenuId:string, setCurrentMenuId:Function, data:hare.IHareViewContainers}) => {
+const ActivityBarEntry = ({currentMenuId, setCurrentMenuId, data} : {currentMenuId:string, setCurrentMenuId:Function, data:IHareViewContainers}) => {
   const {id, icon, title, views} = data;
   const ref = React.useRef(null);
 

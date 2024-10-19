@@ -1,18 +1,23 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import {hare} from "../../../../hare.d.ts";
-import TreeItem from './TreeItem.tsx';
+import { IHareView, ProviderResult } from '@hare-ide/hare';
+import TreeItemComponent from './TreeItemComponent.tsx';
 
-const CollapsableSection = ({data, parent} : {data:hare.IHareView, parent:string}) => {
+const CollapsableSection = ({data, parent} : {data:IHareView, parent:string}) => {
   const [open, isOpen] = useState<boolean>(false);
   const [children, setChildren] = useState<any>(null);
 
   useEffect(() => {
-    data.viewProvider?.getChildren().then((content:hare.ProviderResult<any>) => {
-      setChildren(content)
-    })
+    if (data.viewProvider) {
+      data.viewProvider.getChildren()!.then((content:ProviderResult<any>) => {
+        setChildren(content)
+      })
+    }
   }, []);
 
   const handleKeyDown = (e:any) => {
+    if (! data.viewProvider) {
+      return
+    }
     console.log(e)
     switch (e.keyCode) {
       case 46:
@@ -54,7 +59,7 @@ const CollapsableSection = ({data, parent} : {data:hare.IHareView, parent:string
         <div className="sideBar-entry-content-container" onKeyDown={(e:any) => handleKeyDown(e)}>
           {children !== null && children!.map((entry:any) => {
             return (
-              <TreeItem
+              <TreeItemComponent
                 id={parent + "/" + data.id} // TODO: also add project name
                 viewProvider={data.viewProvider}
                 item={entry}

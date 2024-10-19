@@ -1,17 +1,17 @@
 import React, { useState, useEffect, useContext} from 'react';
 import { ContextMenuContext } from '../contextMenu/contextMenuContext';
 import * as BasicComponents from "./sections/BasicComponents";
-import {hare} from "../../../hare.d.ts";
+import {IHareView, IHareViewContainers, ProviderResult, TreeItem, TreeItemState, TreeViewProvider} from "@hare-ide/hare"
 import {Procurator} from "../../../types/Procurator";
 
 import {readDir, readFile} from "../../../API2.tsx";
 
 const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) => {
     const procurator = Procurator.getInstance();
-		const [containerView, setContainerView] = useState<hare.IHareViewContainers|undefined>(undefined);
+		const [containerView, setContainerView] = useState<IHareViewContainers|undefined>(undefined);
 		const {menu, setMenu} = useContext(ContextMenuContext);
 
-		procurator.window.registerTreeViewProvider("jsonOutline", new Test());
+		procurator.window.registerTreeViewProvider("fileExplorer", new Test());
 
     useEffect(() => {
 			setContainerView(procurator.window.getContainerView(currentMenu));
@@ -30,7 +30,7 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 					<>
 					<BasicComponents.TitleBar title={containerView.title}/>
 					<div className="sideBar-content">
-						{containerView.views.map((entry:hare.IHareView) => {
+						{containerView.views.map((entry:IHareView) => {
 								return (
 									<BasicComponents.CollapsableSection
 										data={entry} 
@@ -57,7 +57,7 @@ interface entryRust {
 	url: string,
 }
 
-class Test implements hare.TreeViewProvider<entry> {
+class Test implements TreeViewProvider<entry> {
 	selectedCallback: Function;
 	selected: string[];
 
@@ -67,7 +67,7 @@ class Test implements hare.TreeViewProvider<entry> {
 		this.selected = selected
 	}
 
-	async getChildren(element?: entry | undefined): hare.ProviderResult<entry[]> {
+	async getChildren(element?: entry | undefined): ProviderResult<entry[]> {
 		var childs: entry[] = [];
 		var url: string = "/home/javier";
 
@@ -92,8 +92,8 @@ class Test implements hare.TreeViewProvider<entry> {
 		return childs;
 	}
 
-	async getTreeItem(element: entry): hare.TreeItem | PromiseLike<hare.TreeItem> {
-		const treeItem: hare.TreeItem = new hare.TreeItem(element.fileName, (element.contextValue === "file") ? hare.TreeItemState.None : hare.TreeItemState.Collapsed);
+	async getTreeItem(element: entry): TreeItem | PromiseLike<TreeItem> {
+		const treeItem: TreeItem = new TreeItem(element.fileName, (element.contextValue === "file") ? TreeItemState.None : TreeItemState.Collapsed);
 		treeItem.contextValue = element.contextValue;
 		treeItem.id = element.url;
 		treeItem.tooltip = element.url;
@@ -105,13 +105,13 @@ class Test implements hare.TreeViewProvider<entry> {
 		}
 
 		if (treeItem.contextValue === "file") {
-			treeItem.command = () => {
-				readFile(element.url).then((content:string) => {
-					console.log(content)
-				})
-			}
+			// treeItem.command = () => {
+			// 	readFile(element.url).then((content:string) => {
+			// 		console.log(content)
+			// 	})
+			// }
 		} else {
-			treeItem.command = () => {}
+			// treeItem.command = () => {}
 		}
 
 		return treeItem;

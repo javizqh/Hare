@@ -1,5 +1,4 @@
-import {hare} from "../hare.d.ts";
-
+import {HareViewPanel, IHareCommand, IHareIcon, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
 interface ExtensionContext {
   commands: CommandContext;
   window: WindowContext;
@@ -68,16 +67,16 @@ export class Procurator{
 
 }
 
-class HareCommand implements hare.IHareCommand {
+class HareCommand implements IHareCommand {
   id: string;
   title: string;
-  icon: hare.IHareIcon | null;
+  icon: IHareIcon | null;
   callback: Function | null;
 
   public constructor(
     id: string,
     title: string,
-    icon: hare.IHareIcon | null = null,
+    icon: IHareIcon | null = null,
     callback: Function | null = null,
   ) {
     this.id = id;
@@ -163,17 +162,17 @@ class CommandContext {
 
 class WindowContext {
   /**This class will handle all of the window related features */
-  private containerViews: hare.IHareViewContainer;
+  private containerViews: IHareViewContainer;
 
   constructor() {
     this.containerViews = {primary_bar: [], panel: []};
   }
 
-  public getContainerViews(viewPanel: hare.HareViewPanel) : hare.IHareViewContainers[] | [] {
+  public getContainerViews(viewPanel: HareViewPanel) : IHareViewContainers[] | [] {
     switch (viewPanel) {
-      case hare.HareViewPanel.PrimaryBar:
+      case HareViewPanel.PrimaryBar:
         return this.containerViews.primary_bar;
-      case hare.HareViewPanel.Panel:
+      case HareViewPanel.Panel:
         return this.containerViews.panel;
       default:
         //TODO: raise error
@@ -183,9 +182,9 @@ class WindowContext {
     return [];
   }
 
-  public registerContainerView(viewPanel: hare.HareViewPanel, viewContainer: hare.IHareViewContainers) {
-    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
-      const found = panels.some((container: hare.IHareViewContainers) => {
+  public registerContainerView(viewPanel: HareViewPanel, viewContainer: IHareViewContainers) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+      const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainer.id) {
           return true;
         }
@@ -197,11 +196,11 @@ class WindowContext {
     }
 
     switch (viewPanel) {
-      case hare.HareViewPanel.PrimaryBar:
+      case HareViewPanel.PrimaryBar:
         if (viewContainer)
         this.containerViews.primary_bar.push(viewContainer);
         break;
-      case hare.HareViewPanel.Panel:
+      case HareViewPanel.Panel:
         this.containerViews.panel.push(viewContainer);
         break;
       default:
@@ -210,10 +209,10 @@ class WindowContext {
     }
   }
 
-  public getContainerView(viewContainerId: string): hare.IHareViewContainers | undefined {
+  public getContainerView(viewContainerId: string): IHareViewContainers | undefined {
     var views;
-    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
-      const found = panels.some((container: hare.IHareViewContainers) => {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+      const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainerId) {
           views = container;
           return true;
@@ -228,7 +227,7 @@ class WindowContext {
     return views;
   }
 
-  public registerView(view: hare.View) {
+  public registerView(view: View) {
     const viewContainerId = view.parentId;
 
     if (viewContainerId === undefined) {
@@ -236,9 +235,9 @@ class WindowContext {
     }
 
     //TODO: check if duplicate
-    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
-      const duplicate = panels.some((container: hare.IHareViewContainers) => {
-        const foundIn = container.views.some((searchView:hare.IHareView) => {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+      const duplicate = panels.some((container: IHareViewContainers) => {
+        const foundIn = container.views.some((searchView:IHareView) => {
           if (searchView.id === view.id) {
             return true;
           }
@@ -254,8 +253,8 @@ class WindowContext {
       }
     }
 
-    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
-      const found = panels.some((container: hare.IHareViewContainers) => {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+      const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainerId) {
           // container.views.push({id:view.id, title:view.title, icon:view.icon, when:view.when, viewProvider:undefined})
           container.views.push({id:view.id, title:view.title, when:view.when, viewProvider:undefined})
@@ -269,10 +268,10 @@ class WindowContext {
     }
   }
 
-  public registerTreeViewProvider(id: string, treeViewProvider: hare.TreeViewProvider<any>) {
-    for (const panels of Object.values(this.containerViews) as hare.IHareViewContainers[]) {
-      const found = panels.some((container: hare.IHareViewContainers) => {
-        const foundIn = container.views.some((view:hare.IHareView) => {
+  public registerTreeViewProvider(id: string, treeViewProvider: TreeViewProvider<any>) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+      const found = panels.some((container: IHareViewContainers) => {
+        const foundIn = container.views.some((view:IHareView) => {
           if (view.id === id) {
             view.viewProvider = treeViewProvider;
             return true;
@@ -305,82 +304,4 @@ class ProjectContext {
   constructor() {
     
   }
-}
-
-export class TreeItem {
-		label: string;
-
-		/**
-		 * Optional id for the tree item that has to be unique across tree. The id is used to preserve the selection and expansion state of the tree item.
-		 *
-		 * If not provided, an id is generated using the tree item's label. **Note** that when labels change, ids will change and that selection and expansion state cannot be kept stable anymore.
-		 */
-		id?: string;
-
-		/**
-		 * The icon path or {@link ThemeIcon} for the tree item.
-		 * When `falsy`, {@link ThemeIcon.Folder Folder Theme Icon} is assigned, if item is collapsible otherwise {@link ThemeIcon.File File Theme Icon}.
-		 * When a file or folder {@link ThemeIcon} is specified, icon is derived from the current file icon theme for the specified theme icon using {@link TreeItem.resourceUri resourceUri} (if provided).
-		 */
-		iconPath?: string | hare.IHareIcon;
-
-		/**
-		 * A human-readable string which is rendered less prominent.
-		 * When `true`, it is derived from {@link TreeItem.resourceUri resourceUri} and when `falsy`, it is not shown.
-		 */
-		description?: string | boolean;
-
-		/**
-		 * The tooltip text when you hover over this item.
-		 */
-		tooltip?: string;
-
-		/**
-		 * The {@link Command} that should be executed when the tree item is selected.
-		 *
-		 * Please use `vscode.open` or `vscode.diff` as command IDs when the tree item is opening
-		 * something in the editor. Using these commands ensures that the resulting editor will
-		 * appear consistent with how other built-in trees open editors.
-		 */
-		command?: hare.Command;
-
-		/**
-		 * {@link TreeItemCollapsibleState} of the tree item.
-		 */
-		collapsibleState: hare.TreeItemState;
-
-		/**
-		 * Context value of the tree item. This can be used to contribute item specific actions in the tree.
-		 * For example, a tree item is given a context value as `folder`. When contributing actions to `view/item/context`
-		 * using `menus` extension point, you can specify context value for key `viewItem` in `when` expression like `viewItem == folder`.
-		 * ```json
-		 * "contributes": {
-		 *   "menus": {
-		 *     "view/item/context": [
-		 *       {
-		 *         "command": "extension.deleteFolder",
-		 *         "when": "viewItem == folder"
-		 *       }
-		 *     ]
-		 *   }
-		 * }
-		 * ```
-		 * This will show action `extension.deleteFolder` only for items with `contextValue` is `folder`.
-		 */
-		contextValue?: string;
-
-		/**
-		 * {@link TreeItemCheckboxState TreeItemCheckboxState} of the tree item.
-		 * {@link TreeDataProvider.onDidChangeTreeData onDidChangeTreeData} should be fired when {@link TreeItem.checkboxState checkboxState} changes.
-		 */
-		slectedState?: hare.TreeItemSeectedState;
-
-		/**
-		 * @param label A human-readable string describing this item
-		 * @param collapsibleState {@link TreeItemCollapsibleState} of the tree item. Default is {@link TreeItemCollapsibleState.None}
-		 */
-		constructor(label: string, collapsibleState: hare.TreeItemState = hare.TreeItemState.None) {
-      this.label = label;
-      this.collapsibleState = collapsibleState;
-    };
 }

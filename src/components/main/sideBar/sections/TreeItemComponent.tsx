@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {hare} from "../../../../hare.d.ts";
 import { readFile } from '../../../../API2.tsx';
+import { TreeItemState, TreeViewProvider, TreeItem, ProviderResult, TreeItemSelectedState } from '@hare-ide/hare';
 
-const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:hare.TreeViewProvider<any>, item: any, depth:number}) => {
+const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number}) => {
   //TODO: icon themes and move
 
   const componentRef = React.useRef(null);
@@ -12,7 +12,7 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
   const [children, setChildren] = useState<any>(null);
   const [hasChildren, setHasChildren] = useState<any>(null);
   const [style, setStyle] = useState<any>(null);
-  const [node, setNode] = useState<hare.TreeItem |null>(null);
+  const [node, setNode] = useState<TreeItem |null>(null);
   const [dropActive, setDropActive] = useState<boolean>(false);
 
   const folderStyle = {
@@ -29,31 +29,46 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
   }
 
   useEffect(() => {
-    viewProvider.getTreeItem(item).then((newNode:hare.TreeItem) => {
+    viewProvider.getTreeItem(item).then((newNode:TreeItem) => {
       setNode(newNode);
     })
   }, [])
 
   useEffect(() => {
-    if (node) {
-      var state = node.collapsibleState;
-      var raw_state = window.localStorage.getItem(id + "/" + node.id);
-      setHasChildren(state !== hare.TreeItemState.None)
-      setSelected(node.selectedState);
-      if (raw_state) {
-        state = JSON.parse(raw_state);
-      }
-      setOpen(state === hare.TreeItemState.Expanded);
+    if (!node) {
+      return
     }
+
+    var state = node.collapsibleState;
+    var raw_state = window.localStorage.getItem(id + "/" + node.id);
+    setHasChildren(state !== TreeItemState.None)
+
+    if (node.selectedState !== undefined) {
+      setSelected(node.selectedState === TreeItemSelectedState.selected);
+    }
+    if (raw_state) {
+      state = JSON.parse(raw_state);
+    }
+    setOpen(state === TreeItemState.Expanded);
+
     if (ref.current) {
-      readFile(node.iconPath).then((content:string) => {
-        // @ts-ignore
-        ref.current.innerHTML = content;
-      })
+      //TODO: icon packs
+      console.log(typeof node.iconPath === "string")
+      if (typeof node.iconPath === 'string') {
+        console.log(node.iconPath)
+        readFile(node.iconPath).then((content:string) => {
+          // @ts-ignore
+          ref.current.innerHTML = content;
+        })
+      }
     }
   }, [node]);
 
   const handleClick = (e:MouseEvent) => {
+    if (!node) {
+      return
+    }
+
     if (e.ctrlKey) {
       viewProvider.selectedCallback([
         ...viewProvider.selected,
@@ -66,24 +81,24 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
 
     if (hasChildren) {
       if (!isOpen) {
-        node.collapsibleState = hare.TreeItemState.Expanded
+        node.collapsibleState = TreeItemState.Expanded
       } else {
-        node.collapsibleState = hare.TreeItemState.Collapsed
+        node.collapsibleState = TreeItemState.Collapsed
       }
-      window.localStorage.setItem(id + "/" + node.id, node.collapsibleState);
-      setOpen(node.collapsibleState === hare.TreeItemState.Expanded);
+      window.localStorage.setItem(id + "/" + node.id, String(node.collapsibleState));
+      setOpen(node.collapsibleState === TreeItemState.Expanded);
     }
 
-    node.command();
+    // node.command();
     
     if (e.button == 1) {
-      node.command();
+      // node.command();
     }
   }
 
   useEffect(() => {
     if (isOpen) {
-      viewProvider.getChildren(item).then((content:hare.ProviderResult<any>) => {
+      viewProvider.getChildren(item)!.then((content:ProviderResult<any>) => {
         setChildren(content)
       })
       setStyle(folderStyle)
@@ -157,7 +172,7 @@ const TreeItem = ({id, viewProvider, item, depth} : {id:string, viewProvider:har
           <>
             {children!.map((entry:any) => {
               return (
-                <TreeItem
+                <TreeItemComponent
                   id={id}
                   viewProvider={viewProvider}
                   item={entry}
@@ -194,4 +209,4 @@ const ArrowIndicator = ({hasChild, open}: {hasChild:boolean, open:boolean}) => {
   }
 }
 
-export default TreeItem;
+export default TreeItemComponent;

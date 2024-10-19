@@ -1,12 +1,12 @@
 import SettingsContainer from "./settings/SettingsContainer";
 import React, { useState, useEffect, useRef } from 'react';
-import {hare} from "../../../hare.d.ts";
 import ActivityBarEntry from "./ActivityBarEntry.tsx";
 
 import {Procurator} from "../../../types/Procurator";
+import { IHareViewContainers } from "@hare-ide/hare";
 
 const ActivityBar = ({setCurrentMenu, currentMenu} : {setCurrentMenu:any, currentMenu:any}) => {
-    var containerViews:hare.IHareViewContainers[]  = [];
+    var containerViews:IHareViewContainers[]  = [];
 
     useEffect(() => {
     }, [])
@@ -17,7 +17,7 @@ const ActivityBar = ({setCurrentMenu, currentMenu} : {setCurrentMenu:any, curren
     return (
         <div id = "activitybar" className="activitybar">
             <ul id="actions-container" className="actions-container">
-                {containerViews.map((data:hare.IHareViewContainers) => {
+                {containerViews.map((data:IHareViewContainers) => {
                     return (
                         <ActivityBarEntry
                             currentMenuId={currentMenu}
