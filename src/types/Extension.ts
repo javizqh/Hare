@@ -1,5 +1,6 @@
 import { IHareViewContainers, View } from "@hare-ide/hare";
 import * as API2 from "../API2.tsx";
+import { Procurator } from "./Procurator.ts";
 
 export interface RustExtension {
   readonly root: string;
@@ -37,7 +38,8 @@ export class Extension{
     private async activateExtension(file:string): Promise<void> {
       // TODO: pass context
       this.source = this.doimport(file)
-      this.source.then(extension => extension.activate(API2))
+      var procurator = Procurator.getInstance();
+      this.source.then(extension => extension.activate(procurator))
     }
 
     private doimport (str:string) {

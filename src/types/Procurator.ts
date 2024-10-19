@@ -1,4 +1,5 @@
 import {HareViewPanel, IHareCommand, IHareIcon, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
+import { readDir } from "../API2";
 interface ExtensionContext {
   commands: CommandContext;
   window: WindowContext;
@@ -48,12 +49,14 @@ export class Procurator{
   public window: WindowContext;
   public subscriptions: SubscriptionsContext;
   public project: ProjectContext;
+  public readDir: Function; // TODO: temporary
 
   private constructor() {
     this.commands = new CommandContext();
     this.window = new WindowContext();
     this.subscriptions = new SubscriptionsContext();
     this.project = new ProjectContext();
+    this.readDir = readDir; // TODO: temporary
   }
 
   static getInstance() {
