@@ -8,7 +8,7 @@ const CollapsableSection = ({data, parent} : {data:IHareView, parent:string}) =>
 
   useEffect(() => {
     if (data.viewProvider) {
-      data.viewProvider.getChildren()!.then((content:ProviderResult<any>) => {
+      Promise.resolve(data.viewProvider.getChildren())!.then((content:ProviderResult<any>) => {
         setChildren(content)
       })
     }
@@ -61,7 +61,7 @@ const CollapsableSection = ({data, parent} : {data:IHareView, parent:string}) =>
             return (
               <TreeItemComponent
                 id={parent + "/" + data.id} // TODO: also add project name
-                viewProvider={data.viewProvider}
+                viewProvider={data.viewProvider!}
                 item={entry}
                 depth={0}
               />

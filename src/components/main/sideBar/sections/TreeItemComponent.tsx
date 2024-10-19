@@ -29,7 +29,7 @@ const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewPro
   }
 
   useEffect(() => {
-    viewProvider.getTreeItem(item).then((newNode:TreeItem) => {
+    Promise.resolve(viewProvider.getTreeItem(item)).then((newNode:TreeItem) => {
       setNode(newNode);
     })
   }, [])
@@ -98,7 +98,7 @@ const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewPro
 
   useEffect(() => {
     if (isOpen) {
-      viewProvider.getChildren(item)!.then((content:ProviderResult<any>) => {
+      Promise.resolve(viewProvider.getChildren(item))!.then((content:ProviderResult<any>) => {
         setChildren(content)
       })
       setStyle(folderStyle)

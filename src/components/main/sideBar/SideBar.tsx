@@ -67,7 +67,7 @@ class Test implements TreeViewProvider<entry> {
 		this.selected = selected
 	}
 
-	async getChildren(element?: entry | undefined): ProviderResult<entry[]> {
+	async getChildren(element?: entry | undefined) {
 		var childs: entry[] = [];
 		var url: string = "/home/javier";
 
@@ -92,7 +92,7 @@ class Test implements TreeViewProvider<entry> {
 		return childs;
 	}
 
-	async getTreeItem(element: entry): TreeItem | PromiseLike<TreeItem> {
+	async getTreeItem(element: entry) {
 		const treeItem: TreeItem = new TreeItem(element.fileName, (element.contextValue === "file") ? TreeItemState.None : TreeItemState.Collapsed);
 		treeItem.contextValue = element.contextValue;
 		treeItem.id = element.url;
