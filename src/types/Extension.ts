@@ -1,6 +1,26 @@
-import { IHareViewContainers, View } from "@hare-ide/hare";
-import * as API2 from "../API2.tsx";
+import { IHareIcon, IHareIconPack, IHareViewContainers, View } from "@hare-ide/hare";
+import {readFile} from "../API2.tsx";
 import { Procurator } from "./Procurator.ts";
+interface RustCommand {
+  command: string,
+  title: string,
+  icon?: IHareIcon,
+}
+
+interface RustMenuCommand {
+  command: string,
+  when: string,
+  group?: string,
+}
+interface RustMenus {
+  view_title?: RustMenuCommand[],
+  view_item_context: RustMenuCommand[],
+}
+
+interface RustConfigurations {
+  title: string,
+  properties: string,
+}
 
 export interface RustExtension {
   readonly root: string;
@@ -8,9 +28,14 @@ export interface RustExtension {
   readonly version: string;
   readonly name: string;
   readonly description: string;
-  readonly main: string;
-  readonly activity_bar_menus: IHareViewContainers[];
-  readonly views: View[];
+  readonly main?: string;
+  readonly primary_bar_menus?: IHareViewContainers[];
+  readonly panel_menus?: IHareViewContainers[];
+  readonly views?: View[];
+  readonly icon_packs?: IHareIconPack[];
+  readonly commands?: RustCommand[];
+  readonly menus?: RustMenus;
+  readonly configurations?: RustConfigurations[];
 }
 
 //TODO: check for activation events
@@ -21,6 +46,7 @@ export class Extension{
     private readonly id: string;
     private readonly version: string;
     private readonly name: string;
+    private readonly main: string;
     private readonly description: string;
     private source: Promise<any> | null = null;
 
@@ -31,15 +57,20 @@ export class Extension{
       this.version = data.version;
       this.name = data.name;
       this.description = data.description;
+      this.main =  data.main;
 
-      this.activateExtension(data.main);
+      if (data.main !== "") {
+        this.activateExtension();
+      }
     }
 
-    private async activateExtension(file:string): Promise<void> {
-      // TODO: pass context
-      this.source = this.doimport(file)
-      var procurator = Procurator.getInstance();
-      this.source.then(extension => extension.activate(procurator))
+    private async activateExtension(): Promise<void> {
+      readFile(this.root + "/" +this.main).then((content:string) => {
+        this.source = this.doimport(content)
+        // TODO: pass context
+        var procurator = Procurator.getInstance();
+        this.source.then(extension => extension.activate(procurator))
+      })
     }
 
     private doimport (str:string) {

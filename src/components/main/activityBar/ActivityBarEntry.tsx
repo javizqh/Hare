@@ -1,5 +1,6 @@
 import { IHareViewContainers } from "@hare-ide/hare";
 import React, {useEffect} from "react";
+import { readFile } from "../../../API2";
 
 const ActivityBarEntry = ({currentMenuId, setCurrentMenuId, data} : {currentMenuId:string, setCurrentMenuId:Function, data:IHareViewContainers}) => {
   const {id, icon, title, views} = data;
@@ -7,8 +8,10 @@ const ActivityBarEntry = ({currentMenuId, setCurrentMenuId, data} : {currentMenu
 
   useEffect(() => {
     if (ref.current) {
-      // @ts-ignore
-      ref.current.innerHTML = icon;
+      readFile(icon).then((content:string) => {
+        // @ts-ignore
+        ref.current.innerHTML = content;
+      })
     }
   }, [])
   

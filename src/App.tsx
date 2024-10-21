@@ -25,17 +25,27 @@ const App = () => {
         Hare.load_extensions().then((new_extensions:RustExtension[]) => {
             var procurator = Procurator.getInstance();
             new_extensions.forEach(extension => {
-                extension.activity_bar_menus.forEach(viewContainer => {
-                    procurator.window.registerContainerView(HareViewPanel.PrimaryBar, viewContainer);
-                })
-                extension.views.forEach(view => {
-                    procurator.window.registerView(view);
-                })
+                    if (extension.primary_bar_menus) {
+                    extension.primary_bar_menus.forEach(viewContainer => {
+                        procurator.window.registerContainerView(HareViewPanel.PrimaryBar, viewContainer);
+                    })
+                }
+
+                if (extension.views) {
+                    extension.views.forEach(view => {
+                        procurator.window.registerView(view);
+                    })
+                }
                 let ext = new Extension(extension)
                 setExtensions([
                     ext,
                     ...extensions // Put old items at the end
                 ]);
+                if (extension.configurations) {
+                    extension.configurations.forEach(configs => {
+                        console.log(JSON.parse(configs.properties))
+                    })
+                }
             });
         })
         .catch((error:any) => {
