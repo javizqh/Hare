@@ -105,6 +105,7 @@
 
 .sideBar-entry-title {
         height: 22px;
+        min-height: 22px;
         padding-left: 2px;
         padding-right: 2px;
         display: flex;
