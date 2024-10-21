@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { readFile } from '../../../../API2.tsx';
 import { TreeItemState, TreeViewProvider, TreeItem, ProviderResult, TreeItemSelectedState } from '@hare-ide/hare';
 
 const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number}) => {
   //TODO: icon themes and move
 
-  const componentRef = React.useRef(null);
-  const ref = React.useRef(null);
+  const componentRef = useRef(null);
+  const ref = useRef(null);
   const [isOpen, setOpen] = useState<boolean>(false);
   const [selected, setSelected] = useState<boolean>(false);
   const [children, setChildren] = useState<any>(null);

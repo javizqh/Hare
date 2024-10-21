@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use std::fs;
+use std::ptr::null;
 use serde_json::Value;
 
 #[derive(Clone, serde::Serialize)]
@@ -26,8 +27,8 @@ pub struct HareExtension {
   name: String,
   description: String,
   main: String,
-  activity_bar_menus: Vec<ViewContainer>,
-  views: Vec<HareSideBarMenu>
+  activity_bar_menus: Option<Vec<ViewContainer>>,
+  views: Option<Vec<HareSideBarMenu>>
 }
 
 //TODO: check for activation events
@@ -39,20 +40,40 @@ impl HareExtension {
     let json: serde_json::Value = serde_json::from_reader(file)
         .expect("file should be proper JSON");
   
+    // MUST EXIST
     let id: String = json.get("name").expect("file should have name key").to_string();
     let version = json.get("version").expect("file should have version key").to_string();
     let name = json.get("displayName").expect("file should have displayName key").to_string();
     let description = json.get("description").expect("file should have description key").to_string();
-    let main = json.get("main").expect("file should have main key").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
 
     // TODO: this for every type of contribution
-    let contributes: Value = json.get("contributes").unwrap().clone();
-    let views_containers: Value = contributes.get("viewsContainers").unwrap().clone();
-    let activitybar: Value = views_containers.get("primary_bar").unwrap().clone();
-    let activity_bar_menus: Vec<ViewContainer> = Self::load_activitybar(path.clone(), activitybar);
+    // CAN EXIST
+    let main_raw = json.get("main");
+    let mut main: String = "".into();
 
-    let views: Value = contributes.get("views").unwrap().clone();
-    let views: Vec<HareSideBarMenu> = Self::load_side_bar_menus(views);
+    if main_raw.is_some() {
+      main = main_raw.expect("main should exist").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+      main = read_file(path.join(main).to_str().unwrap().into()).unwrap()
+    }
+
+    let contributes: Value = json.get("contributes").unwrap().clone();
+    let views_containers = contributes.get("viewsContainers");
+
+    let mut activity_bar_menus: Option<Vec<ViewContainer>> = None;
+    let mut views: Option<Vec<HareSideBarMenu>> = None;
+
+    if views_containers.is_some() {
+      let views_containers: Value = views_containers.unwrap().clone();
+      let activitybar: Value = views_containers.get("primary_bar").unwrap().clone();
+      activity_bar_menus = Some(Self::load_activitybar(path.clone(), activitybar));
+    }
+
+    let views_raw = contributes.get("views");
+
+    if views_raw.is_some() {
+      let views_raw: Value = views_raw.unwrap().clone();
+      views = Some(Self::load_side_bar_menus(views_raw));
+    }
 
     HareExtension {
       root: path.to_str().unwrap().into(),
@@ -60,7 +81,7 @@ impl HareExtension {
       version: version.trim_matches(|c| c == '\"' || c == '\'').to_string(),
       name: name.trim_matches(|c| c == '\"' || c == '\'').to_string(),
       description: description.trim_matches(|c| c == '\"' || c == '\'').to_string(),
-      main: read_file(path.join(main).to_str().unwrap().into()).unwrap(),
+      main,
       activity_bar_menus,
       views
     }

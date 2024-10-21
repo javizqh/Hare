@@ -85,9 +85,9 @@ fn load_extensions() -> Result<Vec<HareExtension>, String> {
     let mut vec: Vec<HareExtension> = Vec::new();
     // vec.push(HareExtension::new("/home/javier/Code/Tauri/hare/Hare/src/extensions/hare.file-explorer".into()));
     vec.push(HareExtension::new("/home/javier/.hare/extensions/hare.explorer/".into()));
+    // vec.push(HareExtension::new("/home/javier/.hare/extensions/hare.basic-icon-pack/".into()));
     Ok(vec)
 }
-
 
 fn main() {
     tauri::Builder::default()

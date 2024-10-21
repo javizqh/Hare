@@ -105,7 +105,7 @@ class HareCommand implements IHareCommand {
   }
 
   public isInternal(): boolean {
-    return this.id.at(0) === "_";
+    return this.id[0] === "_";
   }
   
 }
@@ -256,6 +256,7 @@ class WindowContext {
       }
     }
 
+
     for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
       const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainerId) {
@@ -272,6 +273,7 @@ class WindowContext {
   }
 
   public registerTreeViewProvider(id: string, treeViewProvider: TreeViewProvider<any>) {
+    console.log("Registering")
     for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
       const found = panels.some((container: IHareViewContainers) => {
         const foundIn = container.views.some((view:IHareView) => {
