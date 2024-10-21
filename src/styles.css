@@ -14,7 +14,8 @@
   -webkit-text-size-adjust: 100%;
 } */
 
-body,html {
+body,
+html {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   margin: 0;
@@ -23,21 +24,37 @@ body,html {
   height: 100%;
   --sideBar-width: 300px;
   --statusBar-height: 22px;
-  --terminalView-height: 500px;
+  --terminalView-height: 100px;
 }
 
 :root {
-        --activityBar-background: #333333;
-        --activityBar-font: #c0c0c0;
-        --activityBar-notifications-background: #007ACC;
-        --activityBar-notifications-color: #ffffff;
-        --activityBar-selected-indicator: #ff9100;
-        --activityBar-selected: #ffffff;
-        --activityBar-unselected: #858585;
-        --activityBar-tip-background: #1E1E1E;
-        --activityBar-tip-border: #333333;
-        --background: #1E1E1E;
-        --dragbar-color: #ff9100;
-        --sideBar-background: #252525;
-        --statusBar-background: #ff9100;
+  --activityBar-background: #333333;
+  --activityBar-font: #c0c0c0;
+  --activityBar-notifications-background: #007ACC;
+  --activityBar-notifications-color: #ffffff;
+  --activityBar-selected-indicator: #ff9100;
+  --activityBar-selected: #ffffff;
+  --activityBar-unselected: #858585;
+  --activityBar-tip-background: #1E1E1E;
+  --activityBar-tip-border: #333333;
+  --background: #1E1E1E;
+  --dragbar-color: #ff9100;
+  --sideBar-background: #252525;
+  --statusBar-background: #ff9100;
 }
+
+/* :root {
+  --activityBar-background: #ffffff;
+  --activityBar-font: #383737;
+  --activityBar-notifications-background: #007ACC;
+  --activityBar-notifications-color: #ffffff;
+  --activityBar-selected-indicator: #29395C;
+  --activityBar-selected: #29395C;
+  --activityBar-unselected: #858585;
+  --activityBar-tip-background: #ffffff;
+  --activityBar-tip-border: #29395C;
+  --background: #ffffff;
+  --dragbar-color: #29395C;
+  --sideBar-background: #dbdbdb;
+  --statusBar-background: #29395C;
+} */

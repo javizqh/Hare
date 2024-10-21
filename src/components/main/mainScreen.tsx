@@ -5,9 +5,6 @@ import ActivityBar from "./activityBar/ActivityBar";
 import SideBar from "./sideBar/SideBar";
 import EditorContainer from "./editorView/EditorContainer";
 
-import config from "../../config/config.json";
-import {Extension} from "../../types/Extension.ts";
-
 interface EditorTab {
   path: string;
   name: string;
@@ -16,7 +13,7 @@ interface EditorTab {
   age: number; // Lowest == Newer
 }
 
-const MainScreen = ({extensions} : {extensions:Extension[]}) => {
+const MainScreen = () => {
 
     const [dragPosX, setDragPosX] = useState(348);
     const [isEditorOpen, setEditorOpen] = useState(false);

@@ -45,7 +45,7 @@ const App = () => {
 
     return (
     
-        <><MainScreen extensions={extensions}/></>
+        <><MainScreen/></>
     );
 };
 
