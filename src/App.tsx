@@ -41,9 +41,10 @@ const App = () => {
                     ext,
                     ...extensions // Put old items at the end
                 ]);
-                if (extension.configurations) {
-                    extension.configurations.forEach(configs => {
-                        console.log(JSON.parse(configs.properties))
+                if (extension.menus) {
+                    // console.log(extension.menus)
+                    extension.menus.forEach((menu:any) => {
+                        console.log(menu)
                     })
                 }
             });

@@ -186,7 +186,7 @@ class WindowContext {
   }
 
   public registerContainerView(viewPanel: HareViewPanel, viewContainer: IHareViewContainers) {
-    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainer.id) {
           return true;
@@ -214,7 +214,7 @@ class WindowContext {
 
   public getContainerView(viewContainerId: string): IHareViewContainers | undefined {
     var views;
-    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainerId) {
           views = container;
@@ -231,14 +231,14 @@ class WindowContext {
   }
 
   public registerView(view: View) {
-    const viewContainerId = view.parentId;
+    const viewContainerId = view.parent;
 
     if (viewContainerId === undefined) {
       return;
     }
 
     //TODO: check if duplicate
-    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const duplicate = panels.some((container: IHareViewContainers) => {
         const foundIn = container.views.some((searchView:IHareView) => {
           if (searchView.id === view.id) {
@@ -257,7 +257,7 @@ class WindowContext {
     }
 
 
-    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainerId) {
           // container.views.push({id:view.id, title:view.title, icon:view.icon, when:view.when, viewProvider:undefined})
@@ -274,7 +274,7 @@ class WindowContext {
 
   public registerTreeViewProvider(id: string, treeViewProvider: TreeViewProvider<any>) {
     console.log("Registering")
-    for (const panels of Object.values(this.containerViews) as IHareViewContainers[]) {
+    for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const found = panels.some((container: IHareViewContainers) => {
         const foundIn = container.views.some((view:IHareView) => {
           if (view.id === id) {

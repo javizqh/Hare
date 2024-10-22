@@ -11,8 +11,8 @@ struct ViewContainer {
 }
 
 #[derive(Clone, serde::Serialize)]
-struct HareSideBarMenu {
-  parentId: String, // Which menu is the parent
+struct HareView {
+  parent: String, // Which menu is the parent
   id: String,
   title: String,
   when: String, // File
@@ -24,7 +24,6 @@ struct Icon {
   dark: String,
   when: Option<String>,
 }
-
 
 #[derive(Clone, serde::Serialize)]
 struct IconPack {
@@ -38,27 +37,27 @@ struct JsonCommand {
   command: String,
   title: String,
   icon: Option<Icon>,
+  category: Option<String>
 }
 
+//TODO: check if add submenu, if doing so, change the menu to not only stored defined ones
 #[derive(Clone, serde::Serialize)]
-struct MenuCommand {
+struct Menu {
+  parent: String, // Which menu is the parent
   command: String,
   when: String,
   group: Option<String>,
 }
 
-//TODO: add all submenus
-#[derive(Clone, serde::Serialize)]
-struct Menu {
-  view_title: Option<Vec<MenuCommand>>,
-  view_item_context: Option<Vec<MenuCommand>>,
-}
-
 #[derive(Clone, serde::Serialize)]
 struct Configuration {
+  id: String,
   title: String,
+  order: Option<i32>,
   properties: String,
 }
+
+//TODO: missing capabilities, colors, icons(Do not make sense), submenus, keybindings, customEditors, viewsWelcome, walkthroughs
 #[derive(Clone, serde::Serialize)]
 pub struct HareExtension {
   root: String,
@@ -66,17 +65,16 @@ pub struct HareExtension {
   version: String,
   name: String,
   description: String,
-  main: String,
+  main: Option<String>,
+  activation_events: Option<Vec<String>>,
   primary_bar_menus: Option<Vec<ViewContainer>>,
   panel_menus: Option<Vec<ViewContainer>>,
-  views: Option<Vec<HareSideBarMenu>>,
+  views: Option<Vec<HareView>>,
   icon_packs: Option<Vec<IconPack>>,
   commands: Option<Vec<JsonCommand>>,
-  menus: Option<Menu>,
+  menus: Option<Vec<Menu>>,
   configurations: Option<Vec<Configuration>>
 }
-
-//TODO: check for activation events
 
 impl HareExtension {
   pub fn new(path:PathBuf) -> HareExtension {
@@ -86,20 +84,30 @@ impl HareExtension {
         .expect("file should be proper JSON");
   
     // MUST EXIST
-    let id: String = json.get("name").expect("file should have name key").to_string();
-    let version = json.get("version").expect("file should have version key").to_string();
-    let name = json.get("displayName").expect("file should have displayName key").to_string();
-    let description = json.get("description").expect("file should have description key").to_string();
+    let id: String = json.get("name").expect("Extension must have a name").to_string();
+    let version = json.get("version").expect("Extension must have a version").to_string();
+    let name = json.get("displayName").expect("Extension must have a display name").to_string();
+    let description = json.get("description").expect("Extension must have a description").to_string();
 
+    // OPTIONAL
     let main_raw = json.get("main");
-    let mut main: String = "".into();
+    let activation_raw = json.get("activationEvents");
+
+    let mut main: Option<String> = None;
+    let mut activation_events: Option<Vec<String>> = None;
 
     if main_raw.is_some() {
-      main = main_raw.expect("main should exist").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+      let main_raw: Value = main_raw.unwrap().clone();
+      main = Some(main_raw.to_string().trim_matches(|c| c == '\"' || c == '\'').to_string());
+    }
+
+    if activation_raw.is_some() {
+      let activation_raw: Value = activation_raw.unwrap().clone();
+      activation_events = Some(Self::load_activation_events(activation_raw));
     }
 
     // CONTRIBUTES /////////////////////////////////////////////////////////////
-    let contributes: Value = json.get("contributes").unwrap().clone();
+    let contributes: Value = json.get("contributes").expect("Extension must have contribute").clone();
 
     let views_containers_raw = contributes.get("viewsContainers");
     let views_raw = contributes.get("views");
@@ -110,10 +118,10 @@ impl HareExtension {
 
     let mut primary_bar_menus: Option<Vec<ViewContainer>> = None;
     let mut panel_menus: Option<Vec<ViewContainer>> = None;
-    let mut views: Option<Vec<HareSideBarMenu>> = None;
+    let mut views: Option<Vec<HareView>> = None;
     let mut icon_packs: Option<Vec<IconPack>> = None;
     let mut commands: Option<Vec<JsonCommand>> = None;
-    let mut menus: Option<Menu> = None;
+    let mut menus: Option<Vec<Menu>> = None;
     let mut configurations: Option<Vec<Configuration>> = None;
 
     if views_containers_raw.is_some() {
@@ -124,7 +132,7 @@ impl HareExtension {
 
     if views_raw.is_some() {
       let views_raw: Value = views_raw.unwrap().clone();
-      views = Some(Self::load_side_bar_menus(views_raw));
+      views = Some(Self::load_views(views_raw));
     }
 
     if icon_packs_raw.is_some() {
@@ -139,10 +147,7 @@ impl HareExtension {
 
     if menus_raw.is_some() {
       let menus_raw: Value = menus_raw.unwrap().clone();
-      menus = Some(Menu {
-        view_title: Self::load_menus("view/title".into(), menus_raw.clone()),
-        view_item_context: Self::load_menus("view/item/context".into(), menus_raw.clone()),
-      });
+      menus = Some(Self::load_menus(menus_raw.clone()));
     }
 
     if configurations_raw.is_some() {
@@ -157,6 +162,7 @@ impl HareExtension {
       name: name.trim_matches(|c| c == '\"' || c == '\'').to_string(),
       description: description.trim_matches(|c| c == '\"' || c == '\'').to_string(),
       main,
+      activation_events,
       primary_bar_menus,
       panel_menus,
       views,
@@ -171,6 +177,16 @@ impl HareExtension {
     // TODO: if name enclosed in %% check for locales 
   }
 
+  fn load_activation_events(array: Value) -> Vec<String>{
+    let mut new_events: Vec<String> = Vec::new();
+    
+    for entry in array.as_array().unwrap().to_vec() {
+      new_events.push(entry.to_string());
+    }
+
+    return new_events;
+  }
+
   fn load_view_container(root: PathBuf, view_type: String, json: Value) -> Vec<ViewContainer>{
     let mut view_containers: Vec<ViewContainer> = Vec::new();
 
@@ -183,9 +199,9 @@ impl HareExtension {
     let json = container_json.unwrap();
     
     for entry in json.as_array().unwrap().to_vec() {
-      let id: String = entry.get("id").expect("file should have id key").to_string();
-      let title = entry.get("title").expect("file should have title key").to_string();
-      let icon: String = entry.get("icon").expect("file should have icon key").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+      let id: String = entry.get("id").expect("View container must have an id").to_string();
+      let title = entry.get("title").expect("View container must have a title").to_string();
+      let icon: String = entry.get("icon").expect("View container must have an icon").to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
       view_containers.push(
         ViewContainer {
           id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
@@ -199,14 +215,14 @@ impl HareExtension {
     return view_containers;
   }
 
-  fn load_side_bar_menus(views: Value) -> Vec<HareSideBarMenu>{
-    let mut new_views: Vec<HareSideBarMenu> = Vec::new();
+  fn load_views(views: Value) -> Vec<HareView>{
+    let mut new_views: Vec<HareView> = Vec::new();
     
     for view in views.as_object().unwrap() {
       let (key, val) = view;
       for entry in val.as_array().unwrap().to_vec() {
-        let id = entry.get("id").expect("file should have id key").to_string();
-        let title = entry.get("title").expect("file should have title key").to_string();
+        let id = entry.get("id").expect("View must have an id").to_string();
+        let title = entry.get("title").expect("View must have a title").to_string();
 
         let tmp_when = entry.get("when");
         let mut when: String = "true".into();
@@ -214,8 +230,8 @@ impl HareExtension {
           when = tmp_when.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
         }
         new_views.push(
-          HareSideBarMenu {
-            parentId: key.to_string(),
+          HareView {
+            parent: key.to_string(),
             id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
             title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
             when
@@ -263,11 +279,18 @@ impl HareExtension {
         })
       }
 
+      let tmp_category: Option<&Value> = entry.get("category");
+      let mut category: Option<String> = None ;
+      if tmp_category.is_some() {
+        category = Some(tmp_category.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string());
+      }
+
       new_commands.push(
         JsonCommand {
           command: command.trim_matches(|c| c == '\"' || c == '\'').to_string(),
           title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
-          icon
+          icon,
+          category
         }
       );
     }
@@ -275,49 +298,54 @@ impl HareExtension {
     return new_commands;
   }
 
-  fn load_menus(menu_type: String, json: Value) -> Option<Vec<MenuCommand>>{
-    let mut menu_commands: Vec<MenuCommand> = Vec::new();
-
-    let container_json = json.get(menu_type);
-
-    if container_json.is_none() {
-      return None
-    }
-
-    let json = container_json.unwrap();
+  fn load_menus(json: Value) -> Vec<Menu>{
+    let mut menu_commands: Vec<Menu> = Vec::new();
     
-    for entry in json.as_array().unwrap().to_vec() {
-      let command: String = entry.get("command").expect("Menu must have a command id").to_string();
-      let when = entry.get("when").expect("Menu must have a when field").to_string();
+    for view in json.as_object().unwrap() {
+      let (key, val) = view;
+      for entry in val.as_array().unwrap().to_vec() {
+        let command: String = entry.get("command").expect("Menu must have a command id").to_string();
+        let when = entry.get("when").expect("Menu must have a when field").to_string();
 
-      let tmp_group = entry.get("group");
-      let mut group: Option<String> = None ;
-      if tmp_group.is_some() {
-        group = Some(tmp_group.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string());
-      }
-
-      menu_commands.push(
-        MenuCommand {
-          command: command.trim_matches(|c| c == '\"' || c == '\'').to_string(),
-          when: when.trim_matches(|c| c == '\"' || c == '\'').to_string(),
-          group
+        let tmp_group = entry.get("group");
+        let mut group: Option<String> = None ;
+        if tmp_group.is_some() {
+          group = Some(tmp_group.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string());
         }
-      );
+
+        menu_commands.push(
+          Menu {
+            parent: key.to_string(),
+            command: command.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+            when: when.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+            group
+          }
+        );
+      }
     }
 
-    return Some(menu_commands);
+    return menu_commands;
   }
 
   fn load_configurations(array: Value) -> Vec<Configuration>{
     let mut new_configurations: Vec<Configuration> = Vec::new();
     
     for entry in array.as_array().unwrap().to_vec() {
+      let id = entry.get("id").expect("Configuration must have an id").to_string();
       let title = entry.get("title").expect("Configuration must have a title").to_string();
       let properties = entry.get("properties").expect("Configuration must have properties").to_string();
 
+      let tmp_order = entry.get("order");
+      let mut order: Option<i32> = None ;
+      if tmp_order.is_some() {
+        order = Some(tmp_order.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string().parse().unwrap());
+      }
+
       new_configurations.push(
         Configuration {
+          id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
           title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+          order,
           properties: properties.trim_matches(|c| c == '\"' || c == '\'').to_string()
         }
       );
