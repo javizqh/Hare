@@ -2,7 +2,7 @@ import SettingsContainer from "./settings/SettingsContainer";
 import React, { useState, useEffect, useRef } from 'react';
 import ActivityBarEntry from "./ActivityBarEntry.tsx";
 
-import {Procurator} from "../../../types/Procurator";
+import {Procurator} from "../../../helpers/Procurator.ts";
 import { IHareViewContainers } from "@hare-ide/hare";
 
 const ActivityBar = ({setCurrentMenu, currentMenu} : {setCurrentMenu:any, currentMenu:any}) => {

@@ -1,11 +1,8 @@
 import MainScreen from "./components/main/mainScreen.tsx";
 import WelcomeScreen from "./components/welcome/WelcomeScreen";
-import * as Hare from "./API2.tsx"
-import React, { useState, useEffect, useRef } from 'react';
-import {Extension, RustExtension} from "./types/Extension.ts";
+import {useEffect} from 'react';
 
-import { HareViewPanel } from "@hare-ide/hare";
-import {Procurator} from "./types/Procurator";
+import {Procurator} from "./helpers/Procurator.ts";
 
 import "./css/activitybar.css";
 import "./css/contextMenu.css";
@@ -16,42 +13,12 @@ import "./css/statusBar.css";
 import "./css/miscellaneous.css";
 
 const App = () => {
-    const [extensions, setExtensions] = useState<Extension[]>([]);
     // return (
     //     <><WelcomeScreen></WelcomeScreen></>
     // );
 
     useEffect(()=>{
-        Hare.load_extensions().then((new_extensions:RustExtension[]) => {
-            var procurator = Procurator.getInstance();
-            new_extensions.forEach(extension => {
-                    if (extension.primary_bar_menus) {
-                    extension.primary_bar_menus.forEach(viewContainer => {
-                        procurator.window.registerContainerView(HareViewPanel.PrimaryBar, viewContainer);
-                    })
-                }
-
-                if (extension.views) {
-                    extension.views.forEach(view => {
-                        procurator.window.registerView(view);
-                    })
-                }
-                let ext = new Extension(extension)
-                setExtensions([
-                    ext,
-                    ...extensions // Put old items at the end
-                ]);
-                if (extension.menus) {
-                    // console.log(extension.menus)
-                    extension.menus.forEach((menu:any) => {
-                        console.log(menu)
-                    })
-                }
-            });
-        })
-        .catch((error:any) => {
-            console.error(error);
-        });
+        Procurator.getInstance(); // Initialize procurator
     }, [])
 
     return (

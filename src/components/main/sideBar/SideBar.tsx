@@ -2,7 +2,7 @@ import { useState, useEffect, useContext} from 'react';
 import { ContextMenuContext } from '../contextMenu/contextMenuContext';
 import * as BasicComponents from "./sections/BasicComponents";
 import {IHareView, IHareViewContainers} from "@hare-ide/hare"
-import {Procurator} from "../../../types/Procurator";
+import {Procurator} from "../../../helpers/Procurator";
 
 const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) => {
     const procurator = Procurator.getInstance();

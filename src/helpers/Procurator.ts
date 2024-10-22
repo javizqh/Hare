@@ -1,40 +1,93 @@
-import {HareViewPanel, IHareCommand, IHareIcon, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
-import { readDir } from "../API2";
-interface ExtensionContext {
-  commands: CommandContext;
-  window: WindowContext;
-  subscriptions: SubscriptionsContext;
-  project: ProjectContext;
-  extension: any;
-  disposables: any;
+import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
+import { load_extensions, readDir, readFile } from "../API2";
+import { path } from "@tauri-apps/api";
+
+interface RustCommand {
+  command: string,
+  title: string,
+  icon?: IHareIcon,
+  category?: string,
+}
+
+interface RustMenu {
+  parent: string, // Which menu is the parent
+  command: string,
+  when: string,
+  group?: string,
+}
+
+interface RustConfigurations {
+  id: string,
+  title: string,
+  order?: number,
+  properties: string,
+}
+
+export interface RustExtension {
+  readonly root: string;
+  readonly id: string;
+  readonly version: string;
+  readonly name: string;
+  readonly description: string;
+  readonly main?: string;
+  readonly activation_events?: string[];
+  readonly primary_bar_menus?: IHareViewContainers[];
+  readonly panel_menus?: IHareViewContainers[];
+  readonly views?: View[];
+  readonly icon_packs?: IHareIconPack[];
+  readonly commands?: RustCommand[];
+  readonly menus?: RustMenu[];
+  readonly configurations?: RustConfigurations[];
+}
+
+interface ExtensionInstance {
+  extension: ExtensionData,
+  activationEvents?: string[], 
 }
 
 class ExtensionData implements ExtensionContext{
+  public readonly root: string;
+  public readonly id: string;
+  public readonly version: string;
+  public readonly name: string;
+  public readonly main?: string;
+  public readonly description: string;
+  public source: Promise<any> | null = null;
+
   public commands: CommandContext;
   public window: WindowContext;
   public subscriptions: SubscriptionsContext;
   public project: ProjectContext;
   public extension: any; // Instance of the extension
   public disposables: any; // Class that will manage things to be removed when deactivated
-  public fs: any; // Handle all backend actions like file reading and more
+  public readDir: Function; // TODO: temporary
 
-  private constructor(
+  public constructor(
     commands: CommandContext,
     window: WindowContext,
     subscriptions: SubscriptionsContext,
     project: ProjectContext,
+    data: RustExtension,
   ) {
     this.commands = commands;
     this.window = window;
     this.subscriptions = subscriptions;
     this.project = project;
+    this.readDir = readDir; // TODO: temporary
+
+    this.root = data.root;
+
+    this.id = data.id;
+    this.version = data.version;
+    this.name = data.name;
+    this.description = data.description;
+    this.main = data.main;
   }
 
-  // TODO: provide also useful func
-  public getAbsolutePath (relativePath:string) {
+  public getAbsolutePath (relativePath:string): Promise<string> {
     // Returns absolute path of path relative to the extension
+    return path.join(this.root, relativePath);
   }
-
 }
 
 export class Procurator{
@@ -49,14 +102,15 @@ export class Procurator{
   public window: WindowContext;
   public subscriptions: SubscriptionsContext;
   public project: ProjectContext;
-  public readDir: Function; // TODO: temporary
+  public extensions: ExtensionInstance[] = [];
 
   private constructor() {
     this.commands = new CommandContext();
     this.window = new WindowContext();
     this.subscriptions = new SubscriptionsContext();
     this.project = new ProjectContext();
-    this.readDir = readDir; // TODO: temporary
+
+    this.loadExtensions();
   }
 
   static getInstance() {
@@ -67,6 +121,61 @@ export class Procurator{
     return this.instance;
   }
 
+  private async loadExtensions () {
+    load_extensions().then((new_extensions:RustExtension[]) => {
+      new_extensions.forEach(extension => {
+        if (extension.primary_bar_menus) {
+          extension.primary_bar_menus.forEach(viewContainer => {
+              this.window.registerContainerView(HareViewPanel.PrimaryBar, viewContainer);
+          })
+        }
+
+        if (extension.views) {
+          extension.views.forEach(view => {
+            this.window.registerView(view);
+          })
+        }
+
+        this.extensions.push({
+          extension: new ExtensionData(
+            this.commands,
+            this.window,
+            this.subscriptions,
+            this.project,
+            extension),
+          activationEvents: extension.activation_events
+        })
+      });
+      //TODO: temporary
+      this.activateExtensions();
+    })
+    .catch((error:any) => {
+        console.error(error);
+    });
+  }
+
+  private async activateExtensions() {
+    this.extensions.forEach((ext: ExtensionInstance) => {
+      if (ext.extension.main) {
+        Procurator.activateExtension(ext.extension);
+      }
+    });
+  }
+
+  private static async activateExtension(ext: ExtensionData): Promise<void> {
+    readFile(ext.root + "/" + ext.main).then((content:string) => {
+      ext.source = Procurator.doimport(content)
+      ext.source.then(extension => extension.activate(ext))
+    })
+  }
+
+  private static doimport (str:string) {
+    const blob = new Blob([str], { type: 'text/javascript' })
+    const url = URL.createObjectURL(blob)
+    const module = import(/* @vite-ignore */ url)
+    URL.revokeObjectURL(url) // GC objectURLs
+    return module
+  }
 
 }
 
