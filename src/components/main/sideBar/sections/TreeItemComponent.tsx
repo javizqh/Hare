@@ -1,8 +1,11 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import { readFile } from '../../../../API2.tsx';
 import { TreeItemState, TreeViewProvider, TreeItem, ProviderResult, TreeItemSelectedState } from '@hare-ide/hare';
+import { Procurator } from '../../../../helpers/Procurator.ts';
 
-const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number}) => {
+const procurator = Procurator.getInstance();
+
+const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number}) => {
   //TODO: icon themes and move
 
   const componentRef = useRef(null);
@@ -53,9 +56,9 @@ const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewPro
 
     if (ref.current) {
       //TODO: icon packs
-      console.log(typeof node.iconPath === "string")
+      // console.log(typeof node.iconPath === "string")
       if (typeof node.iconPath === 'string') {
-        console.log(node.iconPath)
+        // console.log(node.iconPath)
         readFile(node.iconPath).then((content:string) => {
           // @ts-ignore
           ref.current.innerHTML = content;
@@ -137,6 +140,16 @@ const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewPro
       event.dataTransfer.dropEffect = "move";
   }
 
+  const onFocus = () => {
+    if (node && node.contextValue) {
+      procurator.context.viewItem = node.contextValue;
+    }
+  }
+
+  const onLostFocus = () => {
+    procurator.context.viewItem = "";
+  }
+
   return (
     <>
     {node &&
@@ -155,6 +168,8 @@ const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewPro
           style={style}
           draggable="true"
           onDragStart={(e) => onDragStart(e)}
+          onFocus={() => onFocus()}
+          onBlur={() => onLostFocus()}
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
@@ -186,7 +201,7 @@ const TreeItemComponent = ({id, viewProvider, item, depth} : {id:string, viewPro
     }
     </>
   );
-};
+});
 
 const ArrowIndicator = ({hasChild, open}: {hasChild:boolean, open:boolean}) => {
 

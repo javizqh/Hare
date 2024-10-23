@@ -100,6 +100,7 @@ export class Procurator{
 
   public commands: CommandContext;
   public window: WindowContext;
+  public context: ExecutionContext; // This should be for view or viewItem for whens and handle selected things
   public subscriptions: SubscriptionsContext;
   public project: ProjectContext;
   public extensions: ExtensionInstance[] = [];
@@ -109,6 +110,9 @@ export class Procurator{
     this.window = new WindowContext();
     this.subscriptions = new SubscriptionsContext();
     this.project = new ProjectContext();
+    this.context = new ExecutionContext();
+
+    this.context.projectName = "My project" //TODO: load when opening project
 
     this.loadExtensions();
   }
@@ -418,4 +422,35 @@ class ProjectContext {
   constructor() {
     
   }
+}
+
+class ExecutionContext {
+  /**This class will handle all of the context and menus selected during execution */
+
+  public projectName: string = "";
+  public view: string = "";
+  public viewItem: string = "";
+
+  constructor() {
+    
+  }
+
+  public substituteValue (value:string) {
+    let regex = /\$\([^)]*\)/i;
+    if (!regex.test(value)) {
+      return value
+    }
+
+    let substitute = value.slice(2, -1)
+
+    switch (substitute) {
+      case "projectName":
+        return this.projectName;
+      default:
+        break;
+    }
+
+    return value
+  }
+
 }

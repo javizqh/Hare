@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/core'
 
 export function readDir(project_path:string): any {
 	return invoke('ls_project', {project_dir: project_path })

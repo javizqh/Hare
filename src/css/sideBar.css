@@ -156,6 +156,7 @@ h2 {
         flex-direction: column;
         flex: 1 1 1px;
         flex-grow: 1;
+        overflow-y: hidden;
 }
 
 .sideBar-entry-content-container {
