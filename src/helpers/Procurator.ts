@@ -31,6 +31,7 @@ interface RustKeybinding {
   when?: string,
 }
 
+//TODO: missing: capabilities, colors, icons(Do not make sense), submenus, customEditors, viewsWelcome, walkthroughs
 export interface RustExtension {
   readonly root: string;
   readonly id: string;
@@ -199,7 +200,7 @@ export class Procurator{
         break;
       case 113:
         // F2
-        console.log("rename", this.context.selected)
+        this.commands.executeCommand("hare.open")
         break;
       default:
         break;
@@ -212,21 +213,19 @@ class HareCommand implements IHareCommand {
   id: string;
   title: string;
   icon: IHareIcon | null;
-  callback: Function | null;
+  callback: Function | null = null;
 
   public constructor(
     id: string,
     title: string,
     icon: IHareIcon | null = null,
-    callback: Function | null = null,
   ) {
     this.id = id;
     this.title = title;
     this.icon = icon;
-    this.callback = callback;
   }
 
-  public registerCallback(callback: Function, thisArg?: any) {
+  public registerCallback(callback: Function) {
     this.callback = callback
   }
 
@@ -248,12 +247,19 @@ class HareCommand implements IHareCommand {
   
 }
 
+function hare_open (...rest: any[]) {
+  console.log(rest)
+}
+
 class CommandContext {
   /**This class will handle all of the command related features */
 
   private commands: HareCommand[] = [];
 
-  constructor() {}
+  constructor() {
+    this.commands.push(new HareCommand("hare.open", "Open"))
+    this.registerCommand("hare.open", hare_open);
+  }
 
   /**
    * Registers the callback to the command to make it work
@@ -263,18 +269,20 @@ class CommandContext {
    * @returns True if succesfull
    *
    */
-  private registerCommand(id: string, callback:Function, thisArg?: any): boolean {
-    this.commands.forEach((cmd: HareCommand) => {
+  public registerCommand(id: string, callback:Function): boolean {
+    var found = this.commands.some((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        cmd.registerCallback(callback, thisArg)
+        // CHecko if it has callbac already
+        cmd.registerCallback(callback)
         return true;
       }
     });
 
-    return false;
+    return found;
   }
 
-  private executeCommand(id: string,...rest: any[]): any {
+  public executeCommand(id: string,...rest: any[]): any {
+    console.log(this.commands)
     this.commands.forEach((cmd: HareCommand) => {
       if (cmd.isId(id)) {
         return cmd.executeCallback(rest)
@@ -283,7 +291,7 @@ class CommandContext {
     return undefined
   }
 
-  private getCommands(filterInternal: boolean): HareCommand[] {
+  public getCommands(filterInternal: boolean): HareCommand[] {
     //TODO: maybe change internal filter to id.command filter
     let retVal: HareCommand[] = [];
 

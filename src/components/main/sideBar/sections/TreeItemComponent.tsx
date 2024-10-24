@@ -83,11 +83,13 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
       setOpen(node.collapsibleState === TreeItemState.Expanded);
     }
 
-    // node.command();
-    
-    if (e.button == 1) {
-      // node.command();
+    if (node.command) {
+      procurator.commands.executeCommand(node.command, node)
+      if (e.button == 1) {
+        procurator.commands.executeCommand(node.command)
+      }
     }
+    
   }
 
   useEffect(() => {

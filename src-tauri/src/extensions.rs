@@ -65,7 +65,8 @@ struct Keybinding {
     when: Option<String>,
 }
 
-//TODO: missing: capabilities, colors, icons(Do not make sense), submenus, customEditors, viewsWelcome, walkthroughs
+//TODO: add extensionPacks
+//TODO: missing: capabilities, colors, icons(Do not make sense), submenus, customEditors, viewsWelcome, walkthroughs, languages
 #[derive(Clone, serde::Serialize)]
 pub struct HareExtension {
     root: String,
