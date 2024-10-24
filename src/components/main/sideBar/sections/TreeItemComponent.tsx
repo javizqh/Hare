@@ -86,7 +86,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
     if (node.command) {
       procurator.commands.executeCommand(node.command, node)
       if (e.button == 1) {
-        procurator.commands.executeCommand(node.command)
+        procurator.commands.executeCommand(node.command, node)
       }
     }
     
@@ -144,6 +144,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
           ref={selectRef}
           className={"sideBar-file-tree"}
           onClick={(e:any) => {handleClick(e)}}
+          onAuxClick={(e:any) => {handleClick(e)}}
           tabIndex={1}
           style={style}
           draggable="true"
