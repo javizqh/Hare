@@ -10,8 +10,8 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
 
   const componentRef = useRef(null);
   const ref = useRef(null);
+  const selectRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<boolean>(false);
   const [children, setChildren] = useState<any>(null);
   const [hasChildren, setHasChildren] = useState<any>(null);
   const [style, setStyle] = useState<any>(null);
@@ -46,9 +46,6 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
     var raw_state = window.localStorage.getItem(id + "/" + node.id);
     setHasChildren(state !== TreeItemState.None)
 
-    if (node.selectedState !== undefined) {
-      setSelected(node.selectedState === TreeItemSelectedState.selected);
-    }
     if (raw_state) {
       state = JSON.parse(raw_state);
     }
@@ -72,14 +69,8 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
       return
     }
 
-    if (e.ctrlKey) {
-      viewProvider.selectedCallback([
-        ...viewProvider.selected,
-        id + "/" + node.id
-      ]);
-      return;
-    } else {
-      viewProvider.selectedCallback([id + "/" + node.id])
+    if (node.id && selectRef.current) {
+      procurator.context.select(node.id, selectRef.current, e)
     }
 
     if (hasChildren) {
@@ -109,20 +100,6 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
       setStyle(null)
     }
   }, [isOpen]);
-
-  useEffect(() => {
-    if (!node) {
-      return
-    }
-
-    const found = viewProvider.selected.some((element:string) => {
-      if (element === id + "/" + node.id) {
-        return true;
-      }
-    });
-
-    setSelected(found)
-  }, [viewProvider.selected])
 
   //TODO: this should be reducing its size for each folder
 
@@ -162,7 +139,8 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
         drop-active={dropActive.toString()}
       >
         <div id={node.id}
-          className={(selected) ? "sideBar-file-tree sideBar-file-tree-open" : "sideBar-file-tree"}
+          ref={selectRef}
+          className={"sideBar-file-tree"}
           onClick={(e:any) => {handleClick(e)}}
           tabIndex={1}
           style={style}

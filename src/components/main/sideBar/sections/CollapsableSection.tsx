@@ -19,25 +19,6 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
     }
   }, []);
 
-  const handleKeyDown = (e:any) => {
-    if (! data.viewProvider) {
-      return
-    }
-    console.log(e)
-    switch (e.keyCode) {
-      case 46:
-        // Delete
-        console.log("Delete",data.viewProvider.selected)
-        break;
-      case 113:
-        // F2
-        console.log(data.viewProvider.selected)
-        break;
-      default:
-        break;
-    }
-  }
-
   const onFocus = () => {
     procurator.context.view = data.id;
   }
@@ -71,7 +52,7 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
         }
       </div>
       {open && 
-        <div className="sideBar-entry-content-container" onKeyDown={(e:any) => handleKeyDown(e)}>
+        <div className="sideBar-entry-content-container">
           {children !== null && children!.map((entry:any) => {
             return (
               <TreeItemComponent

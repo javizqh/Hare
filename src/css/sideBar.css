@@ -36,8 +36,8 @@
         opacity: 0;
 }
 
-.sideBar-file-tree-open {
-        background-color: var(--activityBar-background);
+.sideBar-entry-content .selected {
+        background-color: var(--activityBar-background) !important;
 }
 
 .sideBar-file-tree-icon {

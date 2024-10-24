@@ -1,6 +1,7 @@
 import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
 import { load_extensions, readDir, readFile } from "../API2";
 import { path } from "@tauri-apps/api";
+import { RefObject } from "react";
 
 interface RustCommand {
   command: string,
@@ -424,12 +425,18 @@ class ProjectContext {
   }
 }
 
+interface Selection {
+  id: string,
+  ref: HTMLDivElement
+}
+
 class ExecutionContext {
   /**This class will handle all of the context and menus selected during execution */
 
   public projectName: string = "";
   public view: string = "";
   public viewItem: string = "";
+  public selected: Selection[] = [];
 
   constructor() {
     
@@ -453,4 +460,53 @@ class ExecutionContext {
     return value
   }
 
+  public select (id: string, ref: HTMLDivElement, e:MouseEvent) {
+    if (e.ctrlKey) {
+      // Append new id or remove it if found
+      var duplicate = this.selected.find(item => item.id === id);
+      if (duplicate) {
+        // Remove Id
+        this.selected = this.selected.filter(obj => obj.id !== id);
+        try {
+          ref.classList.remove("selected")
+        } catch (error) {}
+        return
+      } else {
+        this.selected.unshift({id, ref});
+        ref.classList.add("selected")
+      }
+    } else {
+      // Unselect all other elements
+      this.selected.forEach(element => {
+        try {
+          element.ref.classList.remove("selected")
+        } catch (error) {}
+      });
+      this.selected = [{id, ref}];
+    }
+
+    console.log(this.selected)
+    ref.classList.add("selected")
+  }
+
 }
+
+//TODO: keybind
+// const handleKeyDown = (e:any) => {
+//   if (! data.viewProvider) {
+//     return
+//   }
+//   console.log(e)
+//   switch (e.keyCode) {
+//     case 46:
+//       // Delete
+//       console.log("Delete",data.viewProvider.selected)
+//       break;
+//     case 113:
+//       // F2
+//       console.log(data.viewProvider.selected)
+//       break;
+//     default:
+//       break;
+//   }
+// }
