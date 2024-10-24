@@ -38,6 +38,7 @@ struct JsonCommand {
     title: String,
     icon: Option<Icon>,
     category: Option<String>,
+    when: Option<String>,
 }
 
 //TODO: check if add submenu
@@ -378,11 +379,24 @@ impl HareExtension {
                 );
             }
 
+            let tmp_when: Option<&Value> = entry.get("when");
+            let mut when: Option<String> = None;
+            if tmp_when.is_some() {
+                when = Some(
+                    tmp_when
+                        .unwrap()
+                        .to_string()
+                        .trim_matches(|c| c == '\"' || c == '\'')
+                        .to_string(),
+                );
+            }
+
             new_commands.push(JsonCommand {
                 command: command.trim_matches(|c| c == '\"' || c == '\'').to_string(),
                 title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
                 icon,
                 category,
+                when
             });
         }
 

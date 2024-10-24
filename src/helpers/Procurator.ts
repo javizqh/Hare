@@ -6,8 +6,9 @@ import { RefObject } from "react";
 interface RustCommand {
   command: string,
   title: string,
-  icon?: IHareIcon,
+  icon?: IHareIcon | string,
   category?: string,
+  when?: string
 }
 
 interface RustMenu {
@@ -125,6 +126,10 @@ export class Procurator{
     this.context.projectName = "My project" //TODO: load when opening project
 
     this.loadExtensions();
+
+    //TODO: tmp
+    this.commands.createCommand(new HareCommand("hare.open", "Open"))
+    this.commands.registerCommand("hare.open", hare_open, this.context);
   }
 
   static getInstance() {
@@ -147,6 +152,15 @@ export class Procurator{
         if (extension.views) {
           extension.views.forEach(view => {
             this.window.registerView(view);
+          })
+        }
+
+        if (extension.commands) {
+          extension.commands.forEach(cmd => {
+            var addCmd = new HareCommand(
+              cmd.command, cmd.title, cmd.category, cmd.when
+            )
+            this.commands.createCommand(addCmd);
           })
         }
 
@@ -212,21 +226,30 @@ export class Procurator{
 class HareCommand implements IHareCommand {
   id: string;
   title: string;
-  icon: IHareIcon | null;
-  callback: Function | null = null;
+  icon?: IHareIcon | string;
+  category?: string;
+  when?: string; //TODO: maybe change this
+  callback?: Function;
+
+  args?: any;
 
   public constructor(
     id: string,
     title: string,
-    icon: IHareIcon | null = null,
+    icon?: IHareIcon | string,
+    category?: string,
+    when?: string,
   ) {
     this.id = id;
     this.title = title;
     this.icon = icon;
+    this.category = category;
+    this.when = when;
   }
 
-  public registerCallback(callback: Function) {
+  public registerCallback(callback: Function, thisArg?: any) {
     this.callback = callback
+    this.args = thisArg;
   }
 
   public executeCallback(...rest: any[]): any {
@@ -234,6 +257,11 @@ class HareCommand implements IHareCommand {
       return undefined
     }
 
+    if (!this.when) {
+      return this.callback(this.args, rest);
+    }
+
+    //TODO: check when
     return this.callback(rest);
   }
 
@@ -257,8 +285,6 @@ class CommandContext {
   private commands: HareCommand[] = [];
 
   constructor() {
-    this.commands.push(new HareCommand("hare.open", "Open"))
-    this.registerCommand("hare.open", hare_open);
   }
 
   /**
@@ -269,16 +295,28 @@ class CommandContext {
    * @returns True if succesfull
    *
    */
-  public registerCommand(id: string, callback:Function): boolean {
+  public registerCommand(id: string, callback:Function, thisArg?: any): boolean {
     var found = this.commands.some((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        // CHecko if it has callbac already
-        cmd.registerCallback(callback)
+        cmd.registerCallback(callback, thisArg)
         return true;
       }
     });
 
     return found;
+  }
+
+  public createCommand(cmdAdd: HareCommand): boolean {
+    var found = this.commands.some((cmd: HareCommand) => {
+      if (cmd.id == cmdAdd.id) {
+        return true;
+      }
+    });
+
+    if (!found) {
+      this.commands.push(cmdAdd)
+    }
+    return !found;
   }
 
   public executeCommand(id: string,...rest: any[]): any {
