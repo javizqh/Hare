@@ -24,6 +24,13 @@ interface RustConfigurations {
   properties: string,
 }
 
+interface RustKeybinding {
+  command: string,
+  key: string,
+  mac?: string,
+  when?: string,
+}
+
 export interface RustExtension {
   readonly root: string;
   readonly id: string;
@@ -39,6 +46,7 @@ export interface RustExtension {
   readonly commands?: RustCommand[];
   readonly menus?: RustMenu[];
   readonly configurations?: RustConfigurations[];
+  readonly keybindings?: RustKeybinding[];
 }
 
 interface ExtensionInstance {
@@ -501,7 +509,6 @@ class ExecutionContext {
       this.selected = [{id, ref}];
     }
 
-    console.log(this.selected)
     ref.classList.add("selected")
   }
 
