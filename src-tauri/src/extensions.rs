@@ -152,9 +152,10 @@ impl HareExtension {
             //     let lib = Library::new(path.clone().join(backend.unwrap())).unwrap();
 
             //     // Get the function pointer
-            //     let func: Symbol<fn()> = lib.get(b"activate").unwrap();
+            //     //TODO: pass pointer to backend command handler
+            //     let func: Symbol<fn(x:Value)> = lib.get(b"activate").unwrap();
 
-            //     func() // Call the function
+            //     func(backend_raw) // Call the function
             // }
         }
 
