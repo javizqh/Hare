@@ -69,7 +69,7 @@ class ExtensionData implements ExtensionContext{
   public window: WindowContext;
   public subscriptions: SubscriptionsContext;
   public project: ProjectContext;
-  public extension: any; // Instance of the extension
+  public context: ExecutionContext;
   public disposables: any; // Class that will manage things to be removed when deactivated
   public readDir: Function; // TODO: temporary
 
@@ -78,12 +78,14 @@ class ExtensionData implements ExtensionContext{
     window: WindowContext,
     subscriptions: SubscriptionsContext,
     project: ProjectContext,
+    context: ExecutionContext,
     data: RustExtension,
   ) {
     this.commands = commands;
     this.window = window;
     this.subscriptions = subscriptions;
     this.project = project;
+    this.context = context;
     this.readDir = readDir; // TODO: temporary
 
     this.root = data.root;
@@ -170,6 +172,7 @@ export class Procurator{
             this.window,
             this.subscriptions,
             this.project,
+            this.context,
             extension),
           activationEvents: extension.activation_events
         })
