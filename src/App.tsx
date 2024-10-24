@@ -13,17 +13,15 @@ import "./css/statusBar.css";
 import "./css/miscellaneous.css";
 
 const App = () => {
+    const procurator = Procurator.getInstance();
     // return (
     //     <><WelcomeScreen></WelcomeScreen></>
     // );
 
-    useEffect(()=>{
-        Procurator.getInstance(); // Initialize procurator
-    }, [])
-
     return (
-    
-        <><MainScreen/></>
+        <div onKeyDown={(e:any) => procurator.onKeyPress(e)}>
+            <MainScreen/>
+        </div>
     );
 };
 

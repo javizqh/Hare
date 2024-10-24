@@ -57,7 +57,15 @@ struct Configuration {
     properties: String,
 }
 
-//TODO: missing capabilities, colors, icons(Do not make sense), submenus, keybindings, customEditors, viewsWelcome, walkthroughs
+#[derive(Clone, serde::Serialize)]
+struct Keybinding {
+    command: String,
+    key: String,
+    mac: Option<String>,
+    when: Option<String>,
+}
+
+//TODO: missing: capabilities, colors, icons(Do not make sense), submenus, customEditors, viewsWelcome, walkthroughs
 #[derive(Clone, serde::Serialize)]
 pub struct HareExtension {
     root: String,
@@ -74,6 +82,7 @@ pub struct HareExtension {
     commands: Option<Vec<JsonCommand>>,
     menus: Option<Vec<Menu>>,
     configurations: Option<Vec<Configuration>>,
+    keybindings: Option<Vec<Keybinding>>,
 }
 
 impl HareExtension {
@@ -135,6 +144,7 @@ impl HareExtension {
         let commands_raw = contributes.get("commands");
         let menus_raw = contributes.get("menus");
         let configurations_raw = contributes.get("configuration");
+        let keybindings_raw = contributes.get("keybindings");
 
         let mut primary_bar_menus: Option<Vec<ViewContainer>> = None;
         let mut panel_menus: Option<Vec<ViewContainer>> = None;
@@ -143,6 +153,7 @@ impl HareExtension {
         let mut commands: Option<Vec<JsonCommand>> = None;
         let mut menus: Option<Vec<Menu>> = None;
         let mut configurations: Option<Vec<Configuration>> = None;
+        let mut keybindings: Option<Vec<Keybinding>> = None;
 
         if views_containers_raw.is_some() {
             let views_containers: Value = views_containers_raw.unwrap().clone();
@@ -183,6 +194,11 @@ impl HareExtension {
             configurations = Some(Self::load_configurations(configurations_raw));
         }
 
+        if keybindings_raw.is_some() {
+            let keybindings_raw: Value = keybindings_raw.unwrap().clone();
+            keybindings = Some(Self::load_keybindings(keybindings_raw));
+        }
+
         HareExtension {
             root: path.to_str().unwrap().into(),
             id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
@@ -200,6 +216,7 @@ impl HareExtension {
             commands,
             menus,
             configurations,
+            keybindings,
         }
     }
 
@@ -452,5 +469,45 @@ impl HareExtension {
         }
 
         return new_configurations;
+    }
+
+    fn load_keybindings(array: Value) -> Vec<Keybinding> {
+        let mut new_keybindings: Vec<Keybinding> = Vec::new();
+
+        for entry in array.as_array().unwrap().to_vec() {
+            let command = entry
+                .get("command")
+                .expect("Command must have an id")
+                .to_string();
+            let key = entry
+                .get("title")
+                .expect("Command must have a title")
+                .to_string();
+
+            let tmp_mac: Option<&Value> = entry.get("mac");
+            let mut mac: Option<String> = None;
+            if tmp_mac.is_some() {
+                mac = Some(
+                    tmp_mac.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string(),
+                );
+            }
+
+            let tmp_when: Option<&Value> = entry.get("when");
+            let mut when: Option<String> = None;
+            if tmp_when.is_some() {
+                when = Some(
+                    tmp_when.unwrap().to_string().trim_matches(|c| c == '\"' || c == '\'').to_string(),
+                );
+            }
+
+            new_keybindings.push(Keybinding {
+                command: command.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+                key: key.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+                mac,
+                when,
+            });
+        }
+
+        return new_keybindings;
     }
 }

@@ -182,6 +182,22 @@ export class Procurator{
     return module
   }
 
+  public onKeyPress(e:any){
+    //TODO: keybind and does not work if not something selected
+    console.log(e)
+    switch (e.keyCode) {
+      case 46:
+        // Delete
+        break;
+      case 113:
+        // F2
+        console.log("rename", this.context.selected)
+        break;
+      default:
+        break;
+    }
+  }
+
 }
 
 class HareCommand implements IHareCommand {
@@ -491,22 +507,3 @@ class ExecutionContext {
 
 }
 
-//TODO: keybind
-// const handleKeyDown = (e:any) => {
-//   if (! data.viewProvider) {
-//     return
-//   }
-//   console.log(e)
-//   switch (e.keyCode) {
-//     case 46:
-//       // Delete
-//       console.log("Delete",data.viewProvider.selected)
-//       break;
-//     case 113:
-//       // F2
-//       console.log(data.viewProvider.selected)
-//       break;
-//     default:
-//       break;
-//   }
-// }

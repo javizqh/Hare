@@ -184,7 +184,7 @@ h2 {
         background-color: inherit;
 }
 
-.sideBar-entry-content[drop-active=true] {
+.sideBar-entry-content[drop-active=true] .sideBar-file-tree{
   background-color: var(--activityBar-unselected);
   transition-delay: 0.1s;
 }
