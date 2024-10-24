@@ -1,6 +1,7 @@
 use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
+use libloading::{Library, library_filename, Symbol};
 
 #[derive(Clone, serde::Serialize)]
 struct ViewContainer {
@@ -114,9 +115,11 @@ impl HareExtension {
 
         // OPTIONAL
         let main_raw = json.get("main");
+        let backend_raw = json.get("backend");
         let activation_raw = json.get("activationEvents");
 
         let mut main: Option<String> = None;
+        let mut backend: Option<String> = None;
         let mut activation_events: Option<Vec<String>> = None;
 
         if main_raw.is_some() {
@@ -132,6 +135,27 @@ impl HareExtension {
         if activation_raw.is_some() {
             let activation_raw: Value = activation_raw.unwrap().clone();
             activation_events = Some(Self::load_activation_events(activation_raw));
+        }
+
+        if backend_raw.is_some() {
+            let backend_raw: Value = backend_raw.unwrap().clone();
+            backend = Some(
+                backend_raw
+                    .to_string()
+                    .trim_matches(|c| c == '\"' || c == '\'')
+                    .to_string(),
+            );
+            
+            //TODO: this will load backend commands
+            // unsafe {
+            //     // Load the "hello_world" library
+            //     let lib = Library::new(path.clone().join(backend.unwrap())).unwrap();
+
+            //     // Get the function pointer
+            //     let func: Symbol<fn()> = lib.get(b"activate").unwrap();
+
+            //     func() // Call the function
+            // }
         }
 
         // CONTRIBUTES /////////////////////////////////////////////////////////////
