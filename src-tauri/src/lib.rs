@@ -2,10 +2,13 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::path::PathBuf;
+use std::sync::{LazyLock, Mutex};
 use std::{fs, io};
 
 mod extensions;
 use extensions::HareExtension;
+mod procurator;
+use procurator::PROCURATOR;
 mod file_system;
 use file_system::hare_read_file;
 use tauri::Manager;
@@ -116,7 +119,7 @@ pub fn run() {
         ])  
         .setup(|app| {
             // TODO: Here load all the paths
-            println!("{}",app.path().home_dir().unwrap().to_string_lossy());
+            PROCURATOR.lock().unwrap().extension_dir = Some(app.path().home_dir().unwrap().to_str().unwrap().to_string());
             Ok(())
         })
         .run(tauri::generate_context!())

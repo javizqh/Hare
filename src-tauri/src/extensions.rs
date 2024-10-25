@@ -1,6 +1,8 @@
 use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
+use crate::procurator;
+use procurator::add_command;
 use libloading::{Library, library_filename, Symbol};
 
 #[derive(Clone, serde::Serialize)]
@@ -147,16 +149,16 @@ impl HareExtension {
             );
             
             //TODO: this will load backend commands
-            // unsafe {
-            //     // Load the "hello_world" library
-            //     let lib = Library::new(path.clone().join(backend.unwrap())).unwrap();
+            unsafe {
+                // Load the "hello_world" library
+                let lib = Library::new(path.clone().join(backend.unwrap())).unwrap();
 
-            //     // Get the function pointer
-            //     //TODO: pass pointer to backend command handler
-            //     let func: Symbol<fn(x:Value)> = lib.get(b"activate").unwrap();
+                // Get the function pointer
+                //TODO: pass pointer to backend command handler
+                let func: Symbol<fn(x:fn(id:String, callback: Option<fn()>))> = lib.get(b"activate").unwrap();
 
-            //     func(backend_raw) // Call the function
-            // }
+                func(add_command) // Call the function
+            }
         }
 
         // CONTRIBUTES /////////////////////////////////////////////////////////////
