@@ -575,6 +575,10 @@ interface Selection {
   ref: HTMLDivElement
 }
 
+export interface Context {
+  [Key: string]: string;
+}
+
 class ExecutionContext {
   /**This class will handle all of the context and menus selected during execution */
 
@@ -644,5 +648,76 @@ class ExecutionContext {
     return;
   }
 
+  public when(check: string, context:Context): boolean {
+    let part = check.split(" ");
+    let result = true;
+
+    let a: string | undefined = undefined;
+    let b: string | undefined = undefined;
+    let op: string | undefined = undefined;
+    let concat: boolean = true;
+    let substitution: string | undefined = undefined;
+    console.log(part);
+
+    part.forEach(element => {
+      if (element === "&&") {
+        concat = true;
+        return;
+      } else if (element === "||") {
+        concat = false;
+        return;
+      }
+
+      if (!a) {
+        substitution = context[element];
+        if (substitution) {
+          a = substitution
+        } else {
+          a = element;
+        }
+        return;
+      }
+
+      if (!op) {
+        op = element;
+        return;
+      }
+
+      if (!b) {
+        substitution = context[element];
+        if (substitution) {
+          b = substitution
+        } else {
+          b = element;
+        }
+        //TODO: here execute
+        let tmp = ExecutionContext.doOperation(a,b,op);
+        if (concat) {
+          result = result && tmp;
+        } else {
+          result = result || tmp;
+        }
+        a = undefined;
+        b = undefined;
+        op = undefined;
+        return;
+      }
+    });
+    console.log(result)
+    return result;
+  }
+
+  private static doOperation(a: string, b:string, op:string): boolean {
+    switch (op) {
+      case "==":
+        return a === b;
+      case "!=":
+        return a !== b;
+      default:
+        break;
+    }
+    
+    return false;
+  }
 }
 

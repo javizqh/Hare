@@ -44,7 +44,7 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
           <h2>{title.current}</h2>
         }
         {open &&
-          <MenuBar menuId={"view/title"}/>
+          <MenuBar menuId={"view/title"} context={{view: data.id}}/>
         }
       </div>
       {open && 
