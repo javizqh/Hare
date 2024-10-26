@@ -2,13 +2,12 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::path::PathBuf;
-use std::sync::{LazyLock, Mutex};
 use std::{fs, io};
 
 mod extensions;
 use extensions::HareExtension;
 mod procurator;
-use procurator::PROCURATOR;
+use procurator::{execute_command, PROCURATOR};
 mod file_system;
 use file_system::hare_read_file;
 use tauri::Manager;
@@ -104,6 +103,11 @@ fn load_extensions() -> Result<Vec<HareExtension>, String> {
     Ok(vec)
 }
 
+#[tauri::command(rename_all = "snake_case")]
+fn execute(id:String, data: String) -> Result<String, String> {
+    return execute_command(id, data);
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -115,7 +119,8 @@ pub fn run() {
             create_dir,
             delete_file,
             delete_dir,
-            load_extensions
+            load_extensions,
+            execute
         ])  
         .setup(|app| {
             // TODO: Here load all the paths

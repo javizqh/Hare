@@ -1,5 +1,5 @@
 import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
-import { load_extensions, readDir, readFile } from "../API2";
+import { executeBackend, load_extensions, readDir, readFile } from "../API2";
 import { path } from "@tauri-apps/api";
 import { RefObject } from "react";
 
@@ -330,6 +330,10 @@ class CommandContext {
       }
     });
     return undefined
+  }
+
+  public async executeBackendCommand(id: string, data: string): Promise<any> {
+    return executeBackend(id, data);
   }
 
   public getCommands(filterInternal: boolean): HareCommand[] {

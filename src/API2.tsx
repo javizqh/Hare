@@ -28,6 +28,10 @@ export function load_extensions(): any {
 	return invoke('load_extensions', {})
 }
 
+export async function executeBackend(id: string, data:string): Promise<any> {
+	return invoke('execute', {id: id, data: data})
+}
+
 export function renameFile(old_path:string, new_path:string): any {
 }
 

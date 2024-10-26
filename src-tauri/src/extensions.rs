@@ -2,7 +2,7 @@ use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 use crate::procurator;
-use procurator::add_command;
+use procurator::{add_command, register_command};
 use libloading::{Library, library_filename, Symbol};
 
 #[derive(Clone, serde::Serialize)]
@@ -97,7 +97,7 @@ impl HareExtension {
         let json: serde_json::Value =
             serde_json::from_reader(file).expect("file should be proper JSON");
 
-        // MUST EXIST
+        // MUST EXIST //////////////////////////////////////////////////////////
         let id: String = json
             .get("name")
             .expect("Extension must have a name")
@@ -115,13 +115,11 @@ impl HareExtension {
             .expect("Extension must have a description")
             .to_string();
 
-        // OPTIONAL
+        // OPTIONAL ////////////////////////////////////////////////////////////
         let main_raw = json.get("main");
-        let backend_raw = json.get("backend");
         let activation_raw = json.get("activationEvents");
 
         let mut main: Option<String> = None;
-        let mut backend: Option<String> = None;
         let mut activation_events: Option<Vec<String>> = None;
 
         if main_raw.is_some() {
@@ -139,29 +137,7 @@ impl HareExtension {
             activation_events = Some(Self::load_activation_events(activation_raw));
         }
 
-        if backend_raw.is_some() {
-            let backend_raw: Value = backend_raw.unwrap().clone();
-            backend = Some(
-                backend_raw
-                    .to_string()
-                    .trim_matches(|c| c == '\"' || c == '\'')
-                    .to_string(),
-            );
-            
-            //TODO: this will load backend commands
-            unsafe {
-                // Load the "hello_world" library
-                let lib = Library::new(path.clone().join(backend.unwrap())).unwrap();
-
-                // Get the function pointer
-                //TODO: pass pointer to backend command handler
-                let func: Symbol<fn(x:fn(id:String, callback: Option<fn()>))> = lib.get(b"activate").unwrap();
-
-                func(add_command) // Call the function
-            }
-        }
-
-        // CONTRIBUTES /////////////////////////////////////////////////////////////
+        // CONTRIBUTES /////////////////////////////////////////////////////////
         let contributes: Value = json
             .get("contributes")
             .expect("Extension must have contribute")
@@ -171,6 +147,7 @@ impl HareExtension {
         let views_raw = contributes.get("views");
         let icon_packs_raw = contributes.get("iconPack");
         let commands_raw = contributes.get("commands");
+        let backend_commands_raw = contributes.get("backendCommands");
         let menus_raw = contributes.get("menus");
         let configurations_raw = contributes.get("configuration");
         let keybindings_raw = contributes.get("keybindings");
@@ -213,6 +190,11 @@ impl HareExtension {
             commands = Some(Self::load_commands(commands_raw));
         }
 
+        if backend_commands_raw.is_some() {
+            let backend_commands_raw: Value = backend_commands_raw.unwrap().clone();
+            Self::load_backend_commands(backend_commands_raw);
+        }
+
         if menus_raw.is_some() {
             let menus_raw: Value = menus_raw.unwrap().clone();
             menus = Some(Self::load_menus(menus_raw.clone()));
@@ -228,6 +210,21 @@ impl HareExtension {
             keybindings = Some(Self::load_keybindings(keybindings_raw));
         }
 
+        // BACKEND /////////////////////////////////////////////////////////////
+        let backend_raw = json.get("backend");
+
+        if backend_raw.is_some() {
+            let backend_raw: Value = backend_raw.unwrap().clone();
+            let backend = backend_raw.to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
+            
+            unsafe {
+                let lib = Library::new(path.clone().join(backend)).unwrap();
+                let func: Symbol<fn(x:fn(id:String, callback: fn(data:&String) -> Result<&str, &str>))> = lib.get(b"activate").unwrap();
+                func(register_command)
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////
         HareExtension {
             root: path.to_str().unwrap().into(),
             id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
@@ -428,6 +425,16 @@ impl HareExtension {
         }
 
         return new_commands;
+    }
+
+    fn load_backend_commands(array: Value) {
+        for entry in array.as_array().unwrap().to_vec() {
+            let command = entry
+                .get("command")
+                .expect("Command must have an id")
+                .to_string();
+            add_command(command.trim_matches(|c| c == '\"' || c == '\'').to_string());
+        }
     }
 
     fn load_menus(json: Value) -> Vec<Menu> {
