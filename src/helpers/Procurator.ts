@@ -657,7 +657,6 @@ class ExecutionContext {
     let op: string | undefined = undefined;
     let concat: boolean = true;
     let substitution: string | undefined = undefined;
-    console.log(part);
 
     part.forEach(element => {
       if (element === "&&") {
@@ -703,7 +702,7 @@ class ExecutionContext {
         return;
       }
     });
-    console.log(result)
+
     return result;
   }
 

@@ -56,6 +56,7 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
                 viewProvider={data.viewProvider!}
                 item={entry}
                 depth={0}
+                context={{view: data.id}}
               />
             )})
           }

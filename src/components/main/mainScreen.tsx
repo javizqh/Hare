@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
-import { ContextMenuProvider } from './contextMenu/contextMenuContext';
 import ActivityBar from "./activityBar/ActivityBar";
 import SideBar from "./sideBar/SideBar";
 import EditorContainer from "./editorView/EditorContainer";
@@ -92,7 +91,6 @@ const MainScreen = () => {
     }
 
     return (
-    <ContextMenuProvider>
       <div className = "vertical-container">
       <div className = "horiz-container">
         <ActivityBar 
@@ -119,7 +117,6 @@ const MainScreen = () => {
       <div className="status-bar">
       </div>
     </div>
-    </ContextMenuProvider>
   );
 }
 

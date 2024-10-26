@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef, memo } from 'react';
+import { useState, useEffect, useRef, memo, useContext } from 'react';
 import { readFile } from '../../../../API2.tsx';
 import { TreeItemState, TreeViewProvider, TreeItem, ProviderResult, TreeItemSelectedState } from '@hare-ide/hare';
-import { Procurator } from '../../../../helpers/Procurator.ts';
+import { Context, Procurator } from '../../../../helpers/Procurator.ts';
+import { ContextMenuContext } from '../../contextMenu/contextMenuContext.tsx';
 
 const procurator = Procurator.getInstance();
 
-const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number}) => {
+const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number, context:Context}) => {
   //TODO: icon themes and move
 
   const componentRef = useRef(null);
@@ -17,6 +18,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
   const [style, setStyle] = useState<any>(null);
   const [node, setNode] = useState<TreeItem |null>(null);
   const [dropActive, setDropActive] = useState<boolean>(false);
+  const contextMenu = useContext(ContextMenuContext);
 
   const folderStyle = {
     position: "sticky",
@@ -65,6 +67,10 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
   }, [node]);
 
   const handleClick = (e:MouseEvent) => {
+    if (e.button == 2) {
+      return;
+    }
+
     if (!node) {
       return
     }
@@ -119,14 +125,16 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
       event.dataTransfer.dropEffect = "move";
   }
 
-  const onFocus = () => {
+  const onContextMenu = (e:MouseEvent) => {
     if (node && node.contextValue) {
-      procurator.context.viewItem = node.contextValue;
-    }
-  }
+      context["viewItem"] = node.contextValue
 
-  const onLostFocus = () => {
-    procurator.context.viewItem = "";
+      contextMenu.setMenuId("view/item/context");
+      contextMenu.setContext(context);
+      contextMenu.setPos({x:e.clientX, y:e.clientY});
+      contextMenu.open(true);
+    }
+    e.preventDefault();
   }
 
   return (
@@ -149,8 +157,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
           style={style}
           draggable="true"
           onDragStart={(e) => onDragStart(e)}
-          onFocus={() => onFocus()}
-          onBlur={() => onLostFocus()}
+          onContextMenu={(e:any) => onContextMenu(e)}
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
@@ -173,6 +180,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth} : {id:string, vi
                   viewProvider={viewProvider}
                   item={entry}
                   depth={depth + 1}
+                  context={{view: context.view}}
                 />
               )})
             }

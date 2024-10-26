@@ -10,7 +10,6 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
     return(<></>);
   }
 
-  //TODO: check for when
   var validMenus = menus.filter(function getWhen(menu) {
     return procurator.context.when(menu.when, context);
   });
