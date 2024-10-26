@@ -182,12 +182,12 @@ impl HareExtension {
 
         if icon_packs_raw.is_some() {
             let icon_packs_raw: Value = icon_packs_raw.unwrap().clone();
-            icon_packs = Some(Self::load_icon_packs(icon_packs_raw));
+            icon_packs = Some(Self::load_icon_packs(path.clone(), icon_packs_raw));
         }
 
         if commands_raw.is_some() {
             let commands_raw: Value = commands_raw.unwrap().clone();
-            commands = Some(Self::load_commands(commands_raw));
+            commands = Some(Self::load_commands(path.clone(), commands_raw));
         }
 
         if backend_commands_raw.is_some() {
@@ -330,7 +330,7 @@ impl HareExtension {
         return new_views;
     }
 
-    fn load_icon_packs(array: Value) -> Vec<IconPack> {
+    fn load_icon_packs(root: PathBuf, array: Value) -> Vec<IconPack> {
         let mut new_icon_packs: Vec<IconPack> = Vec::new();
 
         for entry in array.as_array().unwrap().to_vec() {
@@ -345,18 +345,18 @@ impl HareExtension {
             let path = entry
                 .get("path")
                 .expect("Icon pack must have a path")
-                .to_string();
+                .to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
             new_icon_packs.push(IconPack {
                 id: id.trim_matches(|c| c == '\"' || c == '\'').to_string(),
                 title: title.trim_matches(|c| c == '\"' || c == '\'').to_string(),
-                path: path.trim_matches(|c| c == '\"' || c == '\'').to_string(),
+                path: root.join(path).to_str().unwrap().into(),
             });
         }
 
         return new_icon_packs;
     }
 
-    fn load_commands(array: Value) -> Vec<JsonCommand> {
+    fn load_commands(root: PathBuf, array: Value) -> Vec<JsonCommand> {
         let mut new_commands: Vec<JsonCommand> = Vec::new();
 
         for entry in array.as_array().unwrap().to_vec() {
@@ -372,21 +372,26 @@ impl HareExtension {
             let tmp_icon = entry.get("icon");
             let mut icon: Option<Icon> = None;
             if tmp_icon.is_some() {
-                icon = Some(Icon {
-                    light: tmp_icon
+                //TODO: check for possible only string
+                let light_path = tmp_icon
                         .unwrap()
                         .get("light")
                         .expect("Icon must have a light path")
                         .to_string()
                         .trim_matches(|c| c == '\"' || c == '\'')
-                        .to_string(),
-                    dark: tmp_icon
+                        .to_string();
+
+                let dark_path = tmp_icon
                         .unwrap()
                         .get("dark")
-                        .expect("Icon must have a dark path")
+                        .expect("Icon must have a light path")
                         .to_string()
                         .trim_matches(|c| c == '\"' || c == '\'')
-                        .to_string(),
+                        .to_string();
+
+                icon = Some(Icon {
+                    light: root.join(light_path).to_str().unwrap().into(),
+                    dark:  root.join(dark_path).to_str().unwrap().into(),
                     when: None,
                 })
             }

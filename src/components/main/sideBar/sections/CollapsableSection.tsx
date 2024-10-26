@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { IHareView, ProviderResult } from '@hare-ide/hare';
 import TreeItemComponent from './TreeItemComponent.tsx';
 import { Procurator } from '../../../../helpers/Procurator.ts';
+import MenuBar from './MenuBar.tsx';
 
 const procurator = Procurator.getInstance();
 
@@ -43,12 +44,7 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
           <h2>{title.current}</h2>
         }
         {open &&
-        <div className='sideBar-entry-menu'>
-          {/* Input should be a list */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="sideBar-entry-arrow" viewBox="0 0 24 24">
-            <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
-          </svg>
-        </div>
+          <MenuBar menuId={"view/title"}/>
         }
       </div>
       {open && 

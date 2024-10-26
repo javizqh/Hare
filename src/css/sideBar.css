@@ -92,6 +92,9 @@
         flex-grow: 1;
         overflow-y: hidden;
         min-height: 22px;
+        &:hover .sideBar-entry-menu {
+              display: flex;  
+        }
 }
 
 .sideBar-title {
@@ -147,7 +150,11 @@ h2 {
 }
 
 .sideBar-entry-menu {
+        height: 20px;
         margin-left: auto;
+        display: none;
+        flex-direction: row;
+        align-items: center;
 }
 
 .sideBar-content {

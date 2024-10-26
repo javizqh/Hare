@@ -1,7 +1,6 @@
 import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
 import { executeBackend, load_extensions, readDir, readFile } from "../API2";
 import { path } from "@tauri-apps/api";
-import { RefObject } from "react";
 
 interface RustCommand {
   command: string,
@@ -120,7 +119,7 @@ export class Procurator{
 
   private constructor() {
     this.commands = new CommandContext();
-    this.window = new WindowContext();
+    this.window = new WindowContext(this.commands);
     this.subscriptions = new SubscriptionsContext();
     this.project = new ProjectContext();
     this.context = new ExecutionContext();
@@ -160,9 +159,15 @@ export class Procurator{
         if (extension.commands) {
           extension.commands.forEach(cmd => {
             var addCmd = new HareCommand(
-              cmd.command, cmd.title, cmd.category, cmd.when
+              cmd.command, cmd.title, cmd.icon, cmd.category, cmd.when
             )
             this.commands.createCommand(addCmd);
+          })
+        }
+
+        if (extension.menus) {
+          extension.menus.forEach(menuEntry => {
+            this.window.registerMenu(menuEntry);
           })
         }
 
@@ -323,7 +328,6 @@ class CommandContext {
   }
 
   public executeCommand(id: string,...rest: any[]): any {
-    console.log(this.commands)
     this.commands.forEach((cmd: HareCommand) => {
       if (cmd.isId(id)) {
         return cmd.executeCallback(rest)
@@ -336,17 +340,14 @@ class CommandContext {
     return executeBackend(id, data);
   }
 
-  public getCommands(filterInternal: boolean): HareCommand[] {
+  public getCommand(id: string): HareCommand | undefined {
     //TODO: maybe change internal filter to id.command filter
-    let retVal: HareCommand[] = [];
+    let retVal: HareCommand | undefined;
 
-    if (!filterInternal) {
-      return this.commands
-    }
-
-    this.commands.forEach((cmd: HareCommand) => {
-      if (!cmd.isInternal()) {
-        retVal.push(cmd)
+    this.commands.some((cmd: HareCommand) => {
+      if (cmd.isId(id)) {
+        retVal = cmd
+        return true
       }
     });
 
@@ -354,12 +355,46 @@ class CommandContext {
   }
 }
 
+interface IHareGroup {
+  id: string,
+  position?: number,
+}
+
+function newGroup(str: string | undefined): IHareGroup | undefined {
+  if (!str) {
+    return undefined;
+  }
+
+  let group_raw = str.split(":");
+  let pos = undefined;
+
+  if (group_raw.length == 2) {
+    pos = Number(group_raw[1])
+  }
+
+  return {id: group_raw[0], position: pos };
+}
+
+export interface IHareMenuEntry {
+  command: HareCommand,
+  when: string,
+  group?: IHareGroup,
+}
+
+interface IHareMenu {
+  id: string,
+  entries: IHareMenuEntry[],
+}
+
 class WindowContext {
   /**This class will handle all of the window related features */
   private containerViews: IHareViewContainer;
+  private menus: IHareMenu[] = [];
+  private commandContext: CommandContext;
 
-  constructor() {
+  constructor(commandContext: CommandContext) {
     this.containerViews = {primary_bar: [], panel: []};
+    this.commandContext = commandContext;
   }
 
   public getContainerViews(viewPanel: HareViewPanel) : IHareViewContainers[] | [] {
@@ -484,6 +519,39 @@ class WindowContext {
       }
     }
   }
+
+  public registerMenu(menuEntry: RustMenu) {
+    let cmd = this.commandContext.getCommand(menuEntry.command);
+    if (!cmd) {return}
+
+    let entry = {command: cmd, when: menuEntry.when, group: newGroup(menuEntry.group)}
+
+    var found = this.menus.some(menu => {
+      if (menu.id == menuEntry.parent) {
+        menu.entries.push(entry)
+        return true;
+      }
+    }); 
+
+    if (!found) {
+      this.menus.push({id: menuEntry.parent, entries: [entry]})
+    }
+
+    console.log(this.menus);
+  }
+
+  public getMenuEntries(id: string): IHareMenuEntry[] | undefined {
+    let entries: IHareMenuEntry[] | undefined = undefined;
+
+    this.menus.some(menu => {
+      if (menu.id == id) {
+        entries = menu.entries;
+        return true;
+      }
+    }); 
+
+    return entries;
+  }
 }
 
 class SubscriptionsContext {
@@ -537,7 +605,18 @@ class ExecutionContext {
     return value
   }
 
-  public select (id: string, ref: HTMLDivElement, e:MouseEvent) {
+  public select (id: string, ref: HTMLDivElement | undefined, e:MouseEvent) {
+    if (!ref) {
+      // Unselect all other elements
+      this.selected.forEach(element => {
+        try {
+          element.ref.classList.remove("selected")
+        } catch (error) {}
+      });
+      this.selected = [];
+      return;
+    }
+
     if (e.ctrlKey) {
       // Append new id or remove it if found
       var duplicate = this.selected.find(item => item.id === id);

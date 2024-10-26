@@ -11,6 +11,7 @@ import "./css/editor.css";
 import "./css/sideBar.css";
 import "./css/statusBar.css";
 import "./css/miscellaneous.css";
+import "./css/commands.css";
 
 const App = () => {
     const procurator = Procurator.getInstance();
