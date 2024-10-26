@@ -28,7 +28,7 @@ const Command = memo(({cmd} : {cmd: IHareCommand}) => {
   const clicked = (e:MouseEvent) => {
     procurator.commands.executeCommand(cmd.id);
     e.stopPropagation();
-    procurator.context.select("", undefined, e)
+    procurator.context.unselect();
   }
 
   return (

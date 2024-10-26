@@ -605,18 +605,7 @@ class ExecutionContext {
     return value
   }
 
-  public select (id: string, ref: HTMLDivElement | undefined, e:MouseEvent) {
-    if (!ref) {
-      // Unselect all other elements
-      this.selected.forEach(element => {
-        try {
-          element.ref.classList.remove("selected")
-        } catch (error) {}
-      });
-      this.selected = [];
-      return;
-    }
-
+  public select (id: string, ref: HTMLDivElement, e:MouseEvent) {
     if (e.ctrlKey) {
       // Append new id or remove it if found
       var duplicate = this.selected.find(item => item.id === id);
@@ -642,6 +631,17 @@ class ExecutionContext {
     }
 
     ref.classList.add("selected")
+  }
+
+  public unselect() {
+    // Unselect all other elements
+    this.selected.forEach(element => {
+      try {
+        element.ref.classList.remove("selected")
+      } catch (error) {}
+    });
+    this.selected = [];
+    return;
   }
 
 }

@@ -92,7 +92,8 @@
         flex-grow: 1;
         overflow-y: hidden;
         min-height: 22px;
-        &:hover .sideBar-entry-menu {
+        &:hover .sideBar-entry-menu,
+        &:focus-within .sideBar-entry-menu {
               display: flex;  
         }
 }
