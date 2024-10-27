@@ -91,9 +91,9 @@ const ContextMenu = () => {
               <div className='title'>
                 {entry.command.title}
               </div>
-              {/* <div className='keybind'>
-                Ctrl+A
-              </div> */}
+              <div className='keybind'>
+                Keybind Here
+              </div>
             </li>
           )})
         }
