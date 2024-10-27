@@ -1,6 +1,6 @@
 .context-menu {
     position: absolute;
-    background: #1D1D1D;
+    /* background: #1D1D1D; */
     border-radius: 5px;
     padding-top: 5px;
     padding-bottom: 5px;
@@ -8,6 +8,12 @@
     width: 320px;
     max-height: 50%;
     overflow-y: auto;
+
+    background: #1D1D1D63;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10.7px);
+    -webkit-backdrop-filter: blur(10.7px);
+    border: 1px solid rgba(29, 29, 29, 0.62);
 
     & .group {
         padding: 0px;
@@ -38,7 +44,7 @@
             }
 
             &:hover {
-                background-color: #3D3D3D;
+                background-color: #a5a5a525;
             }
 
             &:hover .keybind{
@@ -49,7 +55,8 @@
 
     & .separator {
         pointer-events: none;
-        background: #3D3D3D;
+        background: var(--context-menu-font);
+        opacity: 60%;
         height: 1px;
         padding-bottom: 0;
         padding-top: 0;
