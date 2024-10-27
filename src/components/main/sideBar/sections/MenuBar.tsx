@@ -1,10 +1,13 @@
+import { useContext } from 'react';
 import { Procurator, IHareMenuEntry, Context } from '../../../../helpers/Procurator.ts';
 import Command from '../../commands/Command.tsx';
+import { ContextMenuContext } from '../../contextMenu/contextMenuContext.tsx';
 
 const procurator = Procurator.getInstance();
 
 const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
   const menus = procurator.window.getMenuEntries(menuId);
+  const contextMenu = useContext(ContextMenuContext);
 
   if (!menus) {
     return(<></>);
@@ -41,6 +44,14 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
     procurator.context.unselect();
   }
 
+  const onContextMenu = (e:MouseEvent) => {
+    contextMenu.setMenuId("view/title");
+    contextMenu.setContext(context);
+    contextMenu.setPos(e.clientX, e.clientY);
+    contextMenu.open(true);
+    e.stopPropagation();
+  }
+
   return (
     <div className='sideBar-entry-menu'>
       {visibles.map((entry:IHareMenuEntry) => {
@@ -49,7 +60,7 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
         )})
       }
       {hidden.length !== 0 &&
-        <li className="command-icon has-tooltip" onClick={(e:any) => {clicked(e)}} title={"More actions"}>
+        <li className="command-icon has-tooltip" onClick={(e:any) => {onContextMenu(e)}} title={"More actions"}>
           <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24">
             <path stroke="#fff" strokeLinecap="round" strokeWidth="2" d="M6 12h.01m6 0h.01m5.99 0h.01"/>
           </svg>

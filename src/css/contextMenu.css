@@ -34,6 +34,7 @@
                 text-wrap: nowrap;
                 text-overflow: ellipsis;
                 overflow-x: hidden;
+                cursor: default;
             }
 
             & .keybind {
@@ -41,6 +42,7 @@
                 color: var(--context-menu-font);
                 opacity: 60%;
                 margin-left: auto;
+                cursor: default;
             }
 
             &:hover {

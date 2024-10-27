@@ -649,6 +649,10 @@ class ExecutionContext {
   }
 
   public when(check: string, context:Context): boolean {
+    if (check.length === 0) {
+      return true;
+    }
+
     let part = check.split(" ");
     let result = true;
 
