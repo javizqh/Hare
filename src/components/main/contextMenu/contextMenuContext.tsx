@@ -4,7 +4,7 @@ import { Context } from '../../../helpers/Procurator';
 interface ContextMenu {
   isOpen: boolean,
   open: Function,
-  pos: {x:number,y:number},
+  pos: {x:number,y:number, height:string, width:string},
   setPos: Function,
   menuId?: string,
   setMenuId: Function,
@@ -15,7 +15,7 @@ interface ContextMenu {
 const ContextMenuContext = createContext<ContextMenu>({
   isOpen: false,
   open: () => {},
-  pos: {x:0,y:0},
+  pos: {x:0,y:0, height:"top", width:"left"},
   setPos: () => {},
   setMenuId: () => {},
   setContext: () => {},
@@ -23,19 +23,39 @@ const ContextMenuContext = createContext<ContextMenu>({
 
 const ContextMenuProvider = ({ children } : {children:any}) => {
   const [open, setOpen] = useState<boolean>(false);
-  const [pos, setPos] = useState<{x:number,y:number}>({
+  const [pos, setPos] = useState<{x:number,y:number, height:string, width:string}>({
     x: 0,
     y: 0,
+    height:"top",
+    width:"left"
   });
   const [menuId, setMenuId] = useState<string | undefined>(undefined);
   const [context, setContext] = useState<Context | undefined>(undefined);
+
+  const changePos = (x:number,y:number) => {
+    let height = "top";
+    let width = "left"
+
+    if (y > window.innerHeight / 2) {
+      // Start menu at the bottom
+      y = window.innerHeight - y;
+      height = "bottom";
+    }
+
+    if (x > window.innerWidth / 2) {
+      // Start menu at the bottom
+      width = "right"
+    }
+
+    setPos({x: x, y: y, height: height, width: width});
+  }
 
  return (
     <ContextMenuContext.Provider value={{
       isOpen: open,
       open: setOpen,
       pos: pos,
-      setPos: setPos,
+      setPos: changePos,
       menuId: menuId,
       setMenuId: setMenuId,
       context: context,

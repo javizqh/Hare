@@ -131,7 +131,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
 
       contextMenu.setMenuId("view/item/context");
       contextMenu.setContext(context);
-      contextMenu.setPos({x:e.clientX, y:e.clientY});
+      contextMenu.setPos(e.clientX, e.clientY);
       contextMenu.open(true);
     }
     e.preventDefault();

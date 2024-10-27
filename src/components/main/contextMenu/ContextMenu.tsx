@@ -11,6 +11,7 @@ const ContextMenu = () => {
   const [menuEntries, setMenuEntries] = useState<IHareMenuEntry[]>([]);
   const [isOpen, open] = useState<boolean>(false);
   const overlayRef = useRef(null);
+  const [style, setStyle] = useState({top: "", left:"", right:"", bottom:""});
 
   useLayoutEffect(() => {
     if (!contextMenu.menuId || !contextMenu.isOpen) {
@@ -41,6 +42,21 @@ const ContextMenu = () => {
       return true
     });
 
+    let newStyle = {top: "", left:"", right:"", bottom:""};
+
+    if (contextMenu.pos.height === "top") {
+      newStyle.top = contextMenu.pos.y.toString() + "px";
+    } else {
+      newStyle.bottom = contextMenu.pos.y.toString() + "px";
+    }
+
+    if (contextMenu.pos.width === "left") {
+      newStyle.left = contextMenu.pos.x.toString() + "px";
+    } else {
+      newStyle.right = contextMenu.pos.x.toString() + "px";
+    }
+
+    setStyle(newStyle);
     setMenuEntries(hidden)
     open(true);
   }, [contextMenu])
@@ -59,16 +75,16 @@ const ContextMenu = () => {
   const close = (e:MouseEvent) => {
     if (overlayRef.current && overlayRef.current === e.target) {
       contextMenu.open(false);
-      e.stopPropagation();
-      e.preventDefault();
       procurator.context.unselect();
     }
+    e.stopPropagation();
+    e.preventDefault();
   }
 
   return (
     <div ref={overlayRef} className='overlay' onClick={(e:any) => close(e)} onAuxClick={(e:any) => close(e)} onContextMenu={(e:any) => close(e)}>
-      <div className='context-menu' style={{top: contextMenu.pos.y, left: contextMenu.pos.x}}>
-        <ul className='group'>
+      <div className='context-menu' style={{top: style.top, bottom: style.bottom, right: style.right, left: style.left}}>
+        <ul className='group' >
         {menuEntries.map((entry:IHareMenuEntry) => {
           return (
             <li className='entry' onClick={(e:any) => clicked(e, entry.command)}>
