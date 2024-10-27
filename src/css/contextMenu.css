@@ -10,7 +10,7 @@
     overflow-y: auto;
 
     background: #1D1D1D63;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10.7px);
     -webkit-backdrop-filter: blur(10.7px);
     border: 1px solid rgba(29, 29, 29, 0.62);
