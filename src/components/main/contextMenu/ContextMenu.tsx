@@ -1,7 +1,8 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Procurator, IHareMenuEntry, Context } from '../../../helpers/Procurator.ts';
 import Command from '../commands/Command.tsx';
 import { ContextMenuContext } from './contextMenuContext.tsx';
+import { IHareCommand } from '@hare-ide/hare';
 
 const procurator = Procurator.getInstance();
 
@@ -9,9 +10,10 @@ const ContextMenu = () => {
   const contextMenu = useContext(ContextMenuContext);
   const [menuEntries, setMenuEntries] = useState<IHareMenuEntry[]>([]);
   const [isOpen, open] = useState<boolean>(false);
+  const overlayRef = useRef(null);
 
-  useEffect(() => {
-    if (!contextMenu.menuId) {
+  useLayoutEffect(() => {
+    if (!contextMenu.menuId || !contextMenu.isOpen) {
       open(false);
       return;
     }
@@ -47,19 +49,52 @@ const ContextMenu = () => {
     return(<></>);
   }
 
-  const clicked = (e:MouseEvent) => {
-    console.log("More actions")
+  const clicked = (e:MouseEvent, cmd: IHareCommand) => {
+    console.log("More actions", cmd)
+    procurator.commands.executeCommand(cmd.id, procurator.context.selected);
     e.stopPropagation();
     procurator.context.unselect();
   }
 
+  const close = (e:MouseEvent) => {
+    if (overlayRef.current && overlayRef.current === e.target) {
+      contextMenu.open(false);
+      e.stopPropagation();
+      e.preventDefault();
+      procurator.context.unselect();
+    }
+  }
+
   return (
-    <div>
-      {menuEntries.map((entry:IHareMenuEntry) => {
-        return (
-          <h2>{entry.command.title}</h2>
-        )})
-      }
+    <div ref={overlayRef} className='overlay' onClick={(e:any) => close(e)} onAuxClick={(e:any) => close(e)} onContextMenu={(e:any) => close(e)}>
+      <div className='context-menu' style={{top: contextMenu.pos.y, left: contextMenu.pos.x}}>
+        <ul className='group'>
+        {menuEntries.map((entry:IHareMenuEntry) => {
+          return (
+            <li className='entry' onClick={(e:any) => clicked(e, entry.command)}>
+              <div className='title'>
+                {entry.command.title}
+              </div>
+              {/* <div className='keybind'>
+                Ctrl+A
+              </div> */}
+            </li>
+          )})
+        }
+        </ul>
+        <div className='separator'/>
+        <ul className='group'>
+        {menuEntries.map((entry:IHareMenuEntry) => {
+          return (
+            <li className='entry' onClick={(e:any) => clicked(e, entry.command)}>
+              <div className='title'>
+                {entry.command.title}
+              </div>
+            </li>
+          )})
+        }
+        </ul>
+      </div>
     </div>
   );
 };

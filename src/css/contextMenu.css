@@ -1,45 +1,69 @@
-.context-menu { 
-        position: absolute; 
-        text-align: center; 
-        background: #1D1D1D; 
-        border: .01px solid #000000;
-        padding-top: 2px;
-        padding-bottom: 2px;
-        padding-left: 0.1px;
-        padding-right: 0.1px;
-        z-index: 10;
-        width: 320px;
-        left: 0px;
-        top: 0px;
-} 
-  
-.context-menu ul { 
-        padding: 0px; 
-        margin: 0px; 
-        min-width: 150px; 
-        list-style: none; 
-} 
+.context-menu {
+    position: absolute;
+    background: #1D1D1D;
+    border-radius: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    z-index: 100001;
+    width: 320px;
+    max-height: 50%;
+    overflow-y: auto;
 
-.context-menu ul li { 
-        padding-bottom: 2px; 
-        padding-top: 2px; 
-} 
+    & .group {
+        padding: 0px;
+        margin: 0px;
+        list-style: none;
+        display: flex;
+        flex-direction: column;
 
-.context-menu ul li a { 
-        text-decoration: none; 
-        color: #D0D0D0; 
-} 
+        & .entry {
+            padding: 5px 10px 5px 10px;
+            display: flex;
+            flex-direction: row;
+            row-gap: 5px;
 
-.context-menu ul li:hover { 
-        background: #3D3D3D; 
-} 
+            & .title {
+                text-decoration: none;
+                color: var(--context-menu-font);
+                text-wrap: nowrap;
+                text-overflow: ellipsis;
+                overflow-x: hidden;
+            }
 
-.context-menu .separator {
+            & .keybind {
+                text-decoration: none;
+                color: var(--context-menu-font);
+                opacity: 60%;
+                margin-left: auto;
+            }
+
+            &:hover {
+                background-color: #3D3D3D;
+            }
+
+            &:hover .keybind{
+                opacity: 100%;
+            }
+        }
+    }
+
+    & .separator {
         pointer-events: none;
         background: #3D3D3D;
         height: 1px;
-        padding-bottom: 0; 
+        padding-bottom: 0;
         padding-top: 0;
-        margin-top: 5px; 
+        margin-top: 5px;
         margin-bottom: 5px;
+    }
+}
+
+.overlay {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: none;
+    z-index: 100000;
 }

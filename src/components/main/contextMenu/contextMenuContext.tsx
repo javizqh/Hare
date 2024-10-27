@@ -1,4 +1,4 @@
-import { createContext, useState } from 'react';
+import { createContext, useCallback, useEffect, useState } from 'react';
 import { Context } from '../../../helpers/Procurator';
 
 interface ContextMenu {
@@ -29,7 +29,7 @@ const ContextMenuProvider = ({ children } : {children:any}) => {
   });
   const [menuId, setMenuId] = useState<string | undefined>(undefined);
   const [context, setContext] = useState<Context | undefined>(undefined);
-  
+
  return (
     <ContextMenuContext.Provider value={{
       isOpen: open,
