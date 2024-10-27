@@ -66,7 +66,6 @@ const ContextMenu = () => {
   }
 
   const clicked = (e:MouseEvent, cmd: IHareCommand) => {
-    console.log("More actions", cmd)
     procurator.commands.executeCommand(cmd.id, procurator.context.selected);
     e.stopPropagation();
     procurator.context.unselect();
