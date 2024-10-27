@@ -9,7 +9,7 @@
     max-height: 50%;
     overflow-y: auto;
 
-    background: #1D1D1D63;
+    background: var(--context-menu-background);
     box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.1);
     backdrop-filter: blur(10.7px);
     -webkit-backdrop-filter: blur(10.7px);

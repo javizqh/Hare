@@ -42,7 +42,8 @@ html {
   --sideBar-background: #252525;
   --statusBar-background: #ff9100;
   --command-button-hover: #535353;
-  --context-menu-font: #ffffff
+  --context-menu-font: #ffffff;
+  --context-menu-background: #1D1D1D63;
 }
 
 /* :root {
@@ -59,4 +60,6 @@ html {
   --dragbar-color: #29395C;
   --sideBar-background: #dbdbdb;
   --statusBar-background: #29395C;
+  --context-menu-font: #383737;
+  --context-menu-background: #c2c2c263;
 } */
