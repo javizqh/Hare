@@ -22,7 +22,10 @@
         cursor: pointer;
         height: 22px;
         background-color: inherit;
-        padding: 0 0 0 6px;
+        padding: 0 12px 0 6px;
+        &:hover .sideBar-tree-item-menu{
+                display: flex;  
+        }
 }
 
 .sideBar-entry-content:hover .sideBar-file-tree-indent {
@@ -150,7 +153,7 @@ h2 {
         opacity: 60%;
 }
 
-.sideBar-entry-menu {
+.sideBar-entry-menu, .sideBar-tree-item-menu {
         height: 20px;
         margin-left: auto;
         display: none;

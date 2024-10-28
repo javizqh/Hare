@@ -9,6 +9,7 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
   const menus = procurator.window.getMenuEntries(menuId);
   const contextMenu = useContext(ContextMenuContext);
 
+
   if (!menus) {
     return(<></>);
   }
@@ -37,12 +38,6 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
     }
     return 0;
   });
-
-  const clicked = (e:MouseEvent) => {
-    console.log("More actions")
-    e.stopPropagation();
-    procurator.context.unselect();
-  }
 
   const onContextMenu = (e:MouseEvent) => {
     contextMenu.setMenuId("view/title");

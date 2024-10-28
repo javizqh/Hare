@@ -3,6 +3,7 @@ import { readFile } from '../../../../API2.tsx';
 import { TreeItemState, TreeViewProvider, TreeItem, ProviderResult, TreeItemSelectedState } from '@hare-ide/hare';
 import { Context, Procurator } from '../../../../helpers/Procurator.ts';
 import { ContextMenuContext } from '../../contextMenu/contextMenuContext.tsx';
+import MenuBarTree from './MenuBarTree.tsx';
 
 const procurator = Procurator.getInstance();
 
@@ -36,6 +37,9 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
   useEffect(() => {
     Promise.resolve(viewProvider.getTreeItem(item)).then((newNode:TreeItem) => {
       setNode(newNode);
+      if (newNode.contextValue) {
+        context["viewItem"] = newNode.contextValue;
+      }
     })
   }, [])
 
@@ -170,6 +174,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
               {node.description}
             </label>
           }
+          <MenuBarTree menuId={"view/item/context"} context={context}/>
         </div>
         {isOpen && children &&
           <>
