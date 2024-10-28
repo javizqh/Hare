@@ -30,7 +30,7 @@ const MenuBarTree = ({menuId, context} : {menuId:string, context:Context}) => {
   });
 
   return (
-    <div className='sideBar-tree-item-menu'>
+    <div className='tree-action-menu'>
       {visibles.map((entry:IHareMenuEntry) => {
         return (
           <Command cmd={entry.command} />

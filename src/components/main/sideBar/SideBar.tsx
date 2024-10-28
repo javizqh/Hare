@@ -21,7 +21,7 @@ const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) =
 				{containerView &&
 					<>
 					<BasicComponents.TitleBar title={containerView.title}/>
-					<div className="sideBar-content">
+					<div className="content">
 						{containerView.views.map((entry:IHareView) => {
 								return (
 									<BasicComponents.CollapsableSection

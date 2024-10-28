@@ -25,7 +25,7 @@ const ActivityBarEntry = ({currentMenuId, setCurrentMenuId, data} : {currentMenu
 
   return (
     <li id={id} className="action-item has-tooltip" onClick={() => {clicked(id)}}>
-        <div ref={ref} className={(currentMenuId === id) ? "inside-button icon active" : "inside-button icon"} aria-hidden="true" />
+        <div ref={ref} className={(currentMenuId === id) ? "inside-button act-icon active" : "inside-button act-icon"} aria-hidden="true" />
         <div className={(currentMenuId === id) ? "inside-button active-indicator active" : "inside-button active-indicator"}></div>
         <div className='tooltip'>{title}</div>
     </li>

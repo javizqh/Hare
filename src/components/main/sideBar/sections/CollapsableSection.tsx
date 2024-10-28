@@ -29,14 +29,14 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
   }
 
   return (
-    <div id={data.id} className="sideBar-entry" style={{flexGrow: (open) ? 1 : 0 }} onFocus={() => onFocus()} onBlur={() => onLostFocus()}>
-      <div className="sideBar-entry-title" onClick={() => isOpen(!open)}>
+    <div id={data.id} className="entry" style={{flexGrow: (open) ? 1 : 0 }} onFocus={() => onFocus()} onBlur={() => onLostFocus()}>
+      <div className="title-container" onClick={() => isOpen(!open)}>
         {open ? (
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="sideBar-entry-arrow" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="collapse-indicator" viewBox="0 0 24 24">
             <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
           </svg>
         ) : (
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="sideBar-entry-arrow" viewBox="0 0 24 24">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="collapse-indicator" viewBox="0 0 24 24">
             <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
           </svg>
         )}
@@ -48,7 +48,7 @@ const CollapsableSection = memo(({data, parent} : {data:IHareView, parent:string
         }
       </div>
       {open && 
-        <div className="sideBar-entry-content-container">
+        <div className="content-container">
           {children !== null && children!.map((entry:any) => {
             return (
               <TreeItemComponent

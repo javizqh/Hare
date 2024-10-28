@@ -48,7 +48,7 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
   }
 
   return (
-    <div className='sideBar-entry-menu'>
+    <div className='action-menu'>
       {visibles.map((entry:IHareMenuEntry) => {
         return (
           <Command cmd={entry.command} />

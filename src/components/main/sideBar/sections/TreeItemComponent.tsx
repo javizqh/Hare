@@ -31,7 +31,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
   const padding = [];
 
   for (let i = 0; i < depth; i++) {
-    padding.push(<div className="sideBar-file-tree-indent"/>);
+    padding.push(<div className="tree-indent"/>);
   }
 
   useEffect(() => {
@@ -144,7 +144,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
   return (
     <>
     {node &&
-      <div className="sideBar-entry-content"
+      <div className="view-content"
         key={node.label}
         ref={componentRef}
         onDragOver={(e) => allowDrop(e)}
@@ -154,7 +154,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
       >
         <div id={node.id}
           ref={selectRef}
-          className={"sideBar-file-tree"}
+          className={"tree-entry"}
           onClick={(e:any) => {handleClick(e)}}
           onAuxClick={(e:any) => {handleClick(e)}}
           tabIndex={1}
@@ -165,7 +165,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
-          <div ref={ref} className="sideBar-file-tree-icon" aria-hidden="true" />
+          <div ref={ref} className="icon" aria-hidden="true" />
           <label title={node.tooltip}>
             {node.label}
           </label>
@@ -200,18 +200,18 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
 const ArrowIndicator = ({hasChild, open}: {hasChild:boolean, open:boolean}) => {
 
   if (!hasChild) {
-    return <div className="sideBar-file-tree-arrow"/>
+    return <div className="collapse-indicator"/>
   }
 
   if (open) {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="sideBar-file-tree-arrow" viewBox="0 0 24 24">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="collapse-indicator" viewBox="0 0 24 24">
         <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
       </svg>
     )
   } else {
     return (
-      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="sideBar-file-tree-arrow" viewBox="0 0 24 24">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="collapse-indicator" viewBox="0 0 24 24">
         <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
       </svg>
     )
