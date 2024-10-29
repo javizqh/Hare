@@ -3,7 +3,7 @@ import React, {useEffect} from "react";
 import { readFile } from "../../../API2";
 
 const ActivityBarEntry = ({currentMenuId, setCurrentMenuId, data} : {currentMenuId:string, setCurrentMenuId:Function, data:IHareViewContainers}) => {
-  const {id, icon, title, views} = data;
+  const {id, icon, title} = data;
   const ref = React.useRef(null);
 
   useEffect(() => {

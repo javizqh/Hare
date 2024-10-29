@@ -1,8 +1,9 @@
 import { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Procurator, IHareMenuEntry, Context } from '../../../helpers/Procurator.ts';
+import { Procurator, IHareMenuEntry} from '../../../helpers/Procurator.ts';
 import Command from '../commands/Command.tsx';
 import { ContextMenuContext } from './contextMenuContext.tsx';
 import { IHareCommand } from '@hare-ide/hare';
+import when, {Context} from '../../../helpers/functions/when.ts';
 
 const procurator = Procurator.getInstance();
 
@@ -32,7 +33,7 @@ const ContextMenu = () => {
     }
 
     var validMenus = menus.filter(function getWhen(menu) {
-      return procurator.context.when(menu.when, ctx);
+      return when(menu.when, ctx);
     });
 
     var hidden = validMenus.filter(function getVisibles(menu) {

@@ -1,7 +1,8 @@
 import { useContext } from 'react';
-import { Procurator, IHareMenuEntry, Context } from '../../../../helpers/Procurator.ts';
+import { Procurator, IHareMenuEntry} from '../../../../helpers/Procurator.ts';
 import Command from '../../commands/Command.tsx';
 import { ContextMenuContext } from '../../contextMenu/contextMenuContext.tsx';
+import when, {Context} from '../../../../helpers/functions/when.ts';
 
 const procurator = Procurator.getInstance();
 
@@ -15,7 +16,7 @@ const MenuBar = ({menuId, context} : {menuId:string, context:Context}) => {
   }
 
   var validMenus = menus.filter(function getWhen(menu) {
-    return procurator.context.when(menu.when, context);
+    return when(menu.when, context);
   });
 
   var visibles = validMenus.filter(function getVisibles(menu) {

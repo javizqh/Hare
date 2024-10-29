@@ -1,6 +1,8 @@
-import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareView, IHareViewContainer, IHareViewContainers, TreeViewProvider, View} from "@hare-ide/hare"
+import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareIconRegex, IHareView, IHareViewContainer, IHareViewContainers, TreeItemState, TreeViewProvider, View} from "@hare-ide/hare"
 import { executeBackend, load_extensions, readDir, readFile } from "../API2";
 import { path } from "@tauri-apps/api";
+import substituteDefault from "../assets/Icons";
+import when from "./functions/when";
 
 interface RustCommand {
   command: string,
@@ -168,6 +170,12 @@ export class Procurator{
         if (extension.menus) {
           extension.menus.forEach(menuEntry => {
             this.window.registerMenu(menuEntry);
+          })
+        }
+
+        if (extension.icon_packs) {
+          extension.icon_packs.forEach(iconPack => {
+            this.window.loadIconPack(iconPack, extension.root);
           })
         }
 
@@ -341,7 +349,6 @@ class CommandContext {
   }
 
   public getCommand(id: string): HareCommand | undefined {
-    //TODO: maybe change internal filter to id.command filter
     let retVal: HareCommand | undefined;
 
     this.commands.some((cmd: HareCommand) => {
@@ -391,6 +398,9 @@ class WindowContext {
   private containerViews: IHareViewContainer;
   private menus: IHareMenu[] = [];
   private commandContext: CommandContext;
+  private iconPacks: IconPack[] = [];
+  private currentIconPack?: IconPack;
+
 
   constructor(commandContext: CommandContext) {
     this.containerViews = {primary_bar: [], panel: []};
@@ -552,6 +562,143 @@ class WindowContext {
 
     return entries;
   }
+
+  public loadIconPack(pack: IHareIconPack, root:string) {
+    readFile(pack.path).then((content:string) => {
+      let json = JSON.parse(content);
+      this.iconPacks.push({id: pack.id, title: pack.title, root:root, defaults: json.defaults, extra: json.contextValues})
+
+      //TODO: load from settings
+      this.currentIconPack = this.iconPacks[0]
+    })
+  }
+
+  public substituteIcon (value:string, ctx: string, name:string, state: TreeItemState) {
+    let result = undefined;
+
+    if (value.length > 0) {
+      let regex = /\$\([^)]*\)/i;
+      if (!regex.test(value)) {
+        return value // It is an url
+      }
+
+      if (this.currentIconPack) {
+        result = this.overwriteDefaultIcons(value, state);
+      }
+
+      if (!result) {
+        result = substituteDefault(value, state);
+      }
+
+      return result
+    }
+
+    if (this.currentIconPack) {
+      result = this.getIconPath(ctx, name, state);
+    }
+
+    if (result) {
+      return result;
+    }
+
+    return substituteDefault(value, state); // Return Default Icon
+  }
+
+  private overwriteDefaultIcons (value:string, state:TreeItemState) {
+    let substitute = value.slice(2, -1);
+    let val = this.currentIconPack!.defaults[substitute];
+
+    if (!val) {
+      return undefined;
+    }
+
+    if (!this.currentIconPack) {
+      return undefined
+    }
+
+    if (typeof val === 'string') {
+      return this.currentIconPack.root + val;
+    }
+
+    for (let index = 0; index < val.length; index++) {
+      const element = val[index];
+
+      if (!element.when) {
+        return this.currentIconPack.root + element.dark //TODO: change theme mode
+      }
+
+      const ctx = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
+
+      if (when(element.when, ctx)) {
+        return this.currentIconPack.root + element.dark; //TODO: change theme mode
+      }
+      
+    }
+    return val
+  }
+
+  private getIconPath (ctx: string, name:string, state: TreeItemState) {
+    let val = this.currentIconPack!.extra[ctx];
+
+    if (!val) {
+      return undefined;
+    }
+
+    if (!this.currentIconPack) {
+      return undefined
+    }
+
+    if (typeof val === 'string') {
+      return this.currentIconPack.root + val
+    }
+
+    if (val.regex) {  
+      // Check first regex
+      let regexIcon = undefined;
+      let found = Object.entries(val.regex).some((element: any) => {
+        let regex = new RegExp(element[0]);
+        if (regex.test(name)) {
+          for (let index = 0; index < element[1].length; index++) {
+            const entry = element[1][index];
+
+            if (!entry.when) {
+              regexIcon = this.currentIconPack!.root + entry.dark; //TODO: change theme mode
+              return true;
+            }
+
+            const context = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
+
+            if (when(entry.when, context)) {
+              regexIcon = this.currentIconPack!.root + entry.dark; //TODO: change theme mode
+              return true;
+            }
+          }
+        }
+      });
+
+      if (found) {
+        return regexIcon;
+      }
+    }
+
+    // Regex not found return default
+    for (let index = 0; index < val.default.length; index++) {
+      const element = val.default[index];
+
+      if (!element.when) {
+        return this.currentIconPack.root + element.dark //TODO: change theme mode
+      }
+
+      const context = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
+
+      // console.log(element.when, context)
+      if (when(element.when, context)) {
+        return this.currentIconPack.root + element.dark; //TODO: change theme mode
+      }
+    }
+
+    return val
+  }
 }
 
 class SubscriptionsContext {
@@ -575,8 +722,12 @@ interface Selection {
   ref: HTMLDivElement
 }
 
-export interface Context {
-  [Key: string]: string;
+interface IconPack {
+  id: string,
+  title: string,
+  root: string,
+  defaults: {[Key: string]: string | [IHareIcon]},
+  extra: {[Key: string]: string | IHareIconRegex},
 }
 
 class ExecutionContext {
@@ -646,81 +797,6 @@ class ExecutionContext {
     });
     this.selected = [];
     return;
-  }
-
-  public when(check: string, context:Context): boolean {
-    if (check.length === 0) {
-      return true;
-    }
-
-    let part = check.split(" ");
-    let result = true;
-
-    let a: string | undefined = undefined;
-    let b: string | undefined = undefined;
-    let op: string | undefined = undefined;
-    let concat: boolean = true;
-    let substitution: string | undefined = undefined;
-
-    part.forEach(element => {
-      if (element === "&&") {
-        concat = true;
-        return;
-      } else if (element === "||") {
-        concat = false;
-        return;
-      }
-
-      if (!a) {
-        substitution = context[element];
-        if (substitution) {
-          a = substitution
-        } else {
-          a = element;
-        }
-        return;
-      }
-
-      if (!op) {
-        op = element;
-        return;
-      }
-
-      if (!b) {
-        substitution = context[element];
-        if (substitution) {
-          b = substitution
-        } else {
-          b = element;
-        }
-        //TODO: here execute
-        let tmp = ExecutionContext.doOperation(a,b,op);
-        if (concat) {
-          result = result && tmp;
-        } else {
-          result = result || tmp;
-        }
-        a = undefined;
-        b = undefined;
-        op = undefined;
-        return;
-      }
-    });
-
-    return result;
-  }
-
-  private static doOperation(a: string, b:string, op:string): boolean {
-    switch (op) {
-      case "==":
-        return a === b;
-      case "!=":
-        return a !== b;
-      default:
-        break;
-    }
-    
-    return false;
   }
 }
 

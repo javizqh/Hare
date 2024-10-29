@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, memo, useContext } from 'react';
 import { readFile } from '../../../../API2.tsx';
 import { TreeItemState, TreeViewProvider, TreeItem, ProviderResult, TreeItemSelectedState } from '@hare-ide/hare';
-import { Context, Procurator } from '../../../../helpers/Procurator.ts';
+import { Procurator } from '../../../../helpers/Procurator.ts';
 import { ContextMenuContext } from '../../contextMenu/contextMenuContext.tsx';
 import MenuBarTree from './MenuBarTree.tsx';
+import { Context } from '../../../../helpers/functions/when.ts';
 
 const procurator = Procurator.getInstance();
 
@@ -54,21 +55,45 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
 
     if (raw_state) {
       state = JSON.parse(raw_state);
+      node.collapsibleState = state;
     }
     setOpen(state === TreeItemState.Expanded);
 
+    loadIcon();
+  }, [node]);
+
+  const loadIcon = () => {
+    if (!node) {
+      return
+    }
+
     if (ref.current) {
       //TODO: icon packs
-      // console.log(typeof node.iconPath === "string")
-      if (typeof node.iconPath === 'string') {
-        // console.log(node.iconPath)
-        readFile(node.iconPath).then((content:string) => {
+      //TODO: if no icon pack and default do not load from file
+      let iconSVG;
+
+      if (!node.iconPath) {
+        iconSVG = procurator.window.substituteIcon("", (node.contextValue) ? node.contextValue : "", node.label, node.collapsibleState)
+      } else {
+        if (typeof node.iconPath === 'string') {
+          iconSVG = procurator.window.substituteIcon(node.iconPath, (node.contextValue) ? node.contextValue : "", node.label, node.collapsibleState);
+        } else {
+          iconSVG = node.iconPath.dark //TODO: do this properly using when
+        }
+      }
+
+      // Maybe return with when to not load every 10 secondss
+
+      console.log(iconSVG)
+
+      if (typeof iconSVG === 'string') {
+        readFile(iconSVG).then((content:string) => {
           // @ts-ignore
           ref.current.innerHTML = content;
         })
       }
     }
-  }, [node]);
+  }
 
   const handleClick = (e:MouseEvent) => {
     if (e.button == 2) {
@@ -89,6 +114,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
       } else {
         node.collapsibleState = TreeItemState.Collapsed
       }
+      loadIcon();
       window.localStorage.setItem(id + "/" + node.id, String(node.collapsibleState));
       setOpen(node.collapsibleState === TreeItemState.Expanded);
     }
@@ -206,13 +232,13 @@ const ArrowIndicator = ({hasChild, open}: {hasChild:boolean, open:boolean}) => {
   if (open) {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="collapse-indicator" viewBox="0 0 24 24">
-        <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7"/>
       </svg>
     )
   } else {
     return (
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" className="collapse-indicator" viewBox="0 0 24 24">
-        <path stroke="#ffffff" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 5 7 7-7 7"/>
       </svg>
     )
   }

@@ -142,6 +142,7 @@
 			padding-right: 6px;
 			display: flex;
 			justify-content: center;
+			color: var(--activityBar-selected);
 		}
 	}
 
@@ -162,6 +163,7 @@
 	min-width: 16px;
 	padding: 0 6px 0 0;
 	opacity: 60%;
+	color: var(--activityBar-selected);
 }
 
 .action-menu,

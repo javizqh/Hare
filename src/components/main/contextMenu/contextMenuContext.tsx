@@ -1,5 +1,5 @@
 import { createContext, useCallback, useEffect, useState } from 'react';
-import { Context } from '../../../helpers/Procurator';
+import { Context } from '../../../helpers/functions/when';
 
 interface ContextMenu {
   isOpen: boolean,
