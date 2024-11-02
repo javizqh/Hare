@@ -571,6 +571,8 @@ class WindowContext {
       //TODO: load from settings
       this.currentIconPack = this.iconPacks[0]
     })
+
+    //TODO: load icons only for current iconPack
   }
 
   public substituteIcon (value:string, ctx: string, name:string, state: TreeItemState) {

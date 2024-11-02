@@ -9,7 +9,7 @@ import { Context } from '../../../../helpers/functions/when.ts';
 const procurator = Procurator.getInstance();
 
 const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:string, viewProvider:TreeViewProvider<any>, item: any, depth:number, context:Context}) => {
-  //TODO: icon themes and move
+  //TODO: move
 
   const componentRef = useRef(null);
   const ref = useRef(null);
