@@ -12,7 +12,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
   //TODO: move
 
   const componentRef = useRef(null);
-  const ref = useRef(null);
+  const ref = useRef<HTMLDivElement | null>(null);
   const selectRef = useRef<HTMLDivElement>(null);
   const [isOpen, setOpen] = useState<boolean>(false);
   const [children, setChildren] = useState<any>(null);
@@ -82,15 +82,19 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
         }
       }
 
-      // Maybe return with when to not load every 10 secondss
-
-      console.log(iconSVG)
+      // @ts-ignore
+      console.log(iconSVG, typeof iconSVG === 'string')
 
       if (typeof iconSVG === 'string') {
         readFile(iconSVG).then((content:string) => {
           // @ts-ignore
           ref.current.innerHTML = content;
         })
+      } else {
+        ref.current.childNodes.forEach(element => {
+          ref.current!.removeChild(element);
+        });
+        ref.current.appendChild(iconSVG)
       }
     }
   }
@@ -191,7 +195,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
-          <div ref={ref} className="icon" aria-hidden="true" />
+          <div ref={ref} className="icon" aria-hidden="true"/>
           <label title={node.tooltip}>
             {node.label}
           </label>

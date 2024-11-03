@@ -569,10 +569,74 @@ class WindowContext {
       this.iconPacks.push({id: pack.id, title: pack.title, root:root, defaults: json.defaults, extra: json.contextValues})
 
       //TODO: load from settings
-      this.currentIconPack = this.iconPacks[0]
+      this.setActiveIconPack(pack.id);
+      console.log(this.currentIconPack);
     })
 
     //TODO: load icons only for current iconPack
+  }
+
+  public setActiveIconPack(id: string) {
+    const parser = new DOMParser();
+    //TODO: unload old icons
+    let found = this.iconPacks.some(iconPack => {
+      if (iconPack.id === id) {
+        this.currentIconPack = iconPack;
+        return true;
+      }
+    });
+
+    if (!found) {
+      return;
+    }
+
+    Object.entries(this.currentIconPack!.defaults).forEach(entry => {
+      if (typeof entry[1] === 'string') {
+        return
+      }
+
+      for (let index = 0; index < entry[1].length; index++) {
+        const element = entry[1][index];
+        readFile(this.currentIconPack!.root + element.light).then((content:string) => {
+          element.lightSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
+        })
+        readFile(this.currentIconPack!.root + element.dark).then((content:string) => {
+          element.darkSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
+        })
+      }
+    });
+
+    Object.entries(this.currentIconPack!.extra).forEach(entry => {
+      if (typeof entry[1] === 'string') {
+        return
+      }
+
+      if (entry[1].regex) {
+        Object.entries(entry[1].regex).some((element: any) => {
+          let val = element[1] as IHareIcon[];
+          for (let index = 0; index < val.length; index++) {
+            const element = val[index];
+            readFile(this.currentIconPack!.root + element.light).then((content:string) => {
+              element.lightSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
+            })
+            readFile(this.currentIconPack!.root + element.dark).then((content:string) => {
+              element.darkSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
+            })
+          }
+        });
+      }
+
+      for (let index = 0; index < entry[1].default.length; index++) {
+        const element = entry[1].default[index];
+
+        readFile(this.currentIconPack!.root + element.light).then((content:string) => {
+          element.lightSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
+        })
+        readFile(this.currentIconPack!.root + element.dark).then((content:string) => {
+          element.darkSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
+        })
+      }
+    });
   }
 
   public substituteIcon (value:string, ctx: string, name:string, state: TreeItemState) {
@@ -626,13 +690,13 @@ class WindowContext {
       const element = val[index];
 
       if (!element.when) {
-        return this.currentIconPack.root + element.dark //TODO: change theme mode
+        return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
 
       const ctx = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
 
       if (when(element.when, ctx)) {
-        return this.currentIconPack.root + element.dark; //TODO: change theme mode
+        return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
       
     }
@@ -664,14 +728,14 @@ class WindowContext {
             const entry = element[1][index];
 
             if (!entry.when) {
-              regexIcon = this.currentIconPack!.root + entry.dark; //TODO: change theme mode
+              regexIcon = entry.darkSVG.cloneNode(true); //TODO: change theme mode
               return true;
             }
 
             const context = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
 
             if (when(entry.when, context)) {
-              regexIcon = this.currentIconPack!.root + entry.dark; //TODO: change theme mode
+              regexIcon = entry.darkSVG.cloneNode(true); //TODO: change theme mode
               return true;
             }
           }
@@ -688,14 +752,13 @@ class WindowContext {
       const element = val.default[index];
 
       if (!element.when) {
-        return this.currentIconPack.root + element.dark //TODO: change theme mode
+        return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
 
       const context = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
 
-      // console.log(element.when, context)
       if (when(element.when, context)) {
-        return this.currentIconPack.root + element.dark; //TODO: change theme mode
+        return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
     }
 
