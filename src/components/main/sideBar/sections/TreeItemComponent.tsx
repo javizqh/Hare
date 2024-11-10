@@ -82,9 +82,6 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
         }
       }
 
-      // @ts-ignore
-      console.log(iconSVG, typeof iconSVG === 'string')
-
       if (typeof iconSVG === 'string') {
         readFile(iconSVG).then((content:string) => {
           // @ts-ignore
@@ -143,9 +140,9 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
     }
   }, [isOpen]);
 
-  //TODO: this should be reducing its size for each folder
 
   function allowDrop(ev:any) {
+    //TODO: this should be reducing its size for each folder
     if (componentRef.current) {
       // componentRef.current.c("drop-active", true);
       console.log(ev)
