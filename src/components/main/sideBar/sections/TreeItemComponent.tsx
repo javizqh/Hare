@@ -20,6 +20,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
   const [style, setStyle] = useState<any>(null);
   const [node, setNode] = useState<TreeItem |null>(null);
   const [dropActive, setDropActive] = useState<boolean>(false);
+  const [rename, setRename] = useState<boolean>(false);
   const contextMenu = useContext(ContextMenuContext);
 
   const folderStyle = {
@@ -97,6 +98,9 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
   }
 
   const handleClick = (e:MouseEvent) => {
+    // setRename(true);
+    // return;
+
     if (e.button == 2) {
       return;
     }
@@ -186,16 +190,21 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
           onAuxClick={(e:any) => {handleClick(e)}}
           tabIndex={1}
           style={style}
-          draggable="true"
+          draggable={rename ? "false" : "true"}
           onDragStart={(e) => onDragStart(e)}
           onContextMenu={(e:any) => onContextMenu(e)}
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
           <div ref={ref} className="icon" aria-hidden="true"/>
-          <label title={node.tooltip}>
-            {node.label}
-          </label>
+          {rename 
+          ?
+            <input type="text" className='input' id="fname" name="fname" title={node.tooltip} value={node.label}/>
+          :
+            <label title={node.tooltip}>
+              {node.label}
+            </label>
+          }
           {node.description &&
             <label className='description'>
               {node.description}
