@@ -3,6 +3,7 @@ import { executeBackend, load_extensions, readDir, readFile } from "../API2";
 import { path } from "@tauri-apps/api";
 import substituteDefault from "../assets/Icons";
 import when from "./functions/when";
+import { publish } from "./events";
 
 interface RustCommand {
   command: string,
@@ -237,6 +238,9 @@ export class Procurator{
     }
   }
 
+  public getFilesEdit() {
+    return this.context.filesEdited;
+  }
 }
 
 class HareCommand implements IHareCommand {
@@ -292,7 +296,9 @@ class HareCommand implements IHareCommand {
 }
 
 function hare_open (...rest: any[]) {
-  console.log(rest)
+  const context = rest[0] as ExecutionContext;
+  const filePath = context.selected[0].id
+  context.addFileEdit(filePath)
 }
 
 class CommandContext {
@@ -393,6 +399,27 @@ interface IHareMenu {
   entries: IHareMenuEntry[],
 }
 
+export interface IHareEditorEntry {
+  name: string,
+  path: string,
+  changes: number,
+  icon?: IHareIcon,
+  order: number,
+  isPreview: boolean,
+  extension: string,
+  editor:IHareEditor,
+}
+
+interface IHareEditor {
+  id: string,
+  displayName: string,
+  on: string[], //TODO: increase this to match more things than file patterns
+}
+
+export interface IHareEditorContainer {
+  editors: IHareEditorEntry[]; //TODO: add ability to divide editor views
+}
+
 class WindowContext {
   /**This class will handle all of the window related features */
   private containerViews: IHareViewContainer;
@@ -400,7 +427,6 @@ class WindowContext {
   private commandContext: CommandContext;
   private iconPacks: IconPack[] = [];
   private currentIconPack?: IconPack;
-
 
   constructor(commandContext: CommandContext) {
     this.containerViews = {primary_bar: [], panel: []};
@@ -802,9 +828,10 @@ class ExecutionContext {
   public view: string = "";
   public viewItem: string = "";
   public selected: Selection[] = [];
+  public filesEdited: IHareEditorContainer;
 
   constructor() {
-    
+    this.filesEdited = {editors: []};
   }
 
   public substituteValue (value:string) {
@@ -862,6 +889,56 @@ class ExecutionContext {
     });
     this.selected = [];
     return;
+  }
+
+  public addFileEdit (path: string) {
+    var isInside = false 
+    var name = path.split('\\').pop()!.split('/').pop();
+
+    if (name === undefined) {
+      return
+    }
+
+    var extension = name.split('.').pop();
+
+    if (extension === undefined) {
+      return
+    }
+
+    for (let index = 0; index < this.filesEdited.editors.length; index++) {
+      const element = this.filesEdited.editors[index];
+      //TODO: update order
+      if (element.name === name) {
+        isInside = true
+        element.isPreview = false; // Remove preview from file
+      }
+    }
+
+    if (isInside) {
+      return;
+    }
+
+    var newElement: IHareEditorEntry = {
+      name: name,
+      path: path,
+      order: 0,
+      changes: 0,
+      isPreview: true, //TODO: search in settings
+      extension: extension,
+      editor: {id:"", displayName:"", on:[]}
+    }
+
+    // Remove preview element 
+    let new_array = this.filesEdited.editors.filter(x => !x.isPreview);
+    new_array.unshift(newElement)
+
+    this.filesEdited.editors = new_array;
+    publish("fileEditUpdate");
+  }
+
+  public removeFileEdit (toRemove: IHareEditorEntry) {
+    this.filesEdited.editors = this.filesEdited.editors.filter(x => x !== toRemove);
+    publish("fileEditUpdate");
   }
 }
 

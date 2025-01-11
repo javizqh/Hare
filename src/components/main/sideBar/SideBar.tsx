@@ -1,5 +1,4 @@
-import { useState, useEffect, useContext} from 'react';
-import { ContextMenuContext } from '../contextMenu/contextMenuContext';
+import { useState, useEffect} from 'react';
 import * as BasicComponents from "./sections/BasicComponents";
 import {IHareView, IHareViewContainers} from "@hare-ide/hare"
 import {Procurator} from "../../../helpers/Procurator";
@@ -7,7 +6,6 @@ import {Procurator} from "../../../helpers/Procurator";
 const SideBar = ({currentMenu, dragPosX} : {currentMenu:any ,dragPosX:number}) => {
     const procurator = Procurator.getInstance();
 		const [containerView, setContainerView] = useState<IHareViewContainers|undefined>(undefined);
-		// const {menu, setMenu} = useContext(ContextMenuContext);
 
     useEffect(() => {
 			setContainerView(procurator.window.getContainerView(currentMenu));

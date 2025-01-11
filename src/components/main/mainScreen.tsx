@@ -107,7 +107,7 @@ const MainScreen = () => {
           </Draggable>
         }
         <div className = "main-view-container" style={isSideBarOpen ? {left: dragPosX, width: `calc(100% - ${dragPosX}px)`} : {left: '48px', width: `calc(100% - 48px)`}}>
-          <EditorContainer editorFileTabs={editorFileTabs} isOpen={isEditorOpen} openFileInEditor={openFileInEditor} closeFileInEditor={closeFileInEditor}/>
+          <EditorContainer/>
           <div id = "editor-dragbar" className = "dragbar dragbar-vert"></div>
           <div id="terminal-container" className="terminal-container">
             <div className="terminal-tab-container"></div>

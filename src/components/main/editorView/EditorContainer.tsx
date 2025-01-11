@@ -1,151 +1,135 @@
-import React, { useState, useEffect, useRef } from 'react';
-import {readFile} from "../../../API2";
-import EditorTab from './EditorTab';
+import React, { useState, useEffect, useRef } from "react";
+import { readFile } from "../../../API2";
+import EditorTab from "./EditorTab";
 
 import CodeMirror from "@uiw/react-codemirror";
-import {basicSetup, EditorView} from "codemirror"
-import {keymap} from "@codemirror/view"
-import {EditorState, Compartment} from "@codemirror/state"
-import { defaultKeymap, indentLess, indentMore, indentWithTab } from '@codemirror/commands';
-import { python, pythonLanguage } from '@codemirror/lang-python';
-import {acceptCompletion, CompletionContext, completionStatus} from "@codemirror/autocomplete";
-import { oneDark } from './theme';
+import { basicSetup, EditorView } from "codemirror";
+import { keymap } from "@codemirror/view";
+import { EditorState, Compartment } from "@codemirror/state";
+import {
+  defaultKeymap,
+  indentLess,
+  indentMore,
+  indentWithTab,
+} from "@codemirror/commands";
+import { python, pythonLanguage } from "@codemirror/lang-python";
+import {
+  acceptCompletion,
+  CompletionContext,
+  completionStatus,
+} from "@codemirror/autocomplete";
+import { vsCodeDark } from "./theme";
+import {
+  IHareEditorContainer,
+  IHareEditorEntry,
+  Procurator,
+} from "../../../helpers/Procurator";
+import { subscribe, unsubscribe } from "../../../helpers/events";
 
-const EditorContainer = ({editorFileTabs, isOpen, openFileInEditor, closeFileInEditor} : {editorFileTabs:any, isOpen:boolean, openFileInEditor:any, closeFileInEditor:any}) => {
+const EditorContainer = ({}) => {
+  const procurator = Procurator.getInstance();
+  const [filesOpen, setFilesOpen] = useState<IHareEditorContainer | undefined>(
+    undefined
+  );
+  const [code, setCode] = useState<string>("");
+  const [update, setUpdate] = useState<boolean>(false);
 
-	const editorRef = useRef<any>(null);
-	const [currentFile, setCurrentFile] = useState<any>("");
-	const [code, setCode] = useState<any>("");
-	const [language, setLanguage] = useState<any>("javascript");
+  const editorRef = useRef<any>(null);
+
+  const callback = () => {
+    console.log("Callback");
+    var fileOpen = procurator.context.filesEdited;
+    setFilesOpen(procurator.context.filesEdited);
+    if (fileOpen === undefined) {
+      return;
+    }
+
+    if (fileOpen.editors[0] === undefined) {
+      return;
+    }
+
+    console.log("subscribed", "Inside");
+
+    readFile(fileOpen.editors[0].path).then((message: any) => {
+      setCode(message);
+      console.log("subscribed", message);
+      setUpdate(true);
+    });
+  };
 
   useEffect(() => {
-    const startState = EditorState.create({
-      doc: 'Hello World',
-      extensions: [
-        basicSetup,
-        keymap.of([{
-          key: 'Tab',
-          preventDefault: true,
-          shift: indentLess,
-          run: e => {
-            if (!completionStatus(e.state)) return indentMore(e);
-            return acceptCompletion(e);
-          },
-        },]),
-        oneDark,
-				python(),
-				pythonLanguage
-      ],
-    });
+    subscribe("fileEditUpdate", callback);
 
-    const view = new EditorView({ state: startState, parent: editorRef.current });
+    // const startState = EditorState.create({
+    // 	doc: code,
+    // 	extensions: [
+    // 		basicSetup,
+    // 		keymap.of([{
+    // 			key: 'Tab',
+    // 			preventDefault: true,
+    // 			shift: indentLess,
+    // 			run: e => {
+    // 				if (!completionStatus(e.state)) return indentMore(e);
+    // 				return acceptCompletion(e);
+    // 			},
+    // 		},]),
+    // 		oneDark,
+    // 		python(),
+    // 		pythonLanguage
+    // 	],
+    // });
+
+    // const view = new EditorView({ state: startState, parent: editorRef.current });
 
     return () => {
-      view.destroy();
+      // view.destroy();
+      unsubscribe("fileEditUpdate", () => setFilesOpen(undefined));
+      console.log("unsubscribed", "Top");
     };
   }, []);
 
-	// function myCompletions(context: CompletionContext) {
-	// 	let word = context.matchBefore(/\w*/)
-	// 	if (word.from == word.to && !context.explicit)
-	// 		return null
-	// 	return {
-	// 		from: word.from,
-	// 		options: [
-	// 			{label: "match", type: "keyword"},
-	// 			{label: "hello", type: "variable", info: "(World)"},
-	// 			{label: "magic", type: "text", apply: "⠁⭒*.✩.*⭒⠁", detail: "macro"}
-	// 		]
-	// 	}
-	// }
+  useEffect(() => {
+    console.log("update");
+    if (update) {
+      setUpdate(false);
+    }
+  }, [update]);
 
-	// function handleEditorDidMount(editor:any, monaco:any) {
-	// 	// here is another way to get monaco instance
-	// 	// you can also store it in `useRef` for further usage
-	// 	// editorRef.current = monaco;
-	// }
-
-	// const handleClick = (tab:any) => {
-	// 	tab.current =true;
-	// 	openFileInEditor(tab);
-  // }
-
-	// useEffect(() => {
-	// 	if (editorFileTabs.length !== 0) {
-	// 		let match = editorFileTabs.find((element:any) => {
-	// 			return element.current;
-	// 		})
-	// 		console.log(match);
-	// 		setCurrentFile(match)
-	// 		if (editorRef.current) {
-	// 			// console.log(editorRef.current)//.setScrollPosition({scrollTop: 0});
-	// 			// editorRef.current.revealLine(0);
-	// 		}
-	// 	}
-  // }, [editorFileTabs]);
-
-	// useEffect(() => {
-	// 	if (currentFile !== "") {
-	// 		console.log(currentFile);
-	// 		readFile(currentFile.path).then((message:any) => {
-	// 			setCode(message);
-	// 		})
-	// 		.catch((error:any) => {
-	// 				console.error(error);
-	// 		});
-	// 		let newLanguage = 'javascript';
-	// 		const extension = currentFile.path.split('.').pop();
-	// 		if (['css', 'html', 'python', 'dart'].includes(extension)) {
-	// 			newLanguage = extension;
-	// 		}
-	// 		if (extension === 'tsx') {
-	// 			setLanguage("typescript");
-	// 		} else {
-	// 			setLanguage(newLanguage);
-	// 		}
-	// 	}
-  // }, [currentFile]);
-
-	return (
-		<div id="editor-container" className = "editor-container">
-			{(editorFileTabs.length !== 0) &&
-			<>
-				<div className="editor-tab-container">
-				{ Object.entries(editorFileTabs).map((tab:any) => {
-					return (
-						<EditorTab tab={tab[1]} openFileInEditor={openFileInEditor} closeFileInEditor={closeFileInEditor}/>
-					)
-				})}
-				</div>
-				<div id="editor" className="editor" ref={editorRef}>
-					{/* <CodeMirror
-						value='Hello world'
-						extensions={[
-							basicSetup,
-							// keymap.of([defaultKeymap, indentWithTab]),
-							oneDark,
-							cpp()
-						]}
-					/> */}
-					{/* <Editor
-						height="100%"
-						theme="vs-dark"
-						language={language}
-						defaultValue=""
-						value={code}
-						onMount={handleEditorDidMount}/>
-					<DiffEditor
-						original={code}
-						modified={"modifiedCode"}
-						height="100%"
-						theme="vs-dark"
-						language="javascript"
-					/> */}
-				</div>
-			</>
-			}
-		</div>
-	)
+  return (
+    <div id="editor-container" className="editor-container">
+      {filesOpen && filesOpen.editors.length !== 0 && (
+        <>
+          <div className="editor-tab-container">
+            {filesOpen.editors.map((tab: IHareEditorEntry) => {
+              return <EditorTab tab={tab} />;
+            })}
+          </div>
+          <div id="editor" className="editor" ref={editorRef}>
+            <CodeMirror
+              value={code}
+              theme={vsCodeDark}
+              extensions={[
+                basicSetup,
+                keymap.of([
+                  {
+                    key: "Tab",
+                    preventDefault: true,
+                    shift: indentLess,
+                    run: (e) => {
+                      if (!completionStatus(e.state)) return indentMore(e);
+                      return acceptCompletion(e);
+                    },
+                  },
+                ]),
+                python(),
+                pythonLanguage,
+              ]}
+            />
+          </div>
+        </>
+      )}
+    </div>
+  );
 };
 
 export default EditorContainer;

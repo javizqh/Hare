@@ -31,12 +31,3 @@ export function load_extensions(): any {
 export async function executeBackend(id: string, data:string): Promise<any> {
 	return invoke('execute', {id: id, data: data})
 }
-
-export function renameFile(old_path:string, new_path:string): any {
-}
-
-export function renameDir(old_path:string, new_path:string): any {
-}
-
-export function saveFile(file_path:string, contents:string): any {
-}
