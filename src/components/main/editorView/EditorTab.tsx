@@ -27,14 +27,22 @@ const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
       }}
     >
       <div className="editor-tab-entry-icon"></div>
-      <div className="editor-tab-entry-label">{tab.name}</div>
+      <div
+        className={`editor-tab-entry-label ${
+          tab.isPreview ? 'editor-tab-entry-label-preview' : ''
+        }`}
+      >
+        {tab.name}
+      </div>
       <svg
         xmlns="http://www.w3.org/2000/svg"
         width="16"
         height="16"
         fill="#ffffff"
         className={
-          tab.order === 0 ? 'editor-tab-entry-close' : 'editor-tab-entry-close editor-tab-entry-close-hidden'
+          tab.order === 0
+            ? 'editor-tab-entry-close'
+            : 'editor-tab-entry-close editor-tab-entry-close-hidden'
         }
         viewBox="0 0 16 16"
         onClick={(e: any) => {

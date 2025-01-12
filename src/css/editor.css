@@ -96,6 +96,10 @@
   pointer-events: none
 }
 
+.editor-tab-entry-label-preview {
+  font-style: italic;
+}
+
 .editor-tab-entry-icon {
   width: 22px;
 }
