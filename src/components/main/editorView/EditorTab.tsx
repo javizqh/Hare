@@ -1,7 +1,10 @@
+import { useEffect, useRef } from 'react';
+import { readFile } from '../../../API2';
 import { IHareEditorEntry, Procurator } from '../../../helpers/Procurator';
 
 const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
   const procurator = Procurator.getInstance();
+  const ref = useRef<HTMLDivElement | null>(null);
 
   const handleClick = (tab: any) => {
     console.log('Open');
@@ -11,6 +14,30 @@ const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
   const handleClose = (tab: any) => {
     procurator.window.removeFileEdit(tab);
   };
+
+  const loadIcon = () => {
+    if (ref.current) {
+      //TODO: icon packs
+      //TODO: if no icon pack and default do not load from file
+      const iconSVG = procurator.window.substituteIcon('', 'file', tab.name, 0);
+
+      if (typeof iconSVG === 'string') {
+        readFile(iconSVG).then((content: string) => {
+          // @ts-ignore
+          ref.current.innerHTML = content;
+        });
+      } else {
+        ref.current.childNodes.forEach((element) => {
+          ref.current!.removeChild(element);
+        });
+        ref.current.appendChild(iconSVG);
+      }
+    }
+  };
+
+  useEffect(() => {
+    loadIcon();
+  }, [tab]);
 
   // Tab entry { tab icon (22x22px), tab name, tab changes (hover or selected (color white) tab close (16x16px + 2padd))}
 
@@ -26,7 +53,7 @@ const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
         handleClick(tab);
       }}
     >
-      <div className="editor-tab-entry-icon"></div>
+      <div ref={ref} className="editor-tab-entry-icon" aria-hidden="true" />
       <div
         className={`editor-tab-entry-label ${
           tab.isPreview ? 'editor-tab-entry-label-preview' : ''

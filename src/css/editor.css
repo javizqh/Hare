@@ -71,7 +71,9 @@
   top: 0;
   height: 100%;
   width: fit-content;
-  /* padding-left: 10px; */
+  padding-left: 10px;
+  padding-right: 10px;
+  gap: 5px;
   align-items: center;
   user-select: none;
   cursor: pointer;
@@ -101,13 +103,13 @@
 }
 
 .editor-tab-entry-icon {
-  width: 22px;
+  width: 16px;
+  height: 16px;
+  display: flex;
 }
 
 .editor-tab-entry-close {
   font-size: 13px;
-  margin-left: 7px;
-  margin-right: 4px;
   padding: 2px;
   size: 16px 16px;
   border-radius: 50px;
