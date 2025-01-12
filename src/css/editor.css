@@ -1,117 +1,123 @@
 .main-view-container {
-        position:absolute;
-        background-color: var(--background);
-        top: 0;
-        height: calc(100% - var(--statusBar-height));
+  position: absolute;
+  background-color: var(--background);
+  top: 0;
+  height: calc(100% - var(--statusBar-height));
 }
 
 .splash-icon {
-        width: 320px;
-        height: 100%;
-        color: #ff9900;
-        pointer-events: none;
-        z-index: 1;
+  width: 320px;
+  height: 100%;
+  color: #ff9900;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .editor-container {
-        position: relative;
-        top: 0;
-        width: 100%;
-        height: calc(100% - var(--terminalView-height));
-        z-index: 1;
+  position: relative;
+  top: 0;
+  width: 100%;
+  height: calc(100% - var(--terminalView-height));
+  z-index: 1;
 }
 
 .editor-container-center {
-        display: flex;
-        justify-content: center;
-        align-content: center;
+  display: flex;
+  justify-content: center;
+  align-content: center;
 }
 
 .editor {
-        top: 40px;
-        height: calc(100% - 40px);
-        width: 100%;
+  top: 40px;
+  height: calc(100% - 40px);
+  width: 100%;
+  display: flex;
+
+  & .cm-theme {
+    height: 100%;
+    width: 100%;
+  }
 }
 
 .terminal-container {
-        position: absolute;
-        width: 100%;
-        bottom: 0;
-        right: 0;
-        height: var(--terminalView-height);
+  position: absolute;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  height: var(--terminalView-height);
 }
 
 .terminal-tab-container {
-        background-color: var(--background);
-        border-top: 1px solid var(--activityBar-background);
-        height:100%;
-        width: 100%;
+  background-color: var(--background);
+  border-top: 1px solid var(--activityBar-background);
+  height: 100%;
+  width: 100%;
 }
 
 .editor-tab-container {
-        display: flex;
-        flex-direction: row;
-        align-content: flex-start;
-        color: white;
-        height: 35px;
-        margin-bottom: 10px;
-        background-color: var(--sideBar-background);
+  display: flex;
+  flex-direction: row;
+  align-content: flex-start;
+  color: white;
+  height: 35px;
+  margin-bottom: 10px;
+  background-color: var(--sideBar-background);
 }
 
 .editor-tab-entry {
-        display: flex;
-        flex-direction: row;
-        position: relative;
-        top: 0;
-        height: 100%;
-        width: fit-content;
-        /* padding-left: 10px; */
-        align-items: center;
-        user-select: none;
-        cursor: pointer;
-        border-right: 1px solid var(--sideBar-background);
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  top: 0;
+  height: 100%;
+  width: fit-content;
+  /* padding-left: 10px; */
+  align-items: center;
+  user-select: none;
+  cursor: pointer;
+  border-right: 1px solid var(--sideBar-background);
 }
 
-.editor-tab-entry:hover svg{
-        visibility: visible !important;
+.editor-tab-entry:hover svg {
+  visibility: visible !important;
 }
 
 .editor-tab-entry-selected {
-        background-color: var(--background);
+  background-color: var(--background);
 }
 
 .editor-tab-entry-unselected {
-        background-color: var(--activityBar-background);
+  background-color: var(--activityBar-background);
 }
 
 .editor-tab-entry-label {
-        font-size: 13px;
-        text-align: center;
-        pointer-events: none
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none
 }
 
 .editor-tab-entry-icon {
-        width: 22px;
+  width: 22px;
 }
 
 .editor-tab-entry-close {
-        font-size: 13px;
-        margin-left: 7px;
-        margin-right: 4px;
-        padding: 2px;
-        size: 16px 16px;
-        border-radius: 50px;
+  font-size: 13px;
+  margin-left: 7px;
+  margin-right: 4px;
+  padding: 2px;
+  size: 16px 16px;
+  border-radius: 50px;
 }
 
 .editor-tab-entry-close-hidden {
-        visibility: hidden;
+  visibility: hidden;
 }
 
 .editor-tab-entry-close:hover {
-        background-color: var(--activityBar-unselected);
+  background-color: var(--activityBar-unselected);
 }
 
 .cm-editor {
-        width: 100%;
-        height: 100%;
+  width: 100%;
+  height: 100%;
 }

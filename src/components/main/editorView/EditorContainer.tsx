@@ -1,64 +1,55 @@
-import React, { useState, useEffect, useRef } from "react";
-import { readFile } from "../../../API2";
-import EditorTab from "./EditorTab";
+import React, { useState, useEffect, useRef } from 'react';
+import { readFile } from '../../../API2';
+import EditorTab from './EditorTab';
 
-import CodeMirror from "@uiw/react-codemirror";
-import { basicSetup, EditorView } from "codemirror";
-import { keymap } from "@codemirror/view";
-import { EditorState, Compartment } from "@codemirror/state";
-import {
-  defaultKeymap,
-  indentLess,
-  indentMore,
-  indentWithTab,
-} from "@codemirror/commands";
-import { python, pythonLanguage } from "@codemirror/lang-python";
-import {
-  acceptCompletion,
-  CompletionContext,
-  completionStatus,
-} from "@codemirror/autocomplete";
-import { vsCodeDark } from "./theme";
-import {
-  IHareEditorContainer,
-  IHareEditorEntry,
-  Procurator,
-} from "../../../helpers/Procurator";
-import { subscribe, unsubscribe } from "../../../helpers/events";
+import CodeMirror from '@uiw/react-codemirror';
+import { basicSetup, EditorView } from 'codemirror';
+import { keymap } from '@codemirror/view';
+import { EditorState, Compartment } from '@codemirror/state';
+import { defaultKeymap, indentLess, indentMore, indentWithTab } from '@codemirror/commands';
+import { python, pythonLanguage } from '@codemirror/lang-python';
+import { acceptCompletion, CompletionContext, completionStatus } from '@codemirror/autocomplete';
+import { vsCodeDark } from './theme';
+import { IHareEditorContainer, IHareEditorEntry, Procurator } from '../../../helpers/Procurator';
+import { subscribe, unsubscribe } from '../../../helpers/events';
 
 const EditorContainer = ({}) => {
   const procurator = Procurator.getInstance();
-  const [filesOpen, setFilesOpen] = useState<IHareEditorContainer | undefined>(
-    undefined
-  );
-  const [code, setCode] = useState<string>("");
+  const [filesOpen, setFilesOpen] = useState<IHareEditorContainer | undefined>(undefined);
+  const [code, setCode] = useState<string>('');
   const [update, setUpdate] = useState<boolean>(false);
 
   const editorRef = useRef<any>(null);
 
   const callback = () => {
-    console.log("Callback");
-    var fileOpen = procurator.context.filesEdited;
-    setFilesOpen(procurator.context.filesEdited);
-    if (fileOpen === undefined) {
+    var fileOpen = procurator.window.getFilesEdit();
+    console.log('Callback', fileOpen);
+    setFilesOpen(fileOpen);
+
+    var current = undefined;
+
+    for (let index = 0; index < fileOpen.editors.length; index++) {
+      const element = fileOpen.editors[index];
+      if (element.order === 0) {
+        current = element
+        break;
+      }
+
+    }
+
+    if (current === undefined) {
+      setUpdate(true)
       return;
     }
 
-    if (fileOpen.editors[0] === undefined) {
-      return;
-    }
-
-    console.log("subscribed", "Inside");
-
-    readFile(fileOpen.editors[0].path).then((message: any) => {
+    readFile(current.path).then((message: string) => {
       setCode(message);
-      console.log("subscribed", message);
-      setUpdate(true);
+      setUpdate(true)
     });
   };
 
   useEffect(() => {
-    subscribe("fileEditUpdate", callback);
+    subscribe('fileEditUpdate', callback);
 
     // const startState = EditorState.create({
     // 	doc: code,
@@ -83,8 +74,7 @@ const EditorContainer = ({}) => {
 
     return () => {
       // view.destroy();
-      unsubscribe("fileEditUpdate", () => setFilesOpen(undefined));
-      console.log("unsubscribed", "Top");
+      unsubscribe('fileEditUpdate', () => setFilesOpen(undefined));
     };
   }, []);
 
@@ -112,7 +102,7 @@ const EditorContainer = ({}) => {
                 basicSetup,
                 keymap.of([
                   {
-                    key: "Tab",
+                    key: 'Tab',
                     preventDefault: true,
                     shift: indentLess,
                     run: (e) => {

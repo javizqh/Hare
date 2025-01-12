@@ -1,37 +1,50 @@
-import {ExtensionContext, HareViewPanel, IHareCommand, IHareIcon, IHareIconPack, IHareIconRegex, IHareView, IHareViewContainer, IHareViewContainers, TreeItemState, TreeViewProvider, View} from "@hare-ide/hare"
-import { executeBackend, load_extensions, readDir, readFile } from "../API2";
-import { path } from "@tauri-apps/api";
-import substituteDefault from "../assets/Icons";
-import when from "./functions/when";
-import { publish } from "./events";
+import {
+  ExtensionContext,
+  HareViewPanel,
+  IHareCommand,
+  IHareIcon,
+  IHareIconPack,
+  IHareIconRegex,
+  IHareView,
+  IHareViewContainer,
+  IHareViewContainers,
+  TreeItemState,
+  TreeViewProvider,
+  View,
+} from '@hare-ide/hare';
+import { executeBackend, load_extensions, readDir, readFile } from '../API2';
+import { path } from '@tauri-apps/api';
+import substituteDefault from '../assets/Icons';
+import when from './functions/when';
+import { publish } from './events';
 
 interface RustCommand {
-  command: string,
-  title: string,
-  icon?: IHareIcon | string,
-  category?: string,
-  when?: string
+  command: string;
+  title: string;
+  icon?: IHareIcon | string;
+  category?: string;
+  when?: string;
 }
 
 interface RustMenu {
-  parent: string, // Which menu is the parent
-  command: string,
-  when: string,
-  group?: string,
+  parent: string; // Which menu is the parent
+  command: string;
+  when: string;
+  group?: string;
 }
 
 interface RustConfigurations {
-  id: string,
-  title: string,
-  order?: number,
-  properties: string,
+  id: string;
+  title: string;
+  order?: number;
+  properties: string;
 }
 
 interface RustKeybinding {
-  command: string,
-  key: string,
-  mac?: string,
-  when?: string,
+  command: string;
+  key: string;
+  mac?: string;
+  when?: string;
 }
 
 //TODO: missing: capabilities, colors, icons(Do not make sense), submenus, customEditors, viewsWelcome, walkthroughs
@@ -54,11 +67,11 @@ export interface RustExtension {
 }
 
 interface ExtensionInstance {
-  extension: ExtensionData,
-  activationEvents?: string[], 
+  extension: ExtensionData;
+  activationEvents?: string[];
 }
 
-class ExtensionData implements ExtensionContext{
+class ExtensionData implements ExtensionContext {
   public readonly root: string;
   public readonly id: string;
   public readonly version: string;
@@ -81,7 +94,7 @@ class ExtensionData implements ExtensionContext{
     subscriptions: SubscriptionsContext,
     project: ProjectContext,
     context: ExecutionContext,
-    data: RustExtension,
+    data: RustExtension
   ) {
     this.commands = commands;
     this.window = window;
@@ -99,14 +112,14 @@ class ExtensionData implements ExtensionContext{
     this.main = data.main;
   }
 
-  public getAbsolutePath (relativePath:string): Promise<string> {
+  public getAbsolutePath(relativePath: string): Promise<string> {
     // Returns absolute path of path relative to the extension
     return path.join(this.root, relativePath);
   }
 }
 
-export class Procurator{
-  /** This class will manage all of the frontend and the commands 
+export class Procurator {
+  /** This class will manage all of the frontend and the commands
     and subscriptions and everything else extensions related
     Singleton class
   */
@@ -127,13 +140,13 @@ export class Procurator{
     this.project = new ProjectContext();
     this.context = new ExecutionContext();
 
-    this.context.projectName = "My project" //TODO: load when opening project
+    this.context.projectName = 'My project'; //TODO: load when opening project
 
     this.loadExtensions();
 
     //TODO: tmp
-    this.commands.createCommand(new HareCommand("hare.open", "Open"))
-    this.commands.registerCommand("hare.open", hare_open, this.context);
+    this.commands.createCommand(new HareCommand('hare.open', 'Open'));
+    this.commands.registerCommand('hare.open', hare_open, [this.window, this.context]);
   }
 
   static getInstance() {
@@ -144,59 +157,65 @@ export class Procurator{
     return this.instance;
   }
 
-  private async loadExtensions () {
-    load_extensions().then((new_extensions:RustExtension[]) => {
-      new_extensions.forEach(extension => {
-        if (extension.primary_bar_menus) {
-          extension.primary_bar_menus.forEach(viewContainer => {
+  private async loadExtensions() {
+    load_extensions()
+      .then((new_extensions: RustExtension[]) => {
+        new_extensions.forEach((extension) => {
+          if (extension.primary_bar_menus) {
+            extension.primary_bar_menus.forEach((viewContainer) => {
               this.window.registerContainerView(HareViewPanel.PrimaryBar, viewContainer);
-          })
-        }
+            });
+          }
 
-        if (extension.views) {
-          extension.views.forEach(view => {
-            this.window.registerView(view);
-          })
-        }
+          if (extension.views) {
+            extension.views.forEach((view) => {
+              this.window.registerView(view);
+            });
+          }
 
-        if (extension.commands) {
-          extension.commands.forEach(cmd => {
-            var addCmd = new HareCommand(
-              cmd.command, cmd.title, cmd.icon, cmd.category, cmd.when
-            )
-            this.commands.createCommand(addCmd);
-          })
-        }
+          if (extension.commands) {
+            extension.commands.forEach((cmd) => {
+              var addCmd = new HareCommand(
+                cmd.command,
+                cmd.title,
+                cmd.icon,
+                cmd.category,
+                cmd.when
+              );
+              this.commands.createCommand(addCmd);
+            });
+          }
 
-        if (extension.menus) {
-          extension.menus.forEach(menuEntry => {
-            this.window.registerMenu(menuEntry);
-          })
-        }
+          if (extension.menus) {
+            extension.menus.forEach((menuEntry) => {
+              this.window.registerMenu(menuEntry);
+            });
+          }
 
-        if (extension.icon_packs) {
-          extension.icon_packs.forEach(iconPack => {
-            this.window.loadIconPack(iconPack, extension.root);
-          })
-        }
+          if (extension.icon_packs) {
+            extension.icon_packs.forEach((iconPack) => {
+              this.window.loadIconPack(iconPack, extension.root);
+            });
+          }
 
-        this.extensions.push({
-          extension: new ExtensionData(
-            this.commands,
-            this.window,
-            this.subscriptions,
-            this.project,
-            this.context,
-            extension),
-          activationEvents: extension.activation_events
-        })
-      });
-      //TODO: temporary
-      this.activateExtensions();
-    })
-    .catch((error:any) => {
+          this.extensions.push({
+            extension: new ExtensionData(
+              this.commands,
+              this.window,
+              this.subscriptions,
+              this.project,
+              this.context,
+              extension
+            ),
+            activationEvents: extension.activation_events,
+          });
+        });
+        //TODO: temporary
+        this.activateExtensions();
+      })
+      .catch((error: any) => {
         console.error(error);
-    });
+      });
   }
 
   private async activateExtensions() {
@@ -208,38 +227,34 @@ export class Procurator{
   }
 
   private static async activateExtension(ext: ExtensionData): Promise<void> {
-    readFile(ext.root + "/" + ext.main).then((content:string) => {
-      ext.source = Procurator.doimport(content)
-      ext.source.then(extension => extension.activate(ext))
-    })
+    readFile(ext.root + '/' + ext.main).then((content: string) => {
+      ext.source = Procurator.doimport(content);
+      ext.source.then((extension) => extension.activate(ext));
+    });
   }
 
-  private static doimport (str:string) {
-    const blob = new Blob([str], { type: 'text/javascript' })
-    const url = URL.createObjectURL(blob)
-    const module = import(/* @vite-ignore */ url)
-    URL.revokeObjectURL(url) // GC objectURLs
-    return module
+  private static doimport(str: string) {
+    const blob = new Blob([str], { type: 'text/javascript' });
+    const url = URL.createObjectURL(blob);
+    const module = import(/* @vite-ignore */ url);
+    URL.revokeObjectURL(url); // GC objectURLs
+    return module;
   }
 
-  public onKeyPress(e:any){
+  public onKeyPress(e: any) {
     //TODO: keybind and does not work if not something selected
-    console.log(e)
+    console.log(e);
     switch (e.keyCode) {
       case 46:
         // Delete
         break;
       case 113:
         // F2
-        this.commands.executeCommand("hare.open")
+        this.commands.executeCommand('hare.open');
         break;
       default:
         break;
     }
-  }
-
-  public getFilesEdit() {
-    return this.context.filesEdited;
   }
 }
 
@@ -258,7 +273,7 @@ class HareCommand implements IHareCommand {
     title: string,
     icon?: IHareIcon | string,
     category?: string,
-    when?: string,
+    when?: string
   ) {
     this.id = id;
     this.title = title;
@@ -268,13 +283,13 @@ class HareCommand implements IHareCommand {
   }
 
   public registerCallback(callback: Function, thisArg?: any) {
-    this.callback = callback
+    this.callback = callback;
     this.args = thisArg;
   }
 
   public executeCallback(...rest: any[]): any {
     if (!this.callback) {
-      return undefined
+      return undefined;
     }
 
     if (!this.when) {
@@ -290,15 +305,15 @@ class HareCommand implements IHareCommand {
   }
 
   public isInternal(): boolean {
-    return this.id[0] === "_";
+    return this.id[0] === '_';
   }
-  
 }
 
-function hare_open (...rest: any[]) {
-  const context = rest[0] as ExecutionContext;
-  const filePath = context.selected[0].id
-  context.addFileEdit(filePath)
+function hare_open(...rest: any[]) {
+  const window = rest[0][0] as WindowContext;
+  const context = rest[0][1] as ExecutionContext;
+  const filePath = context.selected[0].id;
+  window.addFileEdit(filePath);
 }
 
 class CommandContext {
@@ -306,8 +321,7 @@ class CommandContext {
 
   private commands: HareCommand[] = [];
 
-  constructor() {
-  }
+  constructor() {}
 
   /**
    * Registers the callback to the command to make it work
@@ -317,10 +331,10 @@ class CommandContext {
    * @returns True if succesfull
    *
    */
-  public registerCommand(id: string, callback:Function, thisArg?: any): boolean {
+  public registerCommand(id: string, callback: Function, thisArg?: any): boolean {
     var found = this.commands.some((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        cmd.registerCallback(callback, thisArg)
+        cmd.registerCallback(callback, thisArg);
         return true;
       }
     });
@@ -336,18 +350,18 @@ class CommandContext {
     });
 
     if (!found) {
-      this.commands.push(cmdAdd)
+      this.commands.push(cmdAdd);
     }
     return !found;
   }
 
-  public executeCommand(id: string,...rest: any[]): any {
+  public executeCommand(id: string, ...rest: any[]): any {
     this.commands.forEach((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        return cmd.executeCallback(rest)
+        return cmd.executeCallback(rest);
       }
     });
-    return undefined
+    return undefined;
   }
 
   public async executeBackendCommand(id: string, data: string): Promise<any> {
@@ -359,8 +373,8 @@ class CommandContext {
 
     this.commands.some((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        retVal = cmd
-        return true
+        retVal = cmd;
+        return true;
       }
     });
 
@@ -369,8 +383,8 @@ class CommandContext {
 }
 
 interface IHareGroup {
-  id: string,
-  position?: number,
+  id: string;
+  position?: number;
 }
 
 function newGroup(str: string | undefined): IHareGroup | undefined {
@@ -378,42 +392,42 @@ function newGroup(str: string | undefined): IHareGroup | undefined {
     return undefined;
   }
 
-  let group_raw = str.split(":");
+  let group_raw = str.split(':');
   let pos = undefined;
 
   if (group_raw.length == 2) {
-    pos = Number(group_raw[1])
+    pos = Number(group_raw[1]);
   }
 
-  return {id: group_raw[0], position: pos };
+  return { id: group_raw[0], position: pos };
 }
 
 export interface IHareMenuEntry {
-  command: HareCommand,
-  when: string,
-  group?: IHareGroup,
+  command: HareCommand;
+  when: string;
+  group?: IHareGroup;
 }
 
 interface IHareMenu {
-  id: string,
-  entries: IHareMenuEntry[],
+  id: string;
+  entries: IHareMenuEntry[];
 }
 
 export interface IHareEditorEntry {
-  name: string,
-  path: string,
-  changes: number,
-  icon?: IHareIcon,
-  order: number,
-  isPreview: boolean,
-  extension: string,
-  editor:IHareEditor,
+  name: string;
+  path: string;
+  changes: number;
+  icon?: IHareIcon;
+  order: number;
+  isPreview: boolean;
+  extension: string;
+  editor: IHareEditor;
 }
 
 interface IHareEditor {
-  id: string,
-  displayName: string,
-  on: string[], //TODO: increase this to match more things than file patterns
+  id: string;
+  displayName: string;
+  on: string[]; //TODO: increase this to match more things than file patterns
 }
 
 export interface IHareEditorContainer {
@@ -422,18 +436,18 @@ export interface IHareEditorContainer {
 
 class WindowContext {
   /**This class will handle all of the window related features */
-  private containerViews: IHareViewContainer;
+  private containerViews: IHareViewContainer = { primary_bar: [], panel: [] };
   private menus: IHareMenu[] = [];
   private commandContext: CommandContext;
   private iconPacks: IconPack[] = [];
   private currentIconPack?: IconPack;
+  private filesEdited: IHareEditorContainer = { editors: [] };
 
   constructor(commandContext: CommandContext) {
-    this.containerViews = {primary_bar: [], panel: []};
     this.commandContext = commandContext;
   }
 
-  public getContainerViews(viewPanel: HareViewPanel) : IHareViewContainers[] | [] {
+  public getContainerViews(viewPanel: HareViewPanel): IHareViewContainers[] | [] {
     switch (viewPanel) {
       case HareViewPanel.PrimaryBar:
         return this.containerViews.primary_bar;
@@ -462,8 +476,7 @@ class WindowContext {
 
     switch (viewPanel) {
       case HareViewPanel.PrimaryBar:
-        if (viewContainer)
-        this.containerViews.primary_bar.push(viewContainer);
+        if (viewContainer) this.containerViews.primary_bar.push(viewContainer);
         break;
       case HareViewPanel.Panel:
         this.containerViews.panel.push(viewContainer);
@@ -502,12 +515,12 @@ class WindowContext {
     //TODO: check if duplicate
     for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const duplicate = panels.some((container: IHareViewContainers) => {
-        const foundIn = container.views.some((searchView:IHareView) => {
+        const foundIn = container.views.some((searchView: IHareView) => {
           if (searchView.id === view.id) {
             return true;
           }
         });
-        
+
         if (foundIn) {
           return true;
         }
@@ -518,12 +531,16 @@ class WindowContext {
       }
     }
 
-
     for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const found = panels.some((container: IHareViewContainers) => {
         if (container.id === viewContainerId) {
           // container.views.push({id:view.id, title:view.title, icon:view.icon, when:view.when, viewProvider:undefined})
-          container.views.push({id:view.id, title:view.title, when:view.when, viewProvider:undefined})
+          container.views.push({
+            id: view.id,
+            title: view.title,
+            when: view.when,
+            viewProvider: undefined,
+          });
           return true;
         }
       });
@@ -535,10 +552,10 @@ class WindowContext {
   }
 
   public registerTreeViewProvider(id: string, treeViewProvider: TreeViewProvider<any>) {
-    console.log("Registering")
+    console.log('Registering');
     for (const panels of Object.values(this.containerViews) as IHareViewContainers[][]) {
       const found = panels.some((container: IHareViewContainers) => {
-        const foundIn = container.views.some((view:IHareView) => {
+        const foundIn = container.views.some((view: IHareView) => {
           if (view.id === id) {
             view.viewProvider = treeViewProvider;
             return true;
@@ -558,19 +575,21 @@ class WindowContext {
 
   public registerMenu(menuEntry: RustMenu) {
     let cmd = this.commandContext.getCommand(menuEntry.command);
-    if (!cmd) {return}
+    if (!cmd) {
+      return;
+    }
 
-    let entry = {command: cmd, when: menuEntry.when, group: newGroup(menuEntry.group)}
+    let entry = { command: cmd, when: menuEntry.when, group: newGroup(menuEntry.group) };
 
-    var found = this.menus.some(menu => {
+    var found = this.menus.some((menu) => {
       if (menu.id == menuEntry.parent) {
-        menu.entries.push(entry)
+        menu.entries.push(entry);
         return true;
       }
-    }); 
+    });
 
     if (!found) {
-      this.menus.push({id: menuEntry.parent, entries: [entry]})
+      this.menus.push({ id: menuEntry.parent, entries: [entry] });
     }
 
     console.log(this.menus);
@@ -579,25 +598,31 @@ class WindowContext {
   public getMenuEntries(id: string): IHareMenuEntry[] | undefined {
     let entries: IHareMenuEntry[] | undefined = undefined;
 
-    this.menus.some(menu => {
+    this.menus.some((menu) => {
       if (menu.id == id) {
         entries = menu.entries;
         return true;
       }
-    }); 
+    });
 
     return entries;
   }
 
-  public loadIconPack(pack: IHareIconPack, root:string) {
-    readFile(pack.path).then((content:string) => {
+  public loadIconPack(pack: IHareIconPack, root: string) {
+    readFile(pack.path).then((content: string) => {
       let json = JSON.parse(content);
-      this.iconPacks.push({id: pack.id, title: pack.title, root:root, defaults: json.defaults, extra: json.contextValues})
+      this.iconPacks.push({
+        id: pack.id,
+        title: pack.title,
+        root: root,
+        defaults: json.defaults,
+        extra: json.contextValues,
+      });
 
       //TODO: load from settings
       this.setActiveIconPack(pack.id);
       console.log(this.currentIconPack);
-    })
+    });
 
     //TODO: load icons only for current iconPack
   }
@@ -605,7 +630,7 @@ class WindowContext {
   public setActiveIconPack(id: string) {
     const parser = new DOMParser();
     //TODO: unload old icons
-    let found = this.iconPacks.some(iconPack => {
+    let found = this.iconPacks.some((iconPack) => {
       if (iconPack.id === id) {
         this.currentIconPack = iconPack;
         return true;
@@ -616,25 +641,25 @@ class WindowContext {
       return;
     }
 
-    Object.entries(this.currentIconPack!.defaults).forEach(entry => {
+    Object.entries(this.currentIconPack!.defaults).forEach((entry) => {
       if (typeof entry[1] === 'string') {
-        return
+        return;
       }
 
       for (let index = 0; index < entry[1].length; index++) {
         const element = entry[1][index];
-        readFile(this.currentIconPack!.root + element.light).then((content:string) => {
-          element.lightSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
-        })
-        readFile(this.currentIconPack!.root + element.dark).then((content:string) => {
-          element.darkSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
-        })
+        readFile(this.currentIconPack!.root + element.light).then((content: string) => {
+          element.lightSVG = parser.parseFromString(content, 'image/svg+xml').documentElement;
+        });
+        readFile(this.currentIconPack!.root + element.dark).then((content: string) => {
+          element.darkSVG = parser.parseFromString(content, 'image/svg+xml').documentElement;
+        });
       }
     });
 
-    Object.entries(this.currentIconPack!.extra).forEach(entry => {
+    Object.entries(this.currentIconPack!.extra).forEach((entry) => {
       if (typeof entry[1] === 'string') {
-        return
+        return;
       }
 
       if (entry[1].regex) {
@@ -642,12 +667,12 @@ class WindowContext {
           let val = element[1] as IHareIcon[];
           for (let index = 0; index < val.length; index++) {
             const element = val[index];
-            readFile(this.currentIconPack!.root + element.light).then((content:string) => {
-              element.lightSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
-            })
-            readFile(this.currentIconPack!.root + element.dark).then((content:string) => {
-              element.darkSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
-            })
+            readFile(this.currentIconPack!.root + element.light).then((content: string) => {
+              element.lightSVG = parser.parseFromString(content, 'image/svg+xml').documentElement;
+            });
+            readFile(this.currentIconPack!.root + element.dark).then((content: string) => {
+              element.darkSVG = parser.parseFromString(content, 'image/svg+xml').documentElement;
+            });
           }
         });
       }
@@ -655,23 +680,23 @@ class WindowContext {
       for (let index = 0; index < entry[1].default.length; index++) {
         const element = entry[1].default[index];
 
-        readFile(this.currentIconPack!.root + element.light).then((content:string) => {
-          element.lightSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
-        })
-        readFile(this.currentIconPack!.root + element.dark).then((content:string) => {
-          element.darkSVG = parser.parseFromString(content, "image/svg+xml").documentElement;
-        })
+        readFile(this.currentIconPack!.root + element.light).then((content: string) => {
+          element.lightSVG = parser.parseFromString(content, 'image/svg+xml').documentElement;
+        });
+        readFile(this.currentIconPack!.root + element.dark).then((content: string) => {
+          element.darkSVG = parser.parseFromString(content, 'image/svg+xml').documentElement;
+        });
       }
     });
   }
 
-  public substituteIcon (value:string, ctx: string, name:string, state: TreeItemState) {
+  public substituteIcon(value: string, ctx: string, name: string, state: TreeItemState) {
     let result = undefined;
 
     if (value.length > 0) {
       let regex = /\$\([^)]*\)/i;
       if (!regex.test(value)) {
-        return value // It is an url
+        return value; // It is an url
       }
 
       if (this.currentIconPack) {
@@ -682,7 +707,7 @@ class WindowContext {
         result = substituteDefault(value, state);
       }
 
-      return result
+      return result;
     }
 
     if (this.currentIconPack) {
@@ -696,7 +721,7 @@ class WindowContext {
     return substituteDefault(value, state); // Return Default Icon
   }
 
-  private overwriteDefaultIcons (value:string, state:TreeItemState) {
+  private overwriteDefaultIcons(value: string, state: TreeItemState) {
     let substitute = value.slice(2, -1);
     let val = this.currentIconPack!.defaults[substitute];
 
@@ -705,7 +730,7 @@ class WindowContext {
     }
 
     if (!this.currentIconPack) {
-      return undefined
+      return undefined;
     }
 
     if (typeof val === 'string') {
@@ -719,17 +744,16 @@ class WindowContext {
         return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
 
-      const ctx = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
+      const ctx = { state: state === TreeItemState.Collapsed ? 'collapsed' : 'expanded' };
 
       if (when(element.when, ctx)) {
         return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
-      
     }
-    return val
+    return val;
   }
 
-  private getIconPath (ctx: string, name:string, state: TreeItemState) {
+  private getIconPath(ctx: string, name: string, state: TreeItemState) {
     let val = this.currentIconPack!.extra[ctx];
 
     if (!val) {
@@ -737,14 +761,14 @@ class WindowContext {
     }
 
     if (!this.currentIconPack) {
-      return undefined
+      return undefined;
     }
 
     if (typeof val === 'string') {
-      return this.currentIconPack.root + val
+      return this.currentIconPack.root + val;
     }
 
-    if (val.regex) {  
+    if (val.regex) {
       // Check first regex
       let regexIcon = undefined;
       let found = Object.entries(val.regex).some((element: any) => {
@@ -758,7 +782,7 @@ class WindowContext {
               return true;
             }
 
-            const context = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
+            const context = { state: state === TreeItemState.Collapsed ? 'collapsed' : 'expanded' };
 
             if (when(entry.when, context)) {
               regexIcon = entry.darkSVG.cloneNode(true); //TODO: change theme mode
@@ -781,141 +805,80 @@ class WindowContext {
         return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
 
-      const context = {state: (state === TreeItemState.Collapsed) ? "collapsed" : "expanded"};
+      const context = { state: state === TreeItemState.Collapsed ? 'collapsed' : 'expanded' };
 
       if (when(element.when, context)) {
         return element.darkSVG.cloneNode(true); //TODO: change theme mode
       }
     }
 
-    return val
-  }
-}
-
-class SubscriptionsContext {
-  /**This class will handle all of the event related features */
-
-  constructor() {
-    
-  }
-}
-
-class ProjectContext {
-  /**This class will handle all of the project and project config related features */
-
-  constructor() {
-    
-  }
-}
-
-interface Selection {
-  id: string,
-  ref: HTMLDivElement
-}
-
-interface IconPack {
-  id: string,
-  title: string,
-  root: string,
-  defaults: {[Key: string]: string | [IHareIcon]},
-  extra: {[Key: string]: string | IHareIconRegex},
-}
-
-class ExecutionContext {
-  /**This class will handle all of the context and menus selected during execution */
-
-  public projectName: string = "";
-  public view: string = "";
-  public viewItem: string = "";
-  public selected: Selection[] = [];
-  public filesEdited: IHareEditorContainer;
-
-  constructor() {
-    this.filesEdited = {editors: []};
+    return val;
   }
 
-  public substituteValue (value:string) {
-    let regex = /\$\([^)]*\)/i;
-    if (!regex.test(value)) {
-      return value
-    }
-
-    let substitute = value.slice(2, -1)
-
-    switch (substitute) {
-      case "projectName":
-        return this.projectName;
-      default:
-        break;
-    }
-
-    return value
-  }
-
-  public select (id: string, ref: HTMLDivElement, e:MouseEvent) {
-    if (e.ctrlKey) {
-      // Append new id or remove it if found
-      var duplicate = this.selected.find(item => item.id === id);
-      if (duplicate) {
-        // Remove Id
-        this.selected = this.selected.filter(obj => obj.id !== id);
-        try {
-          ref.classList.remove("selected")
-        } catch (error) {}
-        return
-      } else {
-        this.selected.unshift({id, ref});
-        ref.classList.add("selected")
-      }
-    } else {
-      // Unselect all other elements
-      this.selected.forEach(element => {
-        try {
-          element.ref.classList.remove("selected")
-        } catch (error) {}
-      });
-      this.selected = [{id, ref}];
-    }
-
-    ref.classList.add("selected")
-  }
-
-  public unselect() {
-    // Unselect all other elements
-    this.selected.forEach(element => {
-      try {
-        element.ref.classList.remove("selected")
-      } catch (error) {}
-    });
-    this.selected = [];
-    return;
-  }
-
-  public addFileEdit (path: string) {
-    var isInside = false 
+  public addFileEdit(path: string) {
+    var isInside = false;
     var name = path.split('\\').pop()!.split('/').pop();
+    let new_array = [];
+    let head = {index: 0, order: 3};
+    var reIterate = undefined;
 
     if (name === undefined) {
-      return
+      return;
     }
 
     var extension = name.split('.').pop();
 
     if (extension === undefined) {
-      return
+      return;
     }
 
     for (let index = 0; index < this.filesEdited.editors.length; index++) {
       const element = this.filesEdited.editors[index];
-      //TODO: update order
+      element.order += 1;
       if (element.name === name) {
-        isInside = true
+        isInside = true;
         element.isPreview = false; // Remove preview from file
+        element.order = 0 //TODO: if it is already 0, then remove one from all others
+      }
+
+      if (!element.isPreview) {
+        new_array.push(element) // Remove preview element
+        if (element.order < head.order) {
+          head = {index: index, order: element.order}
+        }
+      } else {
+        reIterate = element.order
       }
     }
 
+    // [1,0,3,2]
+    // Update 3 -> Add 1 to all others and reset to 0: DONE
+    // [2,1,0,3]
+
+    // [1,0,3,2]
+    // Add one -> Add 1 to all others: DONE
+    // [2,1,0',4,3]
+
+    // [1,0,3,2*]
+    // Remove preview and add one -> Iterate again removing 1 to all higher
+    // [2,1,4,3*]
+    // [2,1,4] Remove preview element
+    // [2,1,3] Iterate again removing 1 to all higher
+    // [2,1,0',3]
+
+
     if (isInside) {
+      publish('fileEditUpdate');
       return;
+    }
+
+    if (reIterate !== undefined) {
+      for (let index = 0; index < this.filesEdited.editors.length; index++) {
+        const element = this.filesEdited.editors[index];
+        if (element.order >= reIterate) {
+          element.order -= 1;
+        }
+      }
     }
 
     var newElement: IHareEditorEntry = {
@@ -925,20 +888,141 @@ class ExecutionContext {
       changes: 0,
       isPreview: true, //TODO: search in settings
       extension: extension,
-      editor: {id:"", displayName:"", on:[]}
-    }
+      editor: { id: '', displayName: '', on: [] },
+    };
 
-    // Remove preview element 
-    let new_array = this.filesEdited.editors.filter(x => !x.isPreview);
-    new_array.unshift(newElement)
+    //TODO: insert after the element with order 0
+    new_array.splice(head.index + 1, 0, newElement);
 
     this.filesEdited.editors = new_array;
-    publish("fileEditUpdate");
+    publish('fileEditUpdate');
   }
 
-  public removeFileEdit (toRemove: IHareEditorEntry) {
-    this.filesEdited.editors = this.filesEdited.editors.filter(x => x !== toRemove);
-    publish("fileEditUpdate");
+  public updateFileEditOrder(selected: IHareEditorEntry) {
+    if (selected.order === 0) {
+      return;
+    }
+
+    for (let index = 0; index < this.filesEdited.editors.length; index++) {
+      const element = this.filesEdited.editors[index];
+      element.order += 1;
+      if (element === selected) {
+        element.order = 0;
+      }
+    }
+    publish('fileEditUpdate');
+  }
+
+  public removeFileEdit(toRemove: IHareEditorEntry) {
+    this.filesEdited.editors = this.filesEdited.editors.filter((x) => x !== toRemove);
+
+    // [1,0,3,2]
+    // Remove 1 -> Iterate again removing 1 to all higher
+    // [0,2,1]
+
+    for (let index = 0; index < this.filesEdited.editors.length; index++) {
+      const element = this.filesEdited.editors[index];
+      if (element.order > toRemove.order) {
+        element.order -= 1;
+      }
+    }
+    publish('fileEditUpdate');
+  }
+
+  public getFilesEdit(): IHareEditorContainer {
+    return this.filesEdited;
   }
 }
 
+class SubscriptionsContext {
+  /**This class will handle all of the event related features */
+
+  constructor() {}
+}
+
+class ProjectContext {
+  /**This class will handle all of the project and project config related features */
+
+  constructor() {}
+}
+
+interface Selection {
+  id: string;
+  ref: HTMLDivElement;
+}
+
+interface IconPack {
+  id: string;
+  title: string;
+  root: string;
+  defaults: { [Key: string]: string | [IHareIcon] };
+  extra: { [Key: string]: string | IHareIconRegex };
+}
+
+class ExecutionContext {
+  /**This class will handle all of the context and menus selected during execution */
+
+  public projectName: string = '';
+  public view: string = '';
+  public viewItem: string = '';
+  public selected: Selection[] = [];
+
+  constructor() {}
+
+  public substituteValue(value: string) {
+    let regex = /\$\([^)]*\)/i;
+    if (!regex.test(value)) {
+      return value;
+    }
+
+    let substitute = value.slice(2, -1);
+
+    switch (substitute) {
+      case 'projectName':
+        return this.projectName;
+      default:
+        break;
+    }
+
+    return value;
+  }
+
+  public select(id: string, ref: HTMLDivElement, e: MouseEvent) {
+    if (e.ctrlKey) {
+      // Append new id or remove it if found
+      var duplicate = this.selected.find((item) => item.id === id);
+      if (duplicate) {
+        // Remove Id
+        this.selected = this.selected.filter((obj) => obj.id !== id);
+        try {
+          ref.classList.remove('selected');
+        } catch (error) {}
+        return;
+      } else {
+        this.selected.unshift({ id, ref });
+        ref.classList.add('selected');
+      }
+    } else {
+      // Unselect all other elements
+      this.selected.forEach((element) => {
+        try {
+          element.ref.classList.remove('selected');
+        } catch (error) {}
+      });
+      this.selected = [{ id, ref }];
+    }
+
+    ref.classList.add('selected');
+  }
+
+  public unselect() {
+    // Unselect all other elements
+    this.selected.forEach((element) => {
+      try {
+        element.ref.classList.remove('selected');
+      } catch (error) {}
+    });
+    this.selected = [];
+    return;
+  }
+}

@@ -1,7 +1,7 @@
-import {EditorView} from "@codemirror/view"
-import {Extension} from "@codemirror/state"
-import {HighlightStyle, syntaxHighlighting} from "@codemirror/language"
-import {tags as t} from "@lezer/highlight"
+import { EditorView } from '@codemirror/view';
+import { Extension } from '@codemirror/state';
+import { HighlightStyle, syntaxHighlighting } from '@codemirror/language';
+import { tags as t } from '@lezer/highlight';
 
 // Using https://github.com/one-dark/vscode-one-dark-theme/ as reference for the colors
 
@@ -179,8 +179,7 @@ export const vsCodeDarkTheme = EditorView.theme(
     '&': {
       color: foreground,
       backgroundColor: background,
-      fontFamily:
-        'Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace',
+      fontFamily: 'Menlo, Monaco, Consolas, "Andale Mono", "Ubuntu Mono", "Courier New", monospace',
     },
     '.cm-content': {
       caretColor: caret,
@@ -207,7 +206,7 @@ export const vsCodeDarkTheme = EditorView.theme(
       color: gutterActiveForeground,
     },
   },
-  { dark: true },
+  { dark: true }
 );
 
 // Define the highlighting style for code in the VSCode Dark theme
