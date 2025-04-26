@@ -1,4 +1,4 @@
-export function subscribe(eventName:string, listener: () => void) {
+export function subscribe(eventName:string, listener: (e:any) => void) {
   document.addEventListener(eventName, listener);
 }
 
@@ -11,8 +11,7 @@ export function unsubscribe(eventName:string, listener: () => void) {
 //   document.dispatchEvent(event);
 // }
 
-export function publish(eventName:string) {
-  const event = new CustomEvent(eventName);
+export function publish(eventName:string, extra: any = undefined) {
+  const event = new CustomEvent(eventName, {detail: extra});
   document.dispatchEvent(event);
-  console.log("publish", "Inside")
 }

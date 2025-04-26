@@ -101,12 +101,13 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
     // setRename(true);
     // return;
 
-    if (e.button == 2) {
-      return;
-    }
 
     if (!node) {
       return
+    }
+
+    if (e.button == 2) {
+      return;
     }
 
     if (node.id && selectRef.current) {
@@ -130,7 +131,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
         procurator.commands.executeCommand(node.command, node)
       }
     }
-    
+
   }
 
   useEffect(() => {
@@ -162,6 +163,10 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
 
   const onContextMenu = (e:MouseEvent) => {
     if (node && node.contextValue) {
+      if (node.id && selectRef.current) {
+        procurator.context.select(node.id, selectRef.current, e)
+      }
+
       context["viewItem"] = node.contextValue
 
       contextMenu.setMenuId("view/item/context");
@@ -197,7 +202,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>
           <div ref={ref} className="icon" aria-hidden="true"/>
-          {rename 
+          {rename
           ?
             <input type="text" className='input' id="fname" name="fname" title={node.tooltip} value={node.label}/>
           :

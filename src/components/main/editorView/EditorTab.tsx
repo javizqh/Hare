@@ -1,17 +1,22 @@
 import { useEffect, useRef } from 'react';
 import { readFile } from '../../../API2';
-import { IHareEditorEntry, Procurator } from '../../../helpers/Procurator';
+import { Procurator } from '../../../helpers/Procurator';
+import { IHareEditorEntry } from '../../../helpers/editors/editor';
 
 const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
   const procurator = Procurator.getInstance();
   const ref = useRef<HTMLDivElement | null>(null);
+  const selectRef = useRef<HTMLDivElement>(null);
 
-  const handleClick = (tab: any) => {
+  const handleClick = (e:MouseEvent, tab: IHareEditorEntry) => {
     console.log('Open');
     procurator.window.updateFileEditOrder(tab);
+    if (selectRef.current) {
+      procurator.context.select(tab.path, selectRef.current, e)
+    }
   };
 
-  const handleClose = (tab: any) => {
+  const handleClose = (e:MouseEvent, tab: IHareEditorEntry) => {
     procurator.window.removeFileEdit(tab);
   };
 
@@ -48,10 +53,11 @@ const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
           ? 'editor-tab-entry editor-tab-entry-selected'
           : 'editor-tab-entry editor-tab-entry-unselected'
       }
-      onClick={(e) => {
+      onClick={(e:any) => {
         if (e.currentTarget != e.target) return;
-        handleClick(tab);
+        handleClick(e,tab);
       }}
+      ref={selectRef}
     >
       <div ref={ref} className="editor-tab-entry-icon" aria-hidden="true" />
       <div
@@ -74,7 +80,7 @@ const EditorTab = ({ tab }: { tab: IHareEditorEntry }) => {
         viewBox="0 0 16 16"
         onClick={(e: any) => {
           e.stopPropagation();
-          handleClose(tab);
+          handleClose(e,tab);
         }}
       >
         <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />

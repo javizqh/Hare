@@ -17,6 +17,13 @@ import { path } from '@tauri-apps/api';
 import substituteDefault from '../assets/Icons';
 import when from './functions/when';
 import { publish } from './events';
+import {
+  EditorContainer,
+  EditorOrientation,
+  IHareEditorContainer,
+  IHareEditorEntry,
+  IHareEditorInstance,
+} from './editors/editor';
 
 interface RustCommand {
   command: string;
@@ -146,7 +153,9 @@ export class Procurator {
 
     //TODO: tmp
     this.commands.createCommand(new HareCommand('hare.open', 'Open'));
+    this.commands.createCommand(new HareCommand('hare.open_instance', 'Open to the Side'));
     this.commands.registerCommand('hare.open', hare_open, [this.window, this.context]);
+    this.commands.registerCommand('hare.open_instance', hare_open_instance, [this.window, this.context]);
   }
 
   static getInstance() {
@@ -316,6 +325,14 @@ function hare_open(...rest: any[]) {
   window.addFileEdit(filePath);
 }
 
+function hare_open_instance(...rest: any[]) {
+  const window = rest[0][0] as WindowContext;
+  const context = rest[0][1] as ExecutionContext;
+  console.log(rest)
+  const filePath = context.selected[0].id;
+  window.addFileSideEdit(filePath, undefined, undefined, EditorOrientation.VERTICAL);
+}
+
 class CommandContext {
   /**This class will handle all of the command related features */
 
@@ -334,6 +351,7 @@ class CommandContext {
   public registerCommand(id: string, callback: Function, thisArg?: any): boolean {
     var found = this.commands.some((cmd: HareCommand) => {
       if (cmd.isId(id)) {
+        console.log(id, thisArg)
         cmd.registerCallback(callback, thisArg);
         return true;
       }
@@ -358,6 +376,7 @@ class CommandContext {
   public executeCommand(id: string, ...rest: any[]): any {
     this.commands.forEach((cmd: HareCommand) => {
       if (cmd.isId(id)) {
+        console.log("execute", id, rest)
         return cmd.executeCallback(rest);
       }
     });
@@ -413,27 +432,6 @@ interface IHareMenu {
   entries: IHareMenuEntry[];
 }
 
-export interface IHareEditorEntry {
-  name: string;
-  path: string;
-  changes: number;
-  icon?: IHareIcon;
-  order: number;
-  isPreview: boolean;
-  extension: string;
-  editor: IHareEditor;
-}
-
-interface IHareEditor {
-  id: string;
-  displayName: string;
-  on: string[]; //TODO: increase this to match more things than file patterns
-}
-
-export interface IHareEditorContainer {
-  editors: IHareEditorEntry[]; //TODO: add ability to divide editor views
-}
-
 class WindowContext {
   /**This class will handle all of the window related features */
   private containerViews: IHareViewContainer = { primary_bar: [], panel: [] };
@@ -441,7 +439,7 @@ class WindowContext {
   private commandContext: CommandContext;
   private iconPacks: IconPack[] = [];
   private currentIconPack?: IconPack;
-  private filesEdited: IHareEditorContainer = { editors: [] };
+  private editor: EditorContainer = new EditorContainer();
 
   constructor(commandContext: CommandContext) {
     this.commandContext = commandContext;
@@ -816,121 +814,32 @@ class WindowContext {
   }
 
   public addFileEdit(path: string) {
-    var isInside = false;
-    var name = path.split('\\').pop()!.split('/').pop();
-    let new_array = [];
-    let head = {index: 0, order: 3};
-    var reIterate = undefined;
+    this.editor.addFile(path);
+  }
 
-    if (name === undefined) {
-      return;
-    }
-
-    var extension = name.split('.').pop();
-
-    if (extension === undefined) {
-      return;
-    }
-
-    for (let index = 0; index < this.filesEdited.editors.length; index++) {
-      const element = this.filesEdited.editors[index];
-      element.order += 1;
-      if (element.name === name) {
-        isInside = true;
-        element.isPreview = false; // Remove preview from file
-        element.order = 0 //TODO: if it is already 0, then remove one from all others
-      }
-
-      if (!element.isPreview) {
-        new_array.push(element) // Remove preview element
-        if (element.order < head.order) {
-          head = {index: index, order: element.order}
-        }
-      } else {
-        reIterate = element.order
-      }
-    }
-
-    // [1,0,3,2]
-    // Update 3 -> Add 1 to all others and reset to 0: DONE
-    // [2,1,0,3]
-
-    // [1,0,3,2]
-    // Add one -> Add 1 to all others: DONE
-    // [2,1,0',4,3]
-
-    // [1,0,3,2*]
-    // Remove preview and add one -> Iterate again removing 1 to all higher
-    // [2,1,4,3*]
-    // [2,1,4] Remove preview element
-    // [2,1,3] Iterate again removing 1 to all higher
-    // [2,1,0',3]
-
-
-    if (isInside) {
-      publish('fileEditUpdate');
-      return;
-    }
-
-    if (reIterate !== undefined) {
-      for (let index = 0; index < this.filesEdited.editors.length; index++) {
-        const element = this.filesEdited.editors[index];
-        if (element.order >= reIterate) {
-          element.order -= 1;
-        }
-      }
-    }
-
-    var newElement: IHareEditorEntry = {
-      name: name,
-      path: path,
-      order: 0,
-      changes: 0,
-      isPreview: true, //TODO: search in settings
-      extension: extension,
-      editor: { id: '', displayName: '', on: [] },
-    };
-
-    //TODO: insert after the element with order 0
-    new_array.splice(head.index + 1, 0, newElement);
-
-    this.filesEdited.editors = new_array;
-    publish('fileEditUpdate');
+  public addFileSideEdit(
+    path: string,
+    instanceId: number | undefined,
+    neighbourId: number | undefined,
+    orientation: EditorOrientation
+  ) {
+    this.editor.addFileSide(path, instanceId, neighbourId, orientation);
   }
 
   public updateFileEditOrder(selected: IHareEditorEntry) {
-    if (selected.order === 0) {
-      return;
-    }
-
-    for (let index = 0; index < this.filesEdited.editors.length; index++) {
-      const element = this.filesEdited.editors[index];
-      element.order += 1;
-      if (element === selected) {
-        element.order = 0;
-      }
-    }
-    publish('fileEditUpdate');
+    this.editor.updateFileOrder(selected);
   }
 
   public removeFileEdit(toRemove: IHareEditorEntry) {
-    this.filesEdited.editors = this.filesEdited.editors.filter((x) => x !== toRemove);
-
-    // [1,0,3,2]
-    // Remove 1 -> Iterate again removing 1 to all higher
-    // [0,2,1]
-
-    for (let index = 0; index < this.filesEdited.editors.length; index++) {
-      const element = this.filesEdited.editors[index];
-      if (element.order > toRemove.order) {
-        element.order -= 1;
-      }
-    }
-    publish('fileEditUpdate');
+    this.editor.removeFile(toRemove);
   }
 
-  public getFilesEdit(): IHareEditorContainer {
-    return this.filesEdited;
+  public getFilesEditor(id: number): IHareEditorInstance | undefined {
+    return this.editor.getInstance(id);
+  }
+
+  public getEditorContainer(id: number): IHareEditorContainer | undefined {
+    return this.editor.getContainer(id);
   }
 }
 
