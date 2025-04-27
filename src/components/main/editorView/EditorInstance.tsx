@@ -7,6 +7,7 @@ import { Procurator } from '../../../helpers/Procurator';
 import { subscribe, unsubscribe } from '../../../helpers/events';
 import { IHareIcon } from '@hare-ide/hare';
 import { IHareEditorEntry, IHareEditorInstance } from '../../../helpers/editors/editor';
+import { useDrop } from 'react-dnd';
 
 interface EditorTabFrame {
   preName: string;
@@ -30,6 +31,18 @@ const EditorInstace = ({ id }: { id: number }) => {
   const [currentFile, setCurrentFile] = useState<IHareEditorEntry | undefined>(undefined);
   const [update, setUpdate] = useState<boolean>(false);
 
+  const [{ isOver, canDrop }, dropRef] = useDrop({
+    accept: "hare.editor.tab",
+    drop: (item: {entry:IHareEditorEntry, id:number}, monitor) => {
+      console.log(`Dropped item: ${JSON.stringify(item)}`,isOver);
+      procurator.window.moveFileEditor(item.entry, 0,item.id, id)
+    },
+    collect: (monitor) => ({
+      isOver: monitor.isOver(),
+      canDrop: monitor.canDrop(),
+    }),
+  });
+
   const callback = () => {
     var instance = procurator.window.getFilesEditor(id);
     console.log('Updating instance', id, instance);
@@ -48,7 +61,6 @@ const EditorInstace = ({ id }: { id: number }) => {
         break;
       }
     }
-    console.log(current);
 
     if (current === undefined) {
       setUpdate(true);
@@ -72,14 +84,9 @@ const EditorInstace = ({ id }: { id: number }) => {
 
   useEffect(() => {
     if (update) {
-      console.log('FORCE UPDATE INST', id);
       setUpdate(false);
     }
   }, [update]);
-
-  useEffect(() => {
-    console.log('REALLY BAD');
-  }, [id]);
 
   return (
     <div
@@ -89,12 +96,14 @@ const EditorInstace = ({ id }: { id: number }) => {
           : 'editor-instance editor-instance-inactive'
       }
       id={'editor-instance-' + id}
+      key={'editor-instance-' + id}
+      ref={dropRef}
     >
       {instance && instance.entries.length !== 0 && (
         <>
           <div className="editor-tab-container">
             {instance.entries.map((tab: IHareEditorEntry) => {
-              return <EditorTab tab={tab} />;
+              return <EditorTab tab={tab} instanceId={id}/>;
             })}
           </div>
           <EditorEntry code={code} file={currentFile} />
@@ -105,3 +114,4 @@ const EditorInstace = ({ id }: { id: number }) => {
 };
 
 export default EditorInstace;
+

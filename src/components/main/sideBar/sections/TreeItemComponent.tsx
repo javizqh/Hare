@@ -198,6 +198,7 @@ const TreeItemComponent = memo(({id, viewProvider, item, depth, context} : {id:s
           draggable={rename ? "false" : "true"}
           onDragStart={(e) => onDragStart(e)}
           onContextMenu={(e:any) => onContextMenu(e)}
+          key={node.id}
         >
           {padding}
           <ArrowIndicator hasChild={hasChildren} open={isOpen}/>

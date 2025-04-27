@@ -155,7 +155,10 @@ export class Procurator {
     this.commands.createCommand(new HareCommand('hare.open', 'Open'));
     this.commands.createCommand(new HareCommand('hare.open_instance', 'Open to the Side'));
     this.commands.registerCommand('hare.open', hare_open, [this.window, this.context]);
-    this.commands.registerCommand('hare.open_instance', hare_open_instance, [this.window, this.context]);
+    this.commands.registerCommand('hare.open_instance', hare_open_instance, [
+      this.window,
+      this.context,
+    ]);
   }
 
   static getInstance() {
@@ -328,7 +331,7 @@ function hare_open(...rest: any[]) {
 function hare_open_instance(...rest: any[]) {
   const window = rest[0][0] as WindowContext;
   const context = rest[0][1] as ExecutionContext;
-  console.log(rest)
+  console.log(rest);
   const filePath = context.selected[0].id;
   window.addFileSideEdit(filePath, undefined, undefined, EditorOrientation.VERTICAL);
 }
@@ -351,7 +354,7 @@ class CommandContext {
   public registerCommand(id: string, callback: Function, thisArg?: any): boolean {
     var found = this.commands.some((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        console.log(id, thisArg)
+        console.log(id, thisArg);
         cmd.registerCallback(callback, thisArg);
         return true;
       }
@@ -376,7 +379,7 @@ class CommandContext {
   public executeCommand(id: string, ...rest: any[]): any {
     this.commands.forEach((cmd: HareCommand) => {
       if (cmd.isId(id)) {
-        console.log("execute", id, rest)
+        console.log('execute', id, rest);
         return cmd.executeCallback(rest);
       }
     });
@@ -828,6 +831,15 @@ class WindowContext {
 
   public updateFileEditOrder(selected: IHareEditorEntry) {
     this.editor.updateFileOrder(selected);
+  }
+
+  public moveFileEditor(
+    selected: IHareEditorEntry,
+    position: number,
+    startInstanceId: number,
+    endInstanceId: number
+  ) {
+    this.editor.moveFile(selected, position, startInstanceId, endInstanceId);
   }
 
   public removeFileEdit(toRemove: IHareEditorEntry) {

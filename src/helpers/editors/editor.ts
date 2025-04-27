@@ -180,12 +180,12 @@ class EditorInstance implements IHareEditorInstance {
   }
 
   public move(selected: IHareEditorEntry, index: number) {
-    let new_array = this.entries.filter((x) => x !== selected);
+    // let new_array = this.entries.filter((x) => x !== selected);
 
-    new_array.splice(index, 0, selected);
+    // new_array.splice(index, 0, selected);
 
-    this.entries = new_array;
-    this.event();
+    // this.entries = new_array;
+    // this.event();
   }
 }
 
@@ -468,14 +468,44 @@ export class EditorContainer implements IHareEditorContainer {
         }
       }
     } else {
-      //TODO
+      console.log("Moved", index, startId, finalId, this.instances)
+      //BUG: it deletes itself when creating a new one after moving one
+      this.removeFile(selected)
+      var finalInstance = this.getInstance(finalId)
+
+      if (finalInstance === undefined) {
+        console.log("undefined")
+        return
+      }
+      finalInstance.order = 0
+
+      // this.addFile(selected.path)
+
       // for (const instance of this.instances) {
-      //   if (instance.id === startId) {
-      //     instance.delete(selected);
-      //   } else if (instance.id === startId) {
-      //     instance.add(selected);
+      //   instance.older();
+      //   if (instance.id === finalId) {
+      //     instance.order = 0
+      //     // finalInstance = instance
+      //     console.log(instance.entries)
       //   }
       // }
+      // if (finalInstance === undefined) {
+      //   return;
+      // }
+
+      const name = selected.path.split('\\').pop()!.split('/').pop();
+
+      if (name === undefined) {
+        return;
+      }
+
+      const extension = name.split('.').pop();
+
+      if (extension === undefined) {
+        return;
+      }
+
+      finalInstance.add(name, extension, selected.path, false);
     }
   }
 
