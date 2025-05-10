@@ -216,7 +216,7 @@ impl HareExtension {
         if backend_raw.is_some() {
             let backend_raw: Value = backend_raw.unwrap().clone();
             let backend = backend_raw.to_string().trim_matches(|c| c == '\"' || c == '\'').to_string();
-            
+
             unsafe {
                 let lib = Library::new(path.clone().join(backend)).unwrap();
                 let func: Symbol<fn(x:fn(id:String, callback: fn(data:&String) -> Result<&str, &str>))> = lib.get(b"activate").unwrap();
@@ -247,7 +247,7 @@ impl HareExtension {
     }
 
     fn check_locale() {
-        // TODO: if name enclosed in %% check for locales
+        // TODO: if name enclosed in %% check for localesa
     }
 
     fn load_activation_events(array: Value) -> Vec<String> {
