@@ -96,7 +96,6 @@ const EditorContainer = ({ id = 0 }: { id: number }) => {
   useEffect(() => {
     subscribe('hare.editor.container' + id + '.add', addInstance);
     subscribe('hare.editor.container' + id + '.delete', deleteInstance);
-    console.log("AAAAAAAAAAAAAA")
 
     var container = procurator.window.getEditorContainer(id);
 

@@ -114,11 +114,6 @@ class EditorInstance implements IHareEditorInstance {
       }
     }
 
-    if (isInside) {
-      this.event();
-      return;
-    }
-
     if (reIterate !== undefined) {
       for (let index = 0; index < this.entries.length; index++) {
         const element = this.entries[index];
@@ -126,6 +121,18 @@ class EditorInstance implements IHareEditorInstance {
           element.order -= 1;
         }
       }
+    }
+
+
+    if (isInside) {
+      for (let index = 0; index < this.entries.length; index++) {
+        const element = this.entries[index];
+        if (element.order > 0) {
+          element.order -= 1;
+        }
+      }
+      this.event();
+      return;
     }
 
     var isPreview = true //TODO: search in settings
@@ -146,6 +153,7 @@ class EditorInstance implements IHareEditorInstance {
     new_array.splice(head.index + 1, 0, newElement);
 
     this.entries = new_array;
+    console.log(this.entries)
     this.event();
   }
 
